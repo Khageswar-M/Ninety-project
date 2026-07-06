@@ -9,8 +9,6 @@ const actionStyle = (theme) => StyleSheet.create({
     scrollContent: {
         display: 'flex',
         flexDirection: "column",
-        // gap: 5,
-        // padding: 16
     },
     headerParent:{
         padding: 10
@@ -34,7 +32,6 @@ const actionStyle = (theme) => StyleSheet.create({
         color: theme.textMuted
     },
     headerProgressBarContainer:{
-        display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
@@ -79,13 +76,70 @@ const actionStyle = (theme) => StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        borderColor: theme.border,
-        borderWidth: 0.2
+        
+    },
+    cellChecked:{
+        borderColor: theme.light,
+        borderWidth: 0.5,
+    },
+    cellNotChecked:{
+        borderColor: theme.danger,
+        borderWidth: 0.2,
+    },
+    cellWillCheckToday:{
+        borderColor: theme.successLight,
+        borderWidth: 0.2,
+    },
+    cellWillCheck:{
+        borderColor: theme.backgroundMutedExtra,
+        borderWidth: 0.2,
     },
     collIndexText:{
         color: theme.text,
         fontWeight: 'bold',
-        fontFamily: Fonts.poppins
+        fontFamily: Fonts.poppins,
+        fontSize: 10
+    },
+    lastCheckContainer:{
+        flexDirection: 'row',
+        gap: 5,
+        marginTop: 4,
+        alignItems: 'center'
+    },
+    lastCheck:{
+        fontSize: 12,
+        fontFamily: Fonts.poppins,
+        color: theme.successLight,
+        fontWeight: 'bold'
+    },
+    addBtn:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.primary,
+        padding: 12,
+        borderRadius: 50,
+        alignSelf: 'flex-start',
+        gap: 5
+    },
+    addBtnTitle:{
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: theme.text
+    },
+    goalsAddInputContainer:{
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 20,
+    },
+    goalsAddInput:{
+        borderColor: '#ff7b005f',
+        borderWidth: 3,
+        width: '70%',
+        borderRadius: 5,
+    },
+    goalsAddInputFocused:{
+        borderColor: theme.primary,
     }
 })
 

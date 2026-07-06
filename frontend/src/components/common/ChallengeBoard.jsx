@@ -46,32 +46,35 @@ const ChallengeBoard = () => {
                                     // Calculate 1D index (0 to 89) to grab the correct Animated.Value
                                     // Note: Multiplied by 9 (columns), not 10, so the numbers flow correctly!
                                     const cellIndex = (rowIndex * 9) + collIndex;
-                                    
+
                                     // 4. Interpolate from a neutral/invisible state to the target color
                                     const targetColor = collValue ? theme.primary : theme.dark;
-                                    
+
                                     const animatedBgColor = animatedValues[cellIndex].interpolate({
                                         inputRange: [0, 1],
                                         // Start transparent (or a neutral color), animate to final color
-                                        outputRange: ['transparent', targetColor] 
+                                        outputRange: [theme.backgroundMutedExtra, targetColor]
                                     });
 
                                     return (
                                         // 5. Change View to Animated.View
-                                        <Animated.View 
+                                        <Animated.View
                                             key={`coll-${rowIndex}-${collIndex}`}
                                             style={[
                                                 style.coll,
+                                                cellIndex === 8 ? style.cellWillCheckToday : 
+                                                    cellIndex > 8 && !collValue ? style.cellWillCheck : 
+                                                        cellIndex < 8 && !collValue ? style.cellNotChecked : style.cellChecked,
                                                 {
                                                     backgroundColor: animatedBgColor,
                                                     // Safely apply border color without boolean injection
-                                                    borderColor: cellIndex === 8 ? theme.primary : 'transparent' 
+                                                    // borderColor: cellIndex === 8 ? theme.successLight : theme.border
                                                 }
                                             ]}
                                         >
                                             <Text style={style.collIndexText}>
-                                                { collValue ? (
-                                                    <Ionicons name='checkmark-outline' size={20}/>
+                                                {collValue ? (
+                                                    <Ionicons name='checkmark-outline' size={20} />
                                                 ) : (
                                                     cellIndex + 1 // Reused the fixed math here for accuracy!
                                                 )}
@@ -83,6 +86,13 @@ const ChallengeBoard = () => {
                         </View>
                     ))
                 }
+            </View>
+            <View style={style.lastCheckContainer}>
+                <Ionicons name='checkmark-outline' size={20} color={'#1eff00'} />
+                <Text style={style.lastCheck}>
+                    <Text>Last Check: </Text>
+                    Yesterday / 12:00PM
+                </Text>
             </View>
         </View>
     )
