@@ -2,7 +2,7 @@ export const darkTheme = {
     primary: "#e85d04",
     text: "#ffffff",
     background: "#1c1c1e",
-    backgroundMuted: "#2a2a2a",
+    backgroundMuted: "#141414",
     backgroundMutedExtra: "#555555",
     textMuted: "#8a8a85",
     danger: "#a32d2d",

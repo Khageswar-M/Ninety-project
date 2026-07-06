@@ -1,13 +1,25 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, ScrollView } from 'react-native'
+
+//COMPONENTS
+import Header from '../actions/Header.jsx';
+
+// STYLES
 import {useActionStyles} from '../../hook/useThemeStyles.js';
+
+// ICONS
+
 
 const Actions = () => {
   const style = useActionStyles();
   return (
-    <View style={[style.container]}>
-      <Text>Actions</Text>
-    </View>
+    <ScrollView 
+      style={[style.container]}
+      contentContainerStyle={[style.scrollContent]}
+    >
+      <View style={{padding: 10}}>
+        <Header/>
+      </View>
+    </ScrollView>
   )
 }
 
