@@ -2,6 +2,7 @@ import { View, Text, ScrollView } from 'react-native'
 
 //COMPONENTS
 import Header from '../actions/Header.jsx';
+import ChallengeBoard from '../common/ChallengeBoard.jsx';
 
 // STYLES
 import {useActionStyles} from '../../hook/useThemeStyles.js';
@@ -16,8 +17,12 @@ const Actions = () => {
       style={[style.container]}
       contentContainerStyle={[style.scrollContent]}
     >
-      <View style={{padding: 10}}>
+      <View style={[style.headerParent ]}>
         <Header/>
+      </View>
+
+      <View style={[style.headerParent]}>
+        <ChallengeBoard/>
       </View>
     </ScrollView>
   )

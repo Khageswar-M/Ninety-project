@@ -1,42 +1,4 @@
-import { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
-import { useThemeStyles } from '../../hook/useThemeStyles';
-
-
-const Cell = ({ active, index }) => {
-    const scale = useRef(new Animated.Value(active ? 0.5 : 1)).current;
-    const style = useThemeStyles();
-
-    useEffect(() => {
-        if (active) {
-            Animated.spring(scale, {
-                toValue: 1,
-                friction: 4,
-                tension: 120,
-                useNativeDriver: true,
-                delay: index * 30
-            }).start();
-        }
-    }, []);
-
-    return (
-        <Animated.View
-            style={[
-                style.box,
-                active && style.activeBox,
-                {
-                    transform: [{ scale }],
-                },
-            ]}
-        />
-    );
-};
-
-const AppLogo = () => {
-
-    const style = useThemeStyles();
-
-    const board = [
+export const board = [
         //00    01     02     03     04     05     06     07     08   
         [false, false, false, false, false, false, false, false, false],
         //10    11     12     13     14     15     16     17     18   
@@ -58,16 +20,3 @@ const AppLogo = () => {
         //90    91     92     93     94     95     96     97     98   
         [false, false, false, false, false, false, false, false, false],
     ];
-
-    return (
-            <View style={style.logoContainer}>
-                {
-                    board.flat().map((cell, index) => (
-                        <Cell key={index} active={cell} index={index} />
-                    ))
-                }
-            </View>
-    )
-}
-
-export default AppLogo

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { Fonts } from "../constants/Fonts";
 
 const actionStyle = (theme) => StyleSheet.create({
     container: {
@@ -8,8 +9,11 @@ const actionStyle = (theme) => StyleSheet.create({
     scrollContent: {
         display: 'flex',
         flexDirection: "column",
-        gap: 10,
+        // gap: 5,
         // padding: 16
+    },
+    headerParent:{
+        padding: 10
     },
     headerContainer: {
         width: "100%",
@@ -35,6 +39,10 @@ const actionStyle = (theme) => StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between'
     },
+    barContainer:{
+        width: '85%',
+        alignItems: 'center'
+    },
     headerProgressBar:{
         height: 7,
         backgroundColor: theme.backgroundMutedExtra,
@@ -44,6 +52,40 @@ const actionStyle = (theme) => StyleSheet.create({
         fontSize: 14,
         color: theme.text,
         fontWeight: "bold"
+    },
+    boardTitle:{
+        color: theme.textMuted,
+        fontSize: 12,
+        marginBottom: 5
+    },
+    boardContainer:{
+        backgroundColor: theme.backgroundMuted,
+        padding: 10,
+        borderRadius: 10,
+        borderColor: theme.border,
+        borderWidth: 1,
+        gap: 6,
+        width: '100%'
+    },
+    row:{
+        flexDirection: 'row',
+        gap: 6,
+        width: '100%'
+    },
+    coll:{
+        flex: 1,
+        aspectRatio: 1,
+        borderRadius: 5,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: theme.border,
+        borderWidth: 0.2
+    },
+    collIndexText:{
+        color: theme.text,
+        fontWeight: 'bold',
+        fontFamily: Fonts.poppins
     }
 })
 

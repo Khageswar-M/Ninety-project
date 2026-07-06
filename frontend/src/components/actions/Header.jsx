@@ -30,7 +30,7 @@ const Header = () => {
 
         // START COUNTER ANIMATION
         Animated.timing(countAnim, {
-            toValue: 90,
+            toValue: 100,
             duration: 1000,
             useNativeDriver: true
         }).start();
@@ -62,12 +62,12 @@ const Header = () => {
 
             {/* HEADER PROGRESS BAR */}
             <View style={[style.headerProgressBarContainer]}>
-                <View style={{width: '84%'}}>
+                <View style={style.barContainer}>
                     <Animated.View style={[style.headerProgressBar, { width: animatedWidth }]} />
                 </View>
                 <View>
                     <Text style={[style.headerProgressBarCounter]}>
-                        90/{dayCount}
+                        {dayCount}%
                     </Text>
                 </View>
             </View>
