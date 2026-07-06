@@ -10,7 +10,7 @@ const SplashScreen = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[style.container, { marginTop: insets.top }]}>
+    <View style={[style.container, { paddingTop: insets.top }]}>
       <View>
         <AppLogo />
         <Text style={style.logoTitle}>Ninety</Text>

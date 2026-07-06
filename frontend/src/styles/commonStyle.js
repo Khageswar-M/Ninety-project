@@ -2,17 +2,14 @@ import { StyleSheet } from "react-native";
 import { Fonts } from "../constants/Fonts";
 
 const styles = (theme) => StyleSheet.create({
-    mainContainer: {
-        backgroundColor: theme.background,
-        flex: 1
-    },
+    
     container: { 
         flex: 1,
         display: "flex",
         alignItems: "center",
         flexDirection: "column",
-        justifyContent: "space-between",
-        paddingVertical: 60
+        justifyContent: "space-around",
+        backgroundColor: theme.background
     },
     logoContainer: {
        width: 145,

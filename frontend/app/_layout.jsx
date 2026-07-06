@@ -30,7 +30,7 @@ function AppNavigation() {
         }}
       >
         <Stack.Screen
-          name="splash"
+          name="(tabs)"
         />
       </Stack>
     </>
