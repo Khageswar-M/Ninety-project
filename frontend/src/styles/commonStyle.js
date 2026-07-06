@@ -69,6 +69,12 @@ const styles = (theme) => StyleSheet.create({
         fontSize: 10,
         textAlign: 'center',
         marginTop: 3
+    }, 
+    tabBar:{
+        backgroundColor: theme.background,
+    },
+    tabBarActiveTextColor: {
+        color: theme.text
     }
 });
 
