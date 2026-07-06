@@ -7,57 +7,76 @@ import Settings from '../../src/components/screens/Settings.jsx'
 import { useSelector } from 'react-redux'
 import SplashScreen from '../../src/components/splash/SplashScreen.jsx'
 import { Fonts } from '../../src/constants/Fonts.js'
+import { Ionicons, Feather } from '@expo/vector-icons'
 
 const Tab = createMaterialTopTabNavigator();
 
 const _layout = () => {
     const inset = useSafeAreaInsets();
     const currTheme = useSelector((state) => state.theme.theme);
-    const isDev = true;
-    const appLoading = false;
     return (
-        <>
-            {
-                appLoading ? (
-                    <SplashScreen />
-                ) : (
-                    <Tab.Navigator
-                        screenOptions={{
-                            tabBarStyle: {
-                                backgroundColor: currTheme.background,
-                                paddingTop: inset.top,
-                                
-                            },
-                            tabBarActiveTintColor: currTheme.text,
-                            tabBarInactiveTintColor: currTheme.textMuted,
-                            tabBarIndicatorStyle: {
-                                backgroundColor: currTheme.primary
-                            },
-                            tabBarLabelStyle: {
-                                fontFamily: Fonts.poppins,
-                                fontWeight: 'bold'
-                            }
-                        }}
-                    >
-                        <Tab.Screen
-                            name='Actions'
-                            component={Actions}
+        <Tab.Navigator
+            screenOptions={{
+                tabBarStyle: {
+                    backgroundColor: currTheme.background,
+                    paddingTop: inset.top,
+                },
+                tabBarActiveTintColor: currTheme.text,
+                tabBarInactiveTintColor: currTheme.textMuted,
+                tabBarIndicatorStyle: {
+                    backgroundColor: currTheme.primary,
+                    width: "70%",
+                    margin: 'auto'
+                },
+                tabBarLabelStyle: {
+                    fontFamily: Fonts.poppins,
+                    fontWeight: 'bold',
+                    fontSize: 12
+                },
+            }}
+        >
+            <Tab.Screen
+                name='Actions'
+                component={Actions}
+                options={{
+                    tabBarIcon: ({color, focused}) => (
+                        <Feather
+                            name={"check-square"}
+                            size={20}
+                            color={color}
                         />
+                    )
+                }}
+            />
 
-                        <Tab.Screen
-                            name='Results'
-                            component={Results}
+            <Tab.Screen
+                name='Results'
+                component={Results}
+                options={{
+                    tabBarIcon: ({color, focused}) => (
+                        <Feather
+                            name={"bar-chart-2"}
+                            size={20}
+                            color={color}
                         />
+                    )
+                }}
+            />
 
-                        <Tab.Screen
-                            name='Settings'
-                            component={Settings}
+            <Tab.Screen
+                name='Settings'
+                component={Settings}
+                options={{
+                    tabBarIcon: ({color, focused}) => (
+                        <Feather
+                            name={"settings"}
+                            size={20}
+                            color={color}
                         />
-                    </Tab.Navigator >
-                )
-            }
-
-        </>
+                    )
+                }}
+            />
+        </Tab.Navigator >
     )
 }
 
