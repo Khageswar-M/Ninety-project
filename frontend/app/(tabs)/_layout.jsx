@@ -1,37 +1,59 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { View, Text } from 'react-native'
-import React from 'react'
-import Actions from '../../src/components/screens/Actions'
-import Results from '../../src/components/screens/Results'
-import Settings from '../../src/components/screens/Settings'
-import Dev from '../../src/components/screens/Dev'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Actions from '../../src/components/screens/Actions.jsx'
+import Results from '../../src/components/screens/Results.jsx'
+import Settings from '../../src/components/screens/Settings.jsx'
+import Dev from '../../src/components/screens/Dev.jsx'
+import { useSelector } from 'react-redux'
 
 const Tab = createMaterialTopTabNavigator();
 
 const _layout = () => {
-  return (
-    <Tab.Navigator>
-        <Tab.Screen
-            name='actions'
-            component={Actions}
-        />
+    const inset = useSafeAreaInsets();
+    const currTheme = useSelector((state) => state.theme.theme);
+    const isDev = true;
+    return (
+        <Tab.Navigator
+            screenOptions={{
+                tabBarStyle: {
+                    backgroundColor: currTheme.background,
+                    paddingTop: inset.top,
+                },
+                tabBarActiveTintColor: currTheme.text,
+                tabBarInactiveTintColor: currTheme.textMuted,
+                tabBarIndicatorStyle: {
+                    backgroundColor: currTheme.primary
+                }
 
-        <Tab.Screen
-            name='results'
-            component={Results}
-        />
+            }}
+        >
+            <Tab.Screen
+                name='Actions'
+                component={Actions}
+            />
 
-        <Tab.Screen
-            name='settings'
-            component={Settings}
-        />
+            <Tab.Screen
+                name='Results'
+                component={Results}
+            />
 
-        <Tab.Screen
-            name='dev'
-            component={Dev}
-        />
-    </Tab.Navigator>
-  )
+            <Tab.Screen
+                name='Settings'
+                component={Settings}
+            />
+
+            {
+                isDev && (
+                    <Tab.Screen
+                        name='Dev'
+                        component={Dev}
+                    />
+                )
+            }
+
+        </Tab.Navigator>
+    )
 }
 
-export default _layout
+export default _layout;
