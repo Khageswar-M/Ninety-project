@@ -3,8 +3,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 //COMPONENTS
 import Header from '../actions/Header.jsx';
-import ChallengeBoard from '../common/ChallengeBoard.jsx';
-
+import ChallengeBoard from '../actions/ChallengeBoard.jsx';
 // STYLES
 import { useActionStyles } from '../../hook/useThemeStyles.js';
 import AddGoals from '../actions/AddGoals.jsx';
