@@ -16,7 +16,6 @@ const _layout = () => {
     const currTheme = useSelector((state) => state.theme.theme);
     return (
         <Tab.Navigator
-            initialRouteName='Results'
             screenOptions={{
                 tabBarShowIcon: true,
                 tabBarStyle: {

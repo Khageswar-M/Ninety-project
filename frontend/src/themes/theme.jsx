@@ -4,16 +4,10 @@ export const darkTheme = {
     background: "#1c1c1e",
     backgroundMuted: "#141414",
     backgroundMutedExtra: "#555555",
-<<<<<<< HEAD
     textMuted: "#b8b8b3",
     danger: "#ff2323",
-    success: "#3b6d11",
+    success: "#1eff00",
     successLight: "#1eff00",
-=======
-    textMuted: "#8a8a85",
-    danger: "#fb3c3c",
-    success: "#85ff22",
->>>>>>> feature/results
     dark: "#000000",
     darkLight: "#d0d0d0",
     light: "#ffffff",
@@ -30,14 +24,9 @@ export const lightTheme = {
     backgroundMutedExtra: "#555555",
     textMuted: "#8a8a85",
     danger: "#a32d2d",
-<<<<<<< HEAD
-    success: "#3b6d11",
+    success: "#1eff00",
     dark: "#ffffff",
     darkLight: "#000000",
-=======
-    success: "#85ff22",
-    dark: "#000000",
->>>>>>> feature/results
     light: "#ffffff",
     streak: "#534ab7",
     border: "#8a8a85",
