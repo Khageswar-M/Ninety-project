@@ -21,18 +21,20 @@ const ChallengeBoard = () => {
     ).current;
 
     useEffect(() => {
-        // 2. Define the animation for a single cell (takes 500ms)
-        const animations = animatedValues.map((anim) =>
-            Animated.timing(anim, {
-                toValue: 1,
-                duration: 500,
-                useNativeDriver: false, // Must be false for backgroundColor interpolation
-            })
-        );
+        const timer = setTimeout(() => {
+            const animations = animatedValues.map((anim) =>
+                Animated.timing(anim, {
+                    toValue: 1,
+                    duration: 500,
+                    useNativeDriver: false,
+                })
+            );
 
-        // 3. Stagger fires each animation with a 30ms delay between them
-        Animated.stagger(30, animations).start();
-    }, [animatedValues]);
+            Animated.stagger(30, animations).start();
+        }, 1000); // Wait until the header animation completes
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <View>
@@ -62,8 +64,8 @@ const ChallengeBoard = () => {
                                             key={`coll-${rowIndex}-${collIndex}`}
                                             style={[
                                                 style.coll,
-                                                cellIndex === 8 ? style.cellWillCheckToday : 
-                                                    cellIndex > 8 && !collValue ? style.cellWillCheck : 
+                                                cellIndex === 8 ? style.cellWillCheckToday :
+                                                    cellIndex > 8 && !collValue ? style.cellWillCheck :
                                                         cellIndex < 8 && !collValue ? style.cellNotChecked : style.cellChecked,
                                                 {
                                                     backgroundColor: animatedBgColor,

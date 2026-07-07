@@ -87,7 +87,7 @@ const styles = (theme) => StyleSheet.create({
     },
     modalMessage:{
         fontSize: 16,
-        color: theme.light,
+        color: theme.text,
         lineHeight: 24,
     },
     modalButtonContainer:{

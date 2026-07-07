@@ -107,7 +107,7 @@ const AddGoals = () => {
             </View>
 
             {/* GOALS */}
-            <GoalTag goals={goals} callBack={setGoals} />
+            <GoalTag goals={goals} setGoals={setGoals} />
         </View>
     );
 }

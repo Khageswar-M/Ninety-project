@@ -4,13 +4,25 @@ import { Feather } from '@expo/vector-icons'
 import { useActionStyles } from '../../hook/useThemeStyles'
 import DeleteConfirmModal from '../modals/DeleteConfirmModal.jsx'
 
-const GoalTag = ({ goals, callBack }) => {
+const GoalTag = ({ goals, setGoals }) => {
     const style = useActionStyles();
     const [visible, setVisible] = useState(false)
+    const [selectedGoalId, setSelectedGoalId] = useState(null);
 
-    const handleDelete = () => {
-        // const confirm = window.alert("Are you sure");
-        setVisible(false);
+    const openDeleteModal = (goalId) => {
+        setSelectedGoalId(goalId);
+        setVisible(true);
+    }
+
+    const handleDelete = async () => {
+
+        try{
+            console.log('deleting...');
+            setGoals((prevGoals) => prevGoals.filter((goal) => goal.id != selectedGoalId));
+        }finally{
+            setVisible(false);
+            setSelectedGoalId(null);
+        }
     }
     return (
         <View style={style.goalsTagContainer}>
@@ -24,14 +36,14 @@ const GoalTag = ({ goals, callBack }) => {
                 }}
             >
                 {
-                    goals.map((goal, index) => {
+                    goals.map((goal) => {
                         console.log(goal.title);
                         return (
                             <TouchableOpacity
                             activeOpacity={0.5}
-                                key={index}
+                                key={goal.id}
                                 style={style.goalsTag}
-                                onPress={() => setVisible(true)}
+                                onPress={() => openDeleteModal(goal.id)}
                             >
                                 <Text style={style.goalsTagTitle}>{goal.title}</Text>
                                 <Feather name='plus' style={style.goalsTagIcon} />
