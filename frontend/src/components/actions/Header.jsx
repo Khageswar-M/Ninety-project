@@ -22,7 +22,9 @@ const Header = () => {
             duration: 1000,
             useNativeDriver: false
         }).start();
+    }, [widthAnim]);
 
+    useEffect(() => {
         // COUNTER ANIMATION
         const listenerId = countAnim.addListener((animationState) => {
             setDayCount(Math.round(animationState.value));
@@ -39,7 +41,7 @@ const Header = () => {
         return () => {
             countAnim.removeListener(listenerId);
         }
-    }, [widthAnim, countAnim]);
+    }, [ countAnim]);
 
     const animatedWidth = widthAnim.interpolate({
         inputRange: [0, 100],

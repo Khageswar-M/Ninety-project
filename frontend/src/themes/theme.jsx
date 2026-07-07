@@ -13,22 +13,23 @@ export const darkTheme = {
     light: "#ffffff",
     streak: "#534ab7",
     border: "#8a8a85",
-    
+    btnDisable: "#3f3f3f",
 }
 
 export const lightTheme = {
     primary: "#e85d04",
     text: "#000000",
-    background: "#cbcbcb",
+    background: "#ffffff",
     backgroundMuted: "#c1c1c1",
     backgroundMutedExtra: "#555555",
     textMuted: "#8a8a85",
     danger: "#a32d2d",
     success: "#3b6d11",
-    dark: "#000000",
+    dark: "#ffffff",
     darkLight: "#000000",
     light: "#ffffff",
     streak: "#534ab7",
     border: "#8a8a85",
     successLight: "#1eff00",
+    btnDisable: "#3f3f3f",
 }

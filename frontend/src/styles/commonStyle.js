@@ -72,6 +72,48 @@ const styles = (theme) => StyleSheet.create({
     },
     tabBarActiveTextColor: {
         color: theme.text
+    },
+    // MODAL
+    modalContainer:{
+        backgroundColor: theme.background,
+        borderRadius: 15,
+        padding: 22,
+    },
+    modalTitle:{
+        fontSize: 22,
+        fontWeight: '700',
+        color: theme.text,
+        marginBottom: 12,
+    },
+    modalMessage:{
+        fontSize: 16,
+        color: theme.light,
+        lineHeight: 24,
+    },
+    modalButtonContainer:{
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginTop: 25,
+    },
+    modalButton:{
+        paddingVertical: 10,
+        paddingHorizontal: 22,
+        borderRadius: 8,
+        marginLeft: 12,
+    },
+    modalCancelButton:{
+        backgroundColor: '#E5E7EB',
+    },
+    modalCancelBtnText:{
+        color: '#111',
+        fontWeight: '600',
+    },
+    modalDeleteButton:{
+        backgroundColor: '#EF4444',
+    },
+    modalDeleteBtnText:{
+        color: '#fff',
+        fontWeight: '600',
     }
 });
 
