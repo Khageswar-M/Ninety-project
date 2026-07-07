@@ -3,7 +3,6 @@ import styles from "../styles/commonStyle";
 import actionStyle from "../styles/actionStyle";
 import resultStyles from "../styles/resultsStyle";
 import settingsStyles from "../styles/settingsStyle";
-import devStyles from "../styles/devStyle";
 
 export function useThemeStyles(){
     const theme = useSelector((state) => state.theme.theme);
@@ -29,9 +28,5 @@ export function useSettingStyles() {
     return settingsStyles(theme);
 }
 
-export function useDevStyles() {
-    const theme = useSelector((state) => state.theme.theme);
 
-    return devStyles(theme);
-}
 
