@@ -7,7 +7,7 @@ const Actions = () => {
   return (
     <View style={[style.container]}>
       <Text>Actions</Text>
-    </View>
+    </View> 
   )
 }
 
