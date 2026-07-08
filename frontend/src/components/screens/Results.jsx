@@ -5,6 +5,7 @@ import Header from '../results/Header'
 import Performance from '../results/Performance'
 import Streak from '../results/Streak'
 import ResultsMap from '../results/ResultsMap'
+import AICoach from '../results/AICoach'
 
 const Results = () => {
   const style = useResultStyles();
@@ -49,6 +50,11 @@ const Results = () => {
       <View style={style.headerContainer}>
         <ResultsMap />
       </View>
+
+      <View style={style.headerContainer}>
+        <AICoach refreshKey={refreshKey}/>
+      </View>
+
     </ScrollView>
   )
 }
