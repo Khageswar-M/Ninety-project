@@ -1,8 +1,10 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
+import { useCallback, useState } from 'react'
 import { useResultStyles } from '../../hook/useThemeStyles'
 import Header from '../results/Header'
 import Performance from '../results/Performance'
-import { useCallback, useState } from 'react'
+import Streak from '../results/Streak'
+import ResultsMap from '../results/ResultsMap'
 
 const Results = () => {
   const style = useResultStyles();
@@ -19,6 +21,7 @@ const Results = () => {
       setRefreshing(false);
     }
   }, [])
+
   return (
     <ScrollView
       style={style.container}
@@ -36,7 +39,15 @@ const Results = () => {
       </View>
 
       <View style={style.headerContainer}>
-        <Performance refreshKey={refreshKey}/>
+        <Performance refreshKey={refreshKey} />
+      </View>
+
+      <View style={style.headerContainer}>
+        <Streak refreshKey={refreshKey} />
+      </View>
+
+      <View style={style.headerContainer}>
+        <ResultsMap />
       </View>
     </ScrollView>
   )

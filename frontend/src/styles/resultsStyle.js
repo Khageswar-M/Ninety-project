@@ -120,7 +120,44 @@ const resultStyles = (theme) => StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-around',
         padding: 5
-    }
+    },
+    streakContainer:{
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 5
+    },
+    streakType:{
+        flex: 1,
+        backgroundColor: theme.backgroundMuted,
+        borderWidth: 1,
+        borderColor: theme.border,
+        borderRadius: 5,
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: 10,
+        gap: 5,
+    },
+    streakTitle:{
+        fontSize: 12,
+        textTransform:"uppercase",
+        fontWeight: 'bold',
+        color: theme.textMuted
+    },
+    streakCount:{
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    currentStreak:{
+        color: theme.primary
+    },
+    bestStreak:{
+        color: theme.text
+    },
+    daysLeft:{
+        color: theme.success
+    },
+
+
 })
 
 export default resultStyles;
