@@ -20,7 +20,7 @@ function AppNavigation() {
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
   if (!loaded) return null;
-  
+
   return (
     <>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
@@ -32,6 +32,14 @@ function AppNavigation() {
         <Stack.Screen
           name="(tabs)"
         />
+
+        <Stack.Screen
+          name="editProfilePage"
+          options={{
+            animation: 'slide_from_right',
+          }}
+        />
+
       </Stack>
     </>
   )
