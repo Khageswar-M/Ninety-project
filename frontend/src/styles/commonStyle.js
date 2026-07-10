@@ -72,7 +72,8 @@ const styles = (theme) => StyleSheet.create({
     },
     tabBarActiveTextColor: {
         color: theme.text
-    }
+    },
+    
 });
 
 export default styles;
