@@ -137,6 +137,108 @@ const settingsStyles = (theme) => StyleSheet.create({
     editProfilePage:{
         flex: 1,
         backgroundColor: theme.background
+    },
+    challengeContainer:{
+        backgroundColor: theme.backgroundMuted,
+        flexDirection: 'column',
+        paddingTop: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: theme.border,
+        gap: 10
+    },
+    challengeHeadingContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        paddingHorizontal: 10,
+    },
+    challengeHeadingIconContainer:{
+        backgroundColor: theme.text,
+        borderRadius: 5,
+    },
+    challengeHeadingIcon:{
+       fontSize: 20,
+        padding: 10,
+        color: theme.primary
+    },
+    challengeTitleContainer:{
+        flexDirection: 'column',
+        gap: 2
+    },
+    challengeTitle:{
+        color: theme.text,
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    challengeDesc:{
+        color: theme.textMuted,
+        fontSize: 12,
+        fontWeight: "300"
+    },
+    progressBarContainer:{
+        flexDirection: 'column',
+        gap: 5,
+        paddingHorizontal: 10,
+    },
+    progressBarTitlesContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    progressBarTitle:{
+        fontSize: 14,
+        fontWeight: '300',
+        color: theme.text
+    },
+    progressBar:{
+        height: 7,
+        backgroundColor: theme.background,
+        width: '100%',
+        borderRadius: 10
+    },
+    progressBarRemainingTitles:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    progressBarRemainingTitleLeft:{
+        fontSize: 12,
+        fontWeight: '400',
+        color: theme.textMuted
+    },
+    progressBarRemainingTitleRight:{
+        color: theme.primary
+    },
+    resetChallengeWrapper:{
+        borderTopWidth: 1,
+        borderColor: theme.border,
+    },
+    resetChallengeContainer:{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        justifyContent: 'space-between',
+    },
+    resetChallengeBoard:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        padding: 10,
+        position: 'relative'
+    },
+    resetIcon:{
+        fontSize: 30,
+        padding: 5,
+        color: theme.primary,
+        fontWeight: '900',
+        
+    },
+    chevronIconRight: {
+        fontSize: 20,
+        color: theme.textMuted,
+        paddingRight: 10
     }
 })
 

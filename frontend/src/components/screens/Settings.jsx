@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import Header from '../settings/Header'
 import Profile from '../settings/Profile'
+import Challenge from '../settings/Challenge'
 
 const Settings = () => {
   const style = useSettingStyles();
@@ -39,6 +40,9 @@ const Settings = () => {
           <Profile />
         </View>
 
+        <View style={style.headerContainerPadding}>
+          <Challenge />
+        </View>
       </ScrollView>
     </View>
   )
