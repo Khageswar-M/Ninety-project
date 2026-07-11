@@ -107,17 +107,15 @@ const settingsStyles = (theme) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 3,
-        borderWidth: 1,
-        borderColor: '#69ff38'
     },
     userAchievementTitle: {
         fontSize: 12,
         fontWeight: '300',
-        color: '#69ff38'
+        color: theme.successLight
     },
     trophy: {
         fontSize: 16,
-        color: '#69ff38'
+        color: theme.successLight
     },
     editBtn: {
         backgroundColor: theme.background,
@@ -255,18 +253,18 @@ const settingsStyles = (theme) => StyleSheet.create({
         gap: 10,
         justifyContent: 'space-between'
     },
-    notification:{
+    notification: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
         paddingHorizontal: 10,
         paddingVertical: 10
     },
-    notificationItemWithBorder:{
+    notificationItemWithBorder: {
         borderTopWidth: 1,
         borderTopColor: theme.border,
     },
-    remainderTimeBtn:{
+    remainderTimeBtn: {
         backgroundColor: theme.backgroundMutedExtra,
         width: 80,
         alignItems: 'center',
@@ -276,10 +274,89 @@ const settingsStyles = (theme) => StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.border,
     },
-    remainderValueStyle:{
+    remainderValueStyle: {
         fontSize: 15,
         fontWeight: 'bold',
         color: theme.text
+    },
+    themeButtonsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        gap: 10,
+        paddingVertical: 10
+    },
+    themeButton: {
+        flex: 1,
+        alignItems: 'center',
+        flexDirection: 'column',
+        borderWidth: 1,
+        borderColor: theme.border,
+        borderRadius: 5,
+        paddingVertical: 10,
+        gap: 10
+    },
+    themeColorBtn: {
+        height: 20,
+        width: '70%',
+        borderRadius: 5
+    },
+    themeButtonTittleText: {
+        color: theme.textMuted,
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+    themeAutoPartLeft: {
+        flexGrow: 1,
+        height: '100%',
+        borderTopLeftRadius: 5,
+        borderBottomLeftRadius: 5,
+    },
+    themeAutoPartRight: {
+        flexGrow: 1,
+        height: '100%',
+        borderTopRightRadius: 5,
+        borderBottomRightRadius: 5,
+    },
+    themeBtnActive: {
+        color: theme.primary,
+        fontWeight: 'bold'
+    },
+    themeBtnInactive: {
+        color: theme.textMuted,
+        fontWeight: '300'
+    },
+    versionTitleTab:{
+        backgroundColor: theme.background,
+        marginRight: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        borderRadius: 20
+    },
+    versionTitle:{
+        fontSize: 13,
+        color: theme.textMuted
+    },
+    logoutBtnContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        width:"100%",
+        justifyContent: 'center'
+    },
+    logoutBtnBox:{
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 10,
+        paddingVertical: 10
+    },
+    logoutIcon:{
+        fontSize: 25,
+        color: theme.danger
+    },
+    logoutTitle:{
+        fontSize: 16,
+        color: theme.danger
     }
 })
 
