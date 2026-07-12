@@ -327,37 +327,99 @@ const settingsStyles = (theme) => StyleSheet.create({
         color: theme.textMuted,
         fontWeight: '300'
     },
-    versionTitleTab:{
+    versionTitleTab: {
         backgroundColor: theme.background,
         marginRight: 10,
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 20
     },
-    versionTitle:{
+    versionTitle: {
         fontSize: 13,
         color: theme.textMuted
     },
-    logoutBtnContainer:{
+    logoutBtnContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        width:"100%",
+        width: "100%",
         justifyContent: 'center'
     },
-    logoutBtnBox:{
+    logoutBtnBox: {
         alignItems: 'center',
         flexDirection: 'row',
         gap: 10,
         paddingVertical: 10
     },
-    logoutIcon:{
+    logoutIcon: {
         fontSize: 25,
         color: theme.danger
     },
-    logoutTitle:{
+    logoutTitle: {
         fontSize: 16,
         color: theme.danger
+    },
+    editNameHeaderContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        position: 'relative',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        alignItems: 'center'
+    },
+    editNameBackBtn: {
+        position: 'absolute',
+        left: 20
+    },
+    editNameBackBtnIcon: {
+        fontSize: 20,
+        color: '#fff'
+    },
+    editNamePageTitle: {
+        alignSelf: 'center',
+        position: 'relative',
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff'
+    },
+    editNameContainer: {
+        paddingHorizontal: 10
+    },
+    editNameBox: {
+        backgroundColor: theme.backgroundMuted,
+        borderWidth: 1,
+        borderColor: theme.border,
+        borderRadius: 5,
+        padding: 10
+    },
+    editInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    editNameInputActive: {
+        backgroundColor: theme.backgroundMutedExtra,
+        width: '100%',
+        borderRadius: 5,
+        color: theme.text
+    },
+    editNameInputInactive: {
+        color: theme.text
+    },
+    userEmailContainer: {
+        paddingVertical: 5
+    },
+    userEmailText: {
+        color: theme.textMuted,
+        fontWeight: '300',
+        fontSize: 12
+    },
+    editNameIconContainer: {
+        padding: 10,
+        backgroundColor: '#303030',
+        borderRadius: 10
     }
+
 })
 
 export default settingsStyles;
