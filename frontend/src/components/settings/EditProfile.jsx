@@ -14,6 +14,27 @@ const EditProfile = () => {
   const [userName, setUserName] = useState("Khageswar Maharana");
   const [userEmail, setUserEmail] = useState("khageswarmaharana462@gmail.com");
 
+  const handleCancel = () => {
+    setEditName(false);
+  }
+
+  const handleUpdate = () => {
+    setUserName(userName);
+  }
+
+  const buttons = [
+    {
+      title: "Cancel",
+      handleFunction: handleCancel,
+      bg: '#a41616'
+    },
+    {
+      title: "Update",
+      handleFunction: handleUpdate,
+      bg: '#16a418'
+    },
+  ]
+
   return (
     <View style={[style.editProfilePage, { paddingTop: inset.top }]}>
 
@@ -58,10 +79,34 @@ const EditProfile = () => {
               {userEmail}
             </Text>
           </View>
-
         </View>
 
+        <View style={style.noteContainer}>
+          <Text style={style.note}>
+            <Text style={style.noteTitle}>Note:</Text> After changing your name, you will not able to update it again for next 30 days. Ensure your name is correct before confirming.
+          </Text>
+        </View>
 
+        {
+          editName && (
+            <View style={style.cancelUpdateBtnContainer}>
+              {
+                buttons.map((button) => {
+                  return (
+                    <TouchableOpacity
+                      key={button.title}
+                      activeOpacity={0.7}
+                      style={[style.cancelUpdateBtn, { backgroundColor: button.bg }]}
+                      onPress={() => button.handleFunction()}
+                    >
+                      <Text style={style.cancelUpdateBtnTitle}>{button.title}</Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+            </View>
+          )
+        }
 
       </View>
     </View>

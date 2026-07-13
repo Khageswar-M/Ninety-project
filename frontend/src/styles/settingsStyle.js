@@ -418,6 +418,38 @@ const settingsStyles = (theme) => StyleSheet.create({
         padding: 10,
         backgroundColor: '#303030',
         borderRadius: 10
+    },
+    noteContainer:{
+        marginTop: 10,
+    },
+    noteTitle:{
+        color: theme.primary,
+        fontWeight: 'bold',
+
+    },
+    note:{
+        color: theme.textMuted,
+        fontSize: 12,
+        fontWeight: '200',
+        textAlign: 'justify'
+    },
+    cancelUpdateBtnContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        marginTop: 10,
+        gap: 10
+    },
+    cancelUpdateBtnTitle:{
+        color: '#fff',
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    cancelUpdateBtn:{
+        paddingVertical: 7,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        flex: 1
     }
 
 })
