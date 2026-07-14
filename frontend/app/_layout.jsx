@@ -35,9 +35,14 @@ function AppNavigation() {
 
         <Stack.Screen
           name="editProfilePage"
-          options={{
-            animation: 'slide_from_right',
-          }}
+        />
+
+        <Stack.Screen
+          name="privacyPolicy"
+        />
+
+        <Stack.Screen
+          name="rateApp"
         />
 
       </Stack>

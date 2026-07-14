@@ -3,6 +3,7 @@ import { MaterialIcons, Feather, Ionicons } from '@expo/vector-icons';
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 
 const About = () => {
     const style = useSettingStyles();
@@ -16,11 +17,11 @@ const About = () => {
     }
 
     const handlePrivacy = () => {
-
+        router.push("/privacyPolicy");
     }
 
     const handleRateApp = () => {
-
+        router.push("/rateApp")
     }
 
     const tabItems = [
@@ -32,7 +33,7 @@ const About = () => {
             Icon: MaterialIcons,
             iconName: "error-outline",
             value: version,
-            changeValue: handleVersion
+            changeValue: handleVersion,
         },
         {
             id: 'privacy-policy',
@@ -80,12 +81,17 @@ const About = () => {
                                         index > 0 ? 0.5 : 1
                                     }
                                     style={style.resetChallengeContainer}
+                                    onPress={() => tab.changeValue()}
                                 >
 
                                     <View style={style.notification}>
                                         {/* ICON */}
                                         <View style={style.challengeHeadingIconContainer}>
-                                            <Icon name={tab.iconName} style={style.challengeHeadingIcon} />
+                                            <Icon name={tab.iconName} style={[style.challengeHeadingIcon, {
+                                                backgroundColor: '#000',
+                                                color: '#afafaf',
+                                                borderRadius: 4
+                                            }]} />
                                         </View>
 
                                         {/* Title */}

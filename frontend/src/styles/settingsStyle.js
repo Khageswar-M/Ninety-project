@@ -418,6 +418,91 @@ const settingsStyles = (theme) => StyleSheet.create({
         padding: 10,
         backgroundColor: '#303030',
         borderRadius: 10
+    },
+    noteContainer: {
+        marginTop: 10,
+    },
+    noteTitle: {
+        color: theme.primary,
+        fontWeight: 'bold',
+
+    },
+    note: {
+        color: theme.textMuted,
+        fontSize: 12,
+        fontWeight: '200',
+        textAlign: 'justify'
+    },
+    cancelUpdateBtnContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        marginTop: 10,
+        gap: 10
+    },
+    cancelUpdateBtnTitle: {
+        color: '#fff',
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    cancelUpdateBtn: {
+        paddingVertical: 7,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        flex: 1
+    },
+    policyContainer: {
+        paddingHorizontal: 20,
+        flexDirection: 'column',
+        gap: 10
+    },
+    policyHeaderTitle: {
+        color: theme.primary,
+        fontWeight: 'bold',
+        fontSize: 18
+    },
+    policyHeaderDesc: {
+        fontSize: 12,
+        color: theme.textMuted,
+        fontWeight: '300'
+    },
+    policyContent: {
+        color: theme.text,
+        fontSize: 14,
+        textAlign: 'justify'
+    },
+    likeDislikeBtn: {
+        color: theme.textMuted
+    },
+    likeDislikeContainer: {
+        paddingVertical: 10,
+        backgroundColor: theme.background
+    },
+    likeDislikeSubContainer: {
+        flexDirection: 'row',
+        alignSelf: 'flex-end',
+        gap: 15,
+        paddingRight: 40
+    },
+    rattingStarsContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10
+    },
+    feedbackContainer:{
+        paddingHorizontal: 10,
+        marginTop: 10,
+        maxWidth: 500
+    },
+    feedbackInput:{
+        backgroundColor: theme.backgroundMuted,
+        borderWidth: 1,
+        borderColor: theme.border,
+        borderRadius: 5,
+        color: theme.text,
+        paddingHorizontal: 5
     }
 
 })
