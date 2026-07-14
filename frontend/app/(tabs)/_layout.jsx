@@ -17,6 +17,7 @@ const _layout = () => {
     return (
         <Tab.Navigator
             screenOptions={{
+                
                 tabBarShowIcon: true,
                 tabBarStyle: {
                     backgroundColor: currTheme.background,

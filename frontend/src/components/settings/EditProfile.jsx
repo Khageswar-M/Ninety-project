@@ -1,13 +1,11 @@
-import { View, Text, Pressable, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import { useSettingStyles } from '../../hook/useThemeStyles';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { useState } from 'react';
+import SubPages from '../common/SubPages';
 
 const EditProfile = () => {
-  const inset = useSafeAreaInsets();
   const style = useSettingStyles();
 
   const [editName, setEditName] = useState(false);
@@ -36,20 +34,9 @@ const EditProfile = () => {
   ]
 
   return (
-    <View style={[style.editProfilePage, { paddingTop: inset.top }]}>
-
-      <View style={style.editNameHeaderContainer}>
-
-        <Pressable
-          style={style.editNameBackBtn}
-          onPress={() => router.back()}
-        >
-          <Ionicons name='arrow-back' style={style.editNameBackBtnIcon} />
-        </Pressable>
-
-        <Text style={style.editNamePageTitle}>Edit Your Name</Text>
-
-      </View>
+    <SubPages
+      title={"Edit Name"}
+    >
 
       <View style={style.editNameContainer}>
         <View style={style.editNameBox}>
@@ -109,7 +96,8 @@ const EditProfile = () => {
         }
 
       </View>
-    </View>
+
+    </SubPages>
   )
 }
 
