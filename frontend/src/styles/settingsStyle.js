@@ -502,7 +502,22 @@ const settingsStyles = (theme) => StyleSheet.create({
         borderColor: theme.border,
         borderRadius: 5,
         color: theme.text,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        fontSize: 18
+    },
+    submitBtn:{
+        backgroundColor: theme.successLight,
+        margin: 'auto',
+        marginTop: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5
+    },
+    submitBtnTitle:{
+        fontSize: 18,
+        color: 'transparent',
+        fontWeight: 'bold',
+        letterSpacing: 1.5
     }
 
 })

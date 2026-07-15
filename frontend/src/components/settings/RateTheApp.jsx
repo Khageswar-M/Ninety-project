@@ -46,7 +46,37 @@ const RateTheApp = () => {
                     numberOfLines={5}
                     textAlignVertical='top'
                     style={style.feedbackInput}
+                    placeholderTextColor={'#979797'}
+                    caretHidden={false}
                 />
+
+                <TouchableOpacity style={style.submitBtn}>
+                    <Text style={style.submitBtnTitle}>
+                        Submit
+                    </Text>
+                </TouchableOpacity>
+
+                <View>
+                    <Text style={style.componentTitle}>Reviews</Text>
+
+                    <View style={style.reviewContainer}>
+                        <View style={style.review}>
+                            <View style={style.reviewer}>
+                                <View style={style.dp}><Text style={style.dpTitle}>KM</Text></View>
+                                <View style={style.rattingAndJoinedContainer}>
+                                    <Text style={style.userName}>Khageswar Maharana</Text>
+                                    <Text style={style.userRatting}>5/5</Text>
+                                </View>
+                            </View>
+
+                            <View style={style.userFeedbackContainer}>
+                                <Text style={style.userFeedback}>
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione deleniti officiis aspernatur ut blanditiis perspiciatis et? Id, velit autem!
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
             </View>
         </SubPages>
     )

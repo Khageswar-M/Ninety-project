@@ -24,9 +24,11 @@ function AppNavigation() {
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
 
+  if(!loaded) return null;
+
   useEffect(() => {
     async function prepare() {
-      if (!loaded) return null;
+      if (!loaded) return;
 
       await new Promise(resolve => setTimeout(resolve, 3000));
 
