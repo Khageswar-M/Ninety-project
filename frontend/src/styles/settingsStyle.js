@@ -518,6 +518,62 @@ const settingsStyles = (theme) => StyleSheet.create({
         color: 'transparent',
         fontWeight: 'bold',
         letterSpacing: 1.5
+    }, 
+    reviewContainer:{
+        // backgroundColor: theme.backgroundMuted,
+        // padding: 10,
+        // borderRadius: 5,
+        // borderWidth: 1,
+        // borderColor: theme.border
+        flexDirection: 'column',
+        gap: 10
+    },
+    review:{
+        flexDirection: 'column',
+        gap: 5,
+        backgroundColor: theme.backgroundMuted,
+        padding: 10,
+        borderRadius: 5,
+    },
+    reviewer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    dp:{
+        backgroundColor: theme.background,
+        padding: 10,
+        height: 50,
+        width: 50,
+        borderRadius: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: theme.border
+    },
+    dpTitle:{
+        color:theme.text,
+        fontSize: 16,
+        fontWeight:'bold'
+    },
+    rattingAndJoinedContainer:{
+        flexDirection: 'column',
+        gap: 5
+    },
+    userName:{
+        fontSize: 14,
+        color: theme.text
+    },
+    userRatting:{
+        letterSpacing: 5
+    },
+    userRattingIcon:{
+        color: theme.primary,
+        fontSize: 14
+    },
+    userFeedback:{
+        fontSize: 14,
+        color: theme.text
     }
 
 })

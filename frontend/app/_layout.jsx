@@ -24,7 +24,6 @@ function AppNavigation() {
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
 
-  if(!loaded) return null;
 
   useEffect(() => {
     async function prepare() {

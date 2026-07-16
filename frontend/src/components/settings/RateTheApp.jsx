@@ -22,7 +22,7 @@ const RateTheApp = () => {
                 style={style.rattingStarsContainer}
             >
                 {
-                    Array.from({length:5}).map((_, index) => {
+                    Array.from({ length: 5 }).map((_, index) => {
                         return (
                             <TouchableOpacity
                                 key={index}
@@ -30,7 +30,7 @@ const RateTheApp = () => {
                             >
                                 <Ionicons name='star' size={30} style={{
                                     color: index <= ratting ? "#ff6f00" : "#423529"
-                                }}/>
+                                }} />
                             </TouchableOpacity>
                         )
                     })
@@ -60,21 +60,34 @@ const RateTheApp = () => {
                     <Text style={style.componentTitle}>Reviews</Text>
 
                     <View style={style.reviewContainer}>
-                        <View style={style.review}>
-                            <View style={style.reviewer}>
-                                <View style={style.dp}><Text style={style.dpTitle}>KM</Text></View>
-                                <View style={style.rattingAndJoinedContainer}>
-                                    <Text style={style.userName}>Khageswar Maharana</Text>
-                                    <Text style={style.userRatting}>5/5</Text>
-                                </View>
-                            </View>
+                        {
+                            Array.from({ length: 5 }).map((i) => {
+                                return (
 
-                            <View style={style.userFeedbackContainer}>
-                                <Text style={style.userFeedback}>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione deleniti officiis aspernatur ut blanditiis perspiciatis et? Id, velit autem!
-                                </Text>
-                            </View>
-                        </View>
+                                    <View key={i} style={style.review}>
+                                        <View style={style.reviewer}>
+                                            <View style={style.dp}><Text style={style.dpTitle}>KM</Text></View>
+                                            <View style={style.rattingAndJoinedContainer}>
+                                                <Text style={style.userName}>Khageswar Maharana</Text>
+                                                <Text style={style.userRatting}>{
+                                                    Array.from({ length: 5 }).map((i) => {
+                                                        return (
+                                                            <Ionicons name='star' style={style.userRattingIcon} />
+                                                        )
+                                                    })
+                                                }</Text>
+                                            </View>
+                                        </View>
+
+                                        <View style={style.userFeedbackContainer}>
+                                            <Text style={style.userFeedback}>
+                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione deleniti officiis aspernatur ut blanditiis perspiciatis et? Id, velit autem!
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )
+                            })
+                        }
                     </View>
                 </View>
             </View>
