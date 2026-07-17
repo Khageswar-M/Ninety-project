@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native'
-import { useSettingStyles } from '../src/hook/useThemeStyles';
-import EditProfile from '../src/components/settings/EditProfile';
+import { useSettingStyles } from '../../src/hook/useThemeStyles';
+import EditProfile from '../../src/components/settings/EditProfile';
 import { useEffect } from 'react';
 
-const editProfilePage = () => {
+const EditProfilePage = () => {
   const style = useSettingStyles();
 
   return (
@@ -13,4 +13,4 @@ const editProfilePage = () => {
   )
 }
 
-export default editProfilePage;
+export default EditProfilePage;

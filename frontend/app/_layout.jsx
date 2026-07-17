@@ -38,7 +38,7 @@ function AppNavigation() {
     prepare();
   }, [loaded]);
 
-  if (!isReady) return (<SplashScreenPage />)
+  if (!isReady) return (<SplashScreenPage />);
 
   return (
     <>
@@ -48,22 +48,9 @@ function AppNavigation() {
           headerShown: false,
         }}
       >
-        <Stack.Screen
-          name="(tabs)"
-        />
-
-        <Stack.Screen
-          name="editProfilePage"
-        />
-
-        <Stack.Screen
-          name="privacyPolicy"
-        />
-
-        <Stack.Screen
-          name="rateApp"
-        />
-
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(subScreens)" />
+        <Stack.Screen name="(auth)" />
       </Stack>
     </>
   )

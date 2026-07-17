@@ -17,11 +17,11 @@ const About = () => {
     }
 
     const handlePrivacy = () => {
-        router.push("/privacyPolicy");
+        router.push("/(subScreens)/PrivacyPolicyPage");
     }
 
     const handleRateApp = () => {
-        router.push("/rateApp")
+        router.push("/(subScreens)/RattingPage");
     }
 
     const tabItems = [

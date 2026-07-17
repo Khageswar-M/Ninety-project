@@ -2,10 +2,14 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import  Modal  from 'react-native-modal'
 import { useThemeStyles } from '../../hook/useThemeStyles'
 
-const DeleteConfirmModal = ({
+const ConfirmationModal = ({
     isVisible,
     onCancel,
-    onDelete
+    onAction,
+    title,
+    message,
+    cancelBtnTitle,
+    actionBtnTitle
 }) => {
 
     const style = useThemeStyles();
@@ -20,12 +24,11 @@ const DeleteConfirmModal = ({
         >
             <View style={style.modalContainer}>
                 <Text style={style.modalTitle}>
-                    Delete Item
+                    {title || "Delete Item"}
                 </Text>
 
                 <Text style={style.modalMessage}>
-                    Are you sure you want to delete this item?
-                    This action cannot be undone.
+                    {message || "Are you sure ?"}
                 </Text>
 
                 <View style={style.modalButtonContainer}>
@@ -34,16 +37,16 @@ const DeleteConfirmModal = ({
                         onPress={onCancel}
                     >
                         <Text style={style.modalCancelBtnText}>
-                            Cancel
+                            {cancelBtnTitle || "Cancel"}
                         </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={[style.modalButton, style.modalDeleteButton]}
-                        onPress={onDelete}
+                        onPress={onAction}
                     >
                         <Text style={style.modalDeleteBtnText}>
-                            Delete
+                            {actionBtnTitle || "Delete"}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -52,4 +55,4 @@ const DeleteConfirmModal = ({
     )
 }
 
-export default DeleteConfirmModal;
+export default ConfirmationModal;

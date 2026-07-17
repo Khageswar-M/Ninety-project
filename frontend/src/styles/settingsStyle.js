@@ -133,7 +133,7 @@ const settingsStyles = (theme) => StyleSheet.create({
     },
     editProfilePage: {
         flex: 1,
-        backgroundColor: theme.background
+        backgroundColor: theme.background,
     },
     challengeContainer: {
         backgroundColor: theme.backgroundMuted,
@@ -520,13 +520,9 @@ const settingsStyles = (theme) => StyleSheet.create({
         letterSpacing: 1.5
     }, 
     reviewContainer:{
-        // backgroundColor: theme.backgroundMuted,
-        // padding: 10,
-        // borderRadius: 5,
-        // borderWidth: 1,
-        // borderColor: theme.border
         flexDirection: 'column',
-        gap: 10
+        gap: 10,
+        paddingBottom: 100
     },
     review:{
         flexDirection: 'column',

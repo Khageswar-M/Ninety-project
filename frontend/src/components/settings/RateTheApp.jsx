@@ -61,9 +61,8 @@ const RateTheApp = () => {
 
                     <View style={style.reviewContainer}>
                         {
-                            Array.from({ length: 5 }).map((i) => {
+                            Array.from({ length: 5 }).map((_, i) => {
                                 return (
-
                                     <View key={i} style={style.review}>
                                         <View style={style.reviewer}>
                                             <View style={style.dp}><Text style={style.dpTitle}>KM</Text></View>
