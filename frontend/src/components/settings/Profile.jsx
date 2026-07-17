@@ -42,7 +42,7 @@ const Profile = () => {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={style.editBtn}
-                    onPress={() => router.push("/editProfilePage")}
+                    onPress={() => router.push("/(subScreens)/EditProfilePage")}
                 >
                     <Feather name='edit' style={style.editBtnIcon} />
                 </TouchableOpacity>

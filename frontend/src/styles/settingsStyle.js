@@ -133,7 +133,7 @@ const settingsStyles = (theme) => StyleSheet.create({
     },
     editProfilePage: {
         flex: 1,
-        backgroundColor: theme.background
+        backgroundColor: theme.background,
     },
     challengeContainer: {
         backgroundColor: theme.backgroundMuted,
@@ -502,7 +502,74 @@ const settingsStyles = (theme) => StyleSheet.create({
         borderColor: theme.border,
         borderRadius: 5,
         color: theme.text,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        fontSize: 18
+    },
+    submitBtn:{
+        backgroundColor: theme.successLight,
+        margin: 'auto',
+        marginTop: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5
+    },
+    submitBtnTitle:{
+        fontSize: 18,
+        color: 'transparent',
+        fontWeight: 'bold',
+        letterSpacing: 1.5
+    }, 
+    reviewContainer:{
+        flexDirection: 'column',
+        gap: 10,
+        paddingBottom: 100
+    },
+    review:{
+        flexDirection: 'column',
+        gap: 5,
+        backgroundColor: theme.backgroundMuted,
+        padding: 10,
+        borderRadius: 5,
+    },
+    reviewer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    dp:{
+        backgroundColor: theme.background,
+        padding: 10,
+        height: 50,
+        width: 50,
+        borderRadius: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: theme.border
+    },
+    dpTitle:{
+        color:theme.text,
+        fontSize: 16,
+        fontWeight:'bold'
+    },
+    rattingAndJoinedContainer:{
+        flexDirection: 'column',
+        gap: 5
+    },
+    userName:{
+        fontSize: 14,
+        color: theme.text
+    },
+    userRatting:{
+        letterSpacing: 5
+    },
+    userRattingIcon:{
+        color: theme.primary,
+        fontSize: 14
+    },
+    userFeedback:{
+        fontSize: 14,
+        color: theme.text
     }
 
 })

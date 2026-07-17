@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
 import { Feather } from '@expo/vector-icons'
 import { useActionStyles } from '../../hook/useThemeStyles'
-import DeleteConfirmModal from '../modals/DeleteConfirmModal.jsx'
+import ConfirmationModal from '../modals/ConfirmationModal.jsx'
 
 const GoalTag = ({ goals, setGoals }) => {
     const style = useActionStyles();
@@ -53,10 +53,12 @@ const GoalTag = ({ goals, setGoals }) => {
                 }
             </View>
 
-            <DeleteConfirmModal
+            <ConfirmationModal
                 isVisible={visible}
                 onCancel={() => setVisible(false)}
-                onDelete={handleDelete}
+                onAction={handleDelete}
+                title={"Delete Item"}
+                message={"Are you sure you want to delete this item ? This action cannot be undone."}
             />
         </View>
     )

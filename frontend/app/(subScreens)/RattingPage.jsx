@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
-import RateTheApp from '../src/components/settings/RateTheApp'
-const rateApp = () => {
+import RateTheApp from '../../src/components/settings/RateTheApp'
+const RattingPage = () => {
   return (
     <View style={{flex: 1}}>
       <RateTheApp/>
@@ -8,4 +8,4 @@ const rateApp = () => {
   )
 }
 
-export default rateApp
+export default RattingPage;

@@ -1,9 +1,21 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { Ionicons, Octicons, EvilIcons, MaterialIcons } from '@expo/vector-icons';
 import { useSettingStyles } from '../../hook/useThemeStyles'
+import ConfirmationModal from '../modals/ConfirmationModal';
+import { useState } from 'react';
 
 const Challenge = () => {
     const style = useSettingStyles();
+
+    const [deleteConformationModal, setDeleteConfirmationModal] = useState(false);
+
+    const handleReset = () => {
+        try{
+            console.log("Data Deleted!");
+        }finally{
+            setDeleteConfirmationModal(false);
+        }
+    }
     return (
         <View>
             <Text style={style.componentTitle}>Challenge</Text>
@@ -66,6 +78,7 @@ const Challenge = () => {
                     <TouchableOpacity
                         activeOpacity={0.7}
                         style={style.resetChallengeContainer}
+                        onPress={() => setDeleteConfirmationModal(true)}
                     >
 
                         <View style={style.resetChallengeBoard}>
@@ -91,6 +104,16 @@ const Challenge = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            <ConfirmationModal
+                isVisible={deleteConformationModal}
+                onCancel={() => setDeleteConfirmationModal(false)}
+                onAction={handleReset}
+                title={"Alert"}
+                message={"Clearing all data will be permanently delete your information. This action cannot be undone."}
+                cancelBtnTitle={"No"}
+                actionBtnTitle={"Clear"}
+            />
         </View>
     )
 }

@@ -6,10 +6,14 @@ import { useSelector } from "react-redux";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import SplashScreen from '../src/components/splash/SplashScreen.jsx';
-
+import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
+import { useEffect, useState } from "react";
+import * as SplashScreen from "expo-splash-screen";
+SplashScreen.preventAutoHideAsync();
 
 function AppNavigation() {
+
+  const [isReady, setIsRead] = useState(false);
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const theme = useSelector((state) => state.theme.theme);
   const inset = useSafeAreaInsets();
@@ -19,7 +23,22 @@ function AppNavigation() {
     "Poppins-regular": require("../assets/fonts/Poppins-Regular.ttf"),
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
-  if (!loaded) return null;
+
+
+  useEffect(() => {
+    async function prepare() {
+      if (!loaded) return;
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      setIsRead(true);
+      await SplashScreen.hideAsync();
+    }
+
+    prepare();
+  }, [loaded]);
+
+  if (!isReady) return (<SplashScreenPage />);
 
   return (
     <>
@@ -29,22 +48,9 @@ function AppNavigation() {
           headerShown: false,
         }}
       >
-        <Stack.Screen
-          name="(tabs)"
-        />
-
-        <Stack.Screen
-          name="editProfilePage"
-        />
-
-        <Stack.Screen
-          name="privacyPolicy"
-        />
-
-        <Stack.Screen
-          name="rateApp"
-        />
-
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(subScreens)" />
+        <Stack.Screen name="(auth)" />
       </Stack>
     </>
   )
