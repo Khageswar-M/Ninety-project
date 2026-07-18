@@ -69,7 +69,7 @@ const RateTheApp = () => {
                                             <View style={style.rattingAndJoinedContainer}>
                                                 <Text style={style.userName}>Khageswar Maharana</Text>
                                                 <Text style={style.userRatting}>{
-                                                    Array.from({ length: 5 }).map((i) => {
+                                                    Array.from({ length: 5 }).map((_, i) => {
                                                         return (
                                                             <Ionicons name='star' style={style.userRattingIcon} />
                                                         )

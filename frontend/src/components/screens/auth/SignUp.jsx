@@ -9,6 +9,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
+import RenderStepEmail from './RenderStepEmail';
+import RenderStepOtp from './RenderStepOtp';
+import RenderStepPassword from './RenderStepPassword'
+import RenderStepConfirmation from './RenderStepConfirmation'
+import RenderProgressBars from './RenderProgressBars'
 
 const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
@@ -19,10 +24,10 @@ const SignUp = () => {
     const inset = useSafeAreaInsets()
 
     // ---------- Global step state ----------
-    const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
+    const [step, setStep] = useState(2) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
 
     // ---------- Step 1: Email ----------
-    const [email, setEmail] = useState('')
+    const [email, setEmail] = useState('khageswarmaharana462@gmail.com')
 
     // ---------- Step 2: OTP ----------
     const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''))
@@ -109,23 +114,10 @@ const SignUp = () => {
 
     // ---------- Progress bar header ----------
     const renderProgressBars = () => (
-        <View style={styles.progressRow}>
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
-                const barIndex = i + 1
-                const isCompleted = barIndex < step
-                const isActive = barIndex === step
-                return (
-                    <View
-                        key={barIndex}
-                        style={[
-                            styles.progressBar,
-                            isCompleted && styles.progressBarCompleted,
-                            isActive && styles.progressBarActive,
-                        ]}
-                    />
-                )
-            })}
-        </View>
+        <RenderProgressBars
+            TOTAL_STEPS={TOTAL_STEPS}
+            step={step}
+        />
     )
 
     const renderHeader = (title) => (
@@ -136,177 +128,58 @@ const SignUp = () => {
         </View>
     )
 
+
     // ---------- Step 1: Email ----------
     const renderStepEmail = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepEmail
+            email={email}
+            setEmail={setEmail}
+            handleSendOtp={handleSendOtp}
+            handleGoogleSignUp={handleGoogleSignUp}
+            handleGoToLogin={handleGoToLogin}
+        >
             {renderHeader('Create your account')}
-
-            <Text style={styles.label}>Email address</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="you@example.com"
-                placeholderTextColor="#9a9a9a"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-            />
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleSendOtp}
-                disabled={!email}
-            >
-                <Text style={styles.primaryButtonText}>Send OTP</Text>
-            </TouchableOpacity>
-
-            <View style={styles.signUpDividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity
-                style={styles.signupGoogleButton}
-                onPress={handleGoogleSignUp}
-            >
-                <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleGoToLogin}>
-                <Text style={styles.footerLink}>
-                    Already have an account? <Text style={styles.footerLinkBold}>Log in</Text>
-                </Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepEmail>
     )
 
     // ---------- Step 2: Verify OTP ----------
     const renderStepOtp = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepOtp
+            email={email}
+            handleChangeEmail={handleChangeEmail}
+            otp={otp}
+            OTP_LENGTH={OTP_LENGTH}
+            otpRefs={otpRefs}
+            handleOtpChange={handleOtpChange}
+            handleOtpKeyPress={handleOtpKeyPress}
+            timer={timer}
+            RESEND_SECONDS={RESEND_SECONDS}
+            handleVerifyOtp={handleVerifyOtp}
+            handleResendOtp={handleResendOtp}
+        >
             {renderHeader('Verify OTP')}
-
-            <TouchableOpacity onPress={handleChangeEmail}>
-                <Text style={styles.changeEmailText}>
-                    Code sent to {email || 'your email'} · <Text style={styles.footerLinkBold}>Change email</Text>
-                </Text>
-            </TouchableOpacity>
-
-            <View style={styles.otpRow}>
-                {otp.map((digit, index) => (
-                    <TextInput
-                        key={index}
-                        ref={(ref) => (otpRefs.current[index] = ref)}
-                        style={styles.otpBox}
-                        maxLength={1}
-                        keyboardType="number-pad"
-                        value={digit}
-                        onChangeText={(value) => handleOtpChange(value, index)}
-                        onKeyPress={(e) => handleOtpKeyPress(e, index)}
-                    />
-                ))}
-            </View>
-
-            <View style={styles.timerWrap}>
-                <CircularProgress
-                    value={timer}
-                    maxValue={RESEND_SECONDS}
-                    initialValue={RESEND_SECONDS}
-                    radius={40}
-                    duration={0}
-                    progressValueColor="#333"
-                    activeStrokeColor="#6C5CE7"
-                    inActiveStrokeColor="#E0E0E0"
-                    activeStrokeWidth={6}
-                    inActiveStrokeWidth={6}
-                    title="sec"
-                    titleColor="#999"
-                    titleStyle={{ fontSize: 10 }}
-                />
-            </View>
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleVerifyOtp}
-                disabled={otp.join('').length !== OTP_LENGTH}
-            >
-                <Text style={styles.primaryButtonText}>Verify OTP</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleResendOtp} disabled={timer > 0}>
-                <Text
-                    style={[
-                        styles.footerLink,
-                        timer > 0 && styles.footerLinkDisabled,
-                    ]}
-                >
-                    {timer > 0 ? `Resend OTP in ${timer}s` : 'Resend OTP'}
-                </Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepOtp>
     )
 
     // ---------- Step 3: Password ----------
     const renderStepPassword = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepPassword
+            password={password}
+            setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            passwordError={passwordError}
+            handleCreateAccount={handleCreateAccount}
+        >
             {renderHeader('Password')}
-
-            <Text style={styles.label}>New password</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="Enter password"
-                placeholderTextColor="#9a9a9a"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-
-            <Text style={styles.label}>Confirm password</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="Re-enter password"
-                placeholderTextColor="#9a9a9a"
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-            />
-
-            {!!passwordError && (
-                <Text style={styles.errorText}>{passwordError}</Text>
-            )}
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleCreateAccount}
-            >
-                <Text style={styles.primaryButtonText}>Create Account</Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepPassword>
     )
 
     // ---------- Step 4: Confirmation ----------
     const renderStepConfirmation = () => (
-        <View style={styles.stepContainer}>
-            <View style={styles.headerWrap}>
-                <Text style={styles.appName}>Ninety</Text>
-            </View>
-
-            <View style={styles.confirmationWrap}>
-                <Text style={styles.confirmationEmoji}>✅</Text>
-                <Text style={styles.confirmationTitle}>Account created!</Text>
-                <Text style={styles.confirmationSubtitle}>
-                    Your account has been set up successfully. You can now log in and
-                    start your 90-day challenge.
-                </Text>
-            </View>
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleGoToLogin}
-            >
-                <Text style={styles.primaryButtonText}>Go to Login</Text>
-            </TouchableOpacity>
-        </View>
+        <RenderStepConfirmation
+            handleGoToLogin={handleGoToLogin}
+        />
     )
 
     const renderStep = () => {

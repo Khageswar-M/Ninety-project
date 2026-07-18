@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { store } from "../src/redux/store";
 import { Provider } from "react-redux";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +15,7 @@ function AppNavigation() {
 
   const [isReady, setIsRead] = useState(false);
   const isDarkMode = useSelector((state) => state.theme.isDark);
+  const isLoggedIn = useSelector((state) => state.app.isLogin);
   const theme = useSelector((state) => state.theme.theme);
   const inset = useSafeAreaInsets();
 
@@ -23,7 +24,6 @@ function AppNavigation() {
     "Poppins-regular": require("../assets/fonts/Poppins-Regular.ttf"),
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
-
 
   useEffect(() => {
     async function prepare() {
@@ -48,9 +48,13 @@ function AppNavigation() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="(subScreens)" />
-        <Stack.Screen name="(auth)" />
+        <Stack.Protected guard={isLoggedIn}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(subScreens)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!isLoggedIn}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
       </Stack>
     </>
   )
