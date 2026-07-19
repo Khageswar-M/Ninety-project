@@ -1,6 +1,10 @@
 import { View, Text } from 'react-native'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
 import { TouchableOpacity } from 'react-native';
+import LottieView from 'lottie-react-native';
+import ConfirmAnimation from '../../../../assets/icons/Check.json'
+import { useRef } from 'react';
+
 const RenderStepConfirmation = ({
     handleGoToLogin
 }) => {
@@ -18,7 +22,13 @@ const RenderStepConfirmation = ({
                 gap: 20
             }}>
                 <View style={styles.confirmationWrap}>
-                    <Text style={styles.confirmationEmoji}>✅</Text>
+                    {/* <Text style={styles.confirmationEmoji}>✅</Text> */}
+                    <LottieView
+                        source={ConfirmAnimation}
+                        autoPlay
+                        loop={false}
+                        style={{ width: 150, height: 150 }}
+                    />
                     <Text style={styles.confirmationTitle}>Account created!</Text>
                     <Text style={styles.confirmationSubtitle}>
                         Your account has been set up successfully. You can now log in and
