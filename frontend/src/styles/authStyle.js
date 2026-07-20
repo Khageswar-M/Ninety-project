@@ -9,7 +9,6 @@ const authStyle = (theme) => StyleSheet.create({
     loginContainer: {
         flex: 1,
         paddingHorizontal: 24,
-        justifyContent: "space-between",
         paddingBottom: 35,
     },
 
@@ -151,6 +150,7 @@ const authStyle = (theme) => StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 10,
+        marginTop: 20
     },
 
     bottomText: {
@@ -169,7 +169,7 @@ const authStyle = (theme) => StyleSheet.create({
     signupContainer: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        // justifyContent: 'space-between'
     },
 
     stepContainer: {
@@ -179,14 +179,14 @@ const authStyle = (theme) => StyleSheet.create({
 
     headerWrap: {
         marginTop: 15,
-        // marginBottom: 30,
+        marginBottom: 30,
     },
 
     appName: {
         fontSize: 38,
         fontWeight: "700",
         color: theme.primary,
-        // marginBottom: 20,
+        marginBottom: 20,
         letterSpacing: 1,
     },
 
@@ -238,8 +238,6 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     primaryButton: {
-        marginTop: 0,
-        height: 56,
         borderRadius: 14,
         backgroundColor: theme.primary,
         justifyContent: "center",
@@ -252,6 +250,9 @@ const authStyle = (theme) => StyleSheet.create({
             width: 0,
             height: 3,
         },
+        paddingHorizontal: 30,
+        paddingVertical: 15,
+        marginTop: 20
     },
 
     primaryButtonText: {
@@ -302,7 +303,7 @@ const authStyle = (theme) => StyleSheet.create({
         fontSize: 15,
     },
 
-    changeEmailBtn:{
+    changeEmailBtn: {
         alignSelf: 'flex-end',
     },
 
@@ -359,21 +360,31 @@ const authStyle = (theme) => StyleSheet.create({
 
     confirmationEmoji: {
         fontSize: 70,
-        // marginBottom: 25,
+        marginBottom: 25,
     },
 
     confirmationTitle: {
         fontSize: 30,
         fontWeight: "700",
         color: theme.text,
+        textAlign: 'center'
     },
 
     confirmationSubtitle: {
         fontSize: 16,
         color: theme.text,
-        textAlign: "justify",
+        textAlign: "center",
         lineHeight: 24,
     },
+
+    accountCreatedSuccessContainer: {
+        flex: 1,
+        paddingVertical: 20,
+        flexDirection: 'column',
+        gap: 20,
+        alignItems: 'center',
+        justifyContent: 'space-evenly'
+    }
 });
 
 export default authStyle;

@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     //   StyleSheet,
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
@@ -14,6 +15,7 @@ import RenderStepOtp from './RenderStepOtp';
 import RenderStepPassword from './RenderStepPassword'
 import RenderStepConfirmation from './RenderStepConfirmation'
 import RenderProgressBars from './RenderProgressBars'
+import { router } from 'expo-router'
 
 const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
@@ -24,7 +26,7 @@ const SignUp = () => {
     const inset = useSafeAreaInsets()
 
     // ---------- Global step state ----------
-    const [step, setStep] = useState(2) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
+    const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
 
     // ---------- Step 1: Email ----------
     const [email, setEmail] = useState('khageswarmaharana462@gmail.com')
@@ -109,7 +111,7 @@ const SignUp = () => {
     }
 
     const handleGoToLogin = () => {
-        // TODO: navigate to login screen, e.g. router.replace('/login')
+        router.replace("(auth)/LoginPage");
     }
 
     // ---------- Progress bar header ----------
@@ -198,11 +200,17 @@ const SignUp = () => {
     }
 
     return (
-        <View
+        <KeyboardAwareScrollView
+            enableOnAndroid={true}
+            keyboardShouldPersistTaps="handled"
+            enableAutomaticScroll={true}
+            enableResetScrollToCoords={true}
+            enableOnAndroid={true}
+            keyboardOpeningTime={20}
             style={[styles.signupContainer, { paddingTop: inset.top }]}
         >
             {renderStep()}
-        </View>
+        </KeyboardAwareScrollView>
     )
 }
 

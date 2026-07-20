@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useAuthStyles } from '../../../hook/useThemeStyles'
 import { TouchableOpacity } from 'react-native';
 import CircularProgress from 'react-native-circular-progress-indicator';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const RenderStepOtp = ({
     children,

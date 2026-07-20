@@ -2,33 +2,29 @@ import { View, Text } from 'react-native'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
 import { TouchableOpacity } from 'react-native';
 import LottieView from 'lottie-react-native';
-import ConfirmAnimation from '../../../../assets/icons/Check.json'
-import { useRef } from 'react';
+import Verified from '../../../../assets/icons/Verified.json'
+import { useEffect, useRef } from 'react';
 
 const RenderStepConfirmation = ({
     handleGoToLogin
 }) => {
     const styles = useAuthStyles();
+
     return (
         <View style={styles.stepContainer}>
             <View style={styles.headerWrap}>
                 <Text style={styles.appName}>Ninety</Text>
             </View>
 
-            <View style={{
-                flex: 1,
-                paddingVertical: 20,
-                flexDirection: 'column',
-                gap: 20
-            }}>
+            <View style={styles.accountCreatedSuccessContainer}>
                 <View style={styles.confirmationWrap}>
-                    {/* <Text style={styles.confirmationEmoji}>✅</Text> */}
                     <LottieView
-                        source={ConfirmAnimation}
+                        source={Verified}
                         autoPlay
-                        loop={false}
+                        loop={true}
                         style={{ width: 150, height: 150 }}
                     />
+
                     <Text style={styles.confirmationTitle}>Account created!</Text>
                     <Text style={styles.confirmationSubtitle}>
                         Your account has been set up successfully. You can now log in and
@@ -39,6 +35,7 @@ const RenderStepConfirmation = ({
                 <TouchableOpacity
                     style={styles.primaryButton}
                     onPress={handleGoToLogin}
+                    
                 >
                     <Text style={styles.primaryButtonText}>Go to Login</Text>
                 </TouchableOpacity>

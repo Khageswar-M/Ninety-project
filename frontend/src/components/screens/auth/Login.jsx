@@ -4,12 +4,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStyles } from "../../../hook/useThemeStyles";
 import { router } from "expo-router";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const Login = () => {
   const styles = useAuthStyles();
@@ -21,11 +23,15 @@ const Login = () => {
   const [hidePassword, setHidePassword] = useState(true);
 
   return (
-    <View
-      style={[
+    <KeyboardAwareScrollView
+      enableOnAndroid={true}
+      enableAutomaticScroll={true}
+      extraScrollHeight={50}
+      contentContainerStyle={[
         styles.loginContainer,
-        { paddingTop: inset.top + 20 }
+        { paddingTop: inset.top, }
       ]}
+
     >
       {/* Header */}
 
@@ -158,7 +164,7 @@ const Login = () => {
         </Text>
 
         <TouchableOpacity
-            onPress={() => router.push("(auth)/SignUpPage")}
+          onPress={() => router.push("(auth)/SignUpPage")}
         >
           <Text style={styles.signup}>
             Sign Up
@@ -166,7 +172,7 @@ const Login = () => {
         </TouchableOpacity>
       </View>
 
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 
