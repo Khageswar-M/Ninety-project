@@ -2,10 +2,13 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import { useState } from 'react';
+import { toggleTheme } from '../../redux/slices/themeSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Appearance = () => {
     const style = useSettingStyles();
     const [myTheme, setMyTheme] = useState(1);
+    const dispatch = useDispatch();
 
     const themeItems = [
         {
@@ -25,9 +28,12 @@ const Appearance = () => {
         },
     ]
 
-    const handleTheme = (themeId) => {
-        setMyTheme(themeId);
-    }
+    const isDark = useSelector((state) => state.theme.isDark);
+
+    const handleTheme = () => {
+        dispatch(toggleTheme());
+        setMyTheme(isDark ? 1 : 2);
+    };
     return (
         <View>
             <Text style={style.componentTitle}>Appearance</Text>
