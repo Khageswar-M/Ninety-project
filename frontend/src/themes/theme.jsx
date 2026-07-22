@@ -9,7 +9,7 @@ export const darkTheme = {
     success: "#0d7100",
     successLight: "#83f64d",
     dark: "#000000",
-    darkLight: "#d0d0d0",
+    darkLight: "#d0d0d0", 
     light: "#ffffff",
     streak: "#534ab7",
     border: "#8a8a85",
