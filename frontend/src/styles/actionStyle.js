@@ -5,7 +5,7 @@ const actionStyle = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.background,
-        
+
     },
     scrollContent: {
         display: 'flex',
@@ -19,10 +19,10 @@ const actionStyle = (theme) => StyleSheet.create({
         width: "100%",
         backgroundColor: theme.backgroundMuted,
         padding: 5,
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        borderColor: theme.border,
-        borderWidth: 1
+        paddingHorizontal: 15,
+        // borderRadius: 10,
+        // borderColor: theme.border,
+        // borderWidth: 1
     },
     headerTitle: {
         fontSize: 20,
@@ -203,7 +203,98 @@ const actionStyle = (theme) => StyleSheet.create({
         transform: 'rotate(45deg)',
         color: theme.text
     },
-    
+    card: {
+        borderRadius: 16,
+        padding: 20,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 12,
+    },
+    sectionLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    chipsWrap: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 16,
+        minHeight: 32,
+    },
+    emptyText: {
+        fontSize: 13,
+        fontStyle: 'italic',
+        opacity: 0.6,
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 20,
+        paddingVertical: 6,
+        paddingLeft: 12,
+        paddingRight: 6,
+        maxWidth: '100%',
+    },
+    chipEditing: {
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    chipText: {
+        color: '#fff',
+        fontSize: 13,
+        marginRight: 6,
+        maxWidth: 160,
+    },
+    chipCancelBtn: {
+        backgroundColor: 'rgba(255,255,255,0.25)',
+        borderRadius: 10,
+        padding: 2,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 16,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: theme.border,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        fontSize: 14,
+        color: theme.text,
+    },
+    addBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    actionsRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 12,
+    },
+    cancelBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+    },
+    saveBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    saveBtnText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+
 })
 
 export default actionStyle;

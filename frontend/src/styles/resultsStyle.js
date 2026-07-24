@@ -24,9 +24,10 @@ const resultStyles = (theme) => StyleSheet.create({
     },
     header: {
         backgroundColor: theme.backgroundMuted,
-        borderColor: theme.border,
-        borderWidth: 1,
+        // borderColor: theme.border,
+        // borderWidth: 1,
         borderRadius: 5,
+        paddingHorizontal: 10,
         padding: 10,
         flexDirection: 'row',
         alignItems: 'center',

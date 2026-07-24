@@ -35,7 +35,7 @@ const Results = () => {
       }
     >
       {/* Header */}
-      <View style={style.headerContainer}>
+      <View>
         <Header />
       </View>
 

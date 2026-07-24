@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import Modal from 'react-native-modal';
 import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { useThemeStyles } from '../../hook/useThemeStyles';
+import { useActionStyles } from '../../hook/useThemeStyles';
 
 const makeId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -14,7 +14,7 @@ const CellDetailsModal = ({
     title,
     initialActions = [],
 }) => {
-    const style = useThemeStyles();
+    const localStyles = useActionStyles();
     const theme = useSelector((state) => state.theme.theme);
 
     const [entries, setEntries] = useState([]);
@@ -86,17 +86,17 @@ const CellDetailsModal = ({
             backdropOpacity={0.5}
             avoidKeyboard
         >
-            <View style={[localStyles.card, { backgroundColor: theme.backgroundMutedExtra }]}>
+            <View style={[localStyles.card, { backgroundColor: theme.background }]}>
                 <Text style={[localStyles.title, { color: theme.primary }]}>
                     {title}
                 </Text>
 
-                <Text style={[localStyles.sectionLabel, { color: theme.dark }]}>
+                <Text style={[localStyles.sectionLabel, { color: theme.text }]}>
                     What I did today
                 </Text>
                 <View style={localStyles.chipsWrap}>
                     {entries.length === 0 ? (
-                        <Text style={[localStyles.emptyText, { color: theme.dark }]}>
+                        <Text style={[localStyles.emptyText, { color: theme.textMuted }]}>
                             Nothing added yet
                         </Text>
                     ) : (
@@ -153,7 +153,7 @@ const CellDetailsModal = ({
 
                 <View style={localStyles.actionsRow}>
                     <Pressable onPress={resetAndCancel} style={localStyles.cancelBtn}>
-                        <Text style={{ color: theme.dark }}>Cancel</Text>
+                        <Text style={{ color: theme.text }}>Cancel</Text>
                     </Pressable>
                     <Pressable
                         onPress={handleSave}
@@ -167,97 +167,5 @@ const CellDetailsModal = ({
     );
 };
 
-const localStyles = StyleSheet.create({
-    card: {
-        borderRadius: 16,
-        padding: 20,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 12,
-    },
-    sectionLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-        marginBottom: 8,
-    },
-    chipsWrap: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 16,
-        minHeight: 32,
-    },
-    emptyText: {
-        fontSize: 13,
-        fontStyle: 'italic',
-        opacity: 0.6,
-    },
-    chip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingLeft: 12,
-        paddingRight: 6,
-        maxWidth: '100%',
-    },
-    chipEditing: {
-        borderWidth: 2,
-        borderColor: '#fff',
-    },
-    chipText: {
-        color: '#fff',
-        fontSize: 13,
-        marginRight: 6,
-        maxWidth: 160,
-    },
-    chipCancelBtn: {
-        backgroundColor: 'rgba(255,255,255,0.25)',
-        borderRadius: 10,
-        padding: 2,
-    },
-    inputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
-    },
-    input: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontSize: 14,
-    },
-    addBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    actionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 12,
-    },
-    cancelBtn: {
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-    },
-    saveBtn: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-    },
-    saveBtnText: {
-        color: '#fff',
-        fontWeight: '600',
-    },
-});
 
 export default CellDetailsModal;

@@ -42,7 +42,7 @@ const Actions = () => {
     >
 
       {/* HEADER */}
-      <View style={[style.headerParent]}>
+      <View >
         <Header />
       </View>
 
