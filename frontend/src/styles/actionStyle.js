@@ -25,7 +25,7 @@ const actionStyle = (theme) => StyleSheet.create({
         // borderWidth: 1
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 17.1,
         fontWeight: 'bold',
         color: theme.text
     },

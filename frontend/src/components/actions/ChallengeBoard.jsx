@@ -1,22 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, Pressable } from 'react-native';
-import { board } from '../../utils/RawData';
+import { board, currentStreakIndex } from '../../utils/RawData';
 import { useActionStyles } from '../../hook/useThemeStyles';
 import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import CellDetailsModal from '../modals/CellDetailsModal';
 
-
 const ChallengeBoard = () => {
     const style = useActionStyles();
-    const challengeBoard = board;
     const theme = useSelector((state) => state.theme.theme);
 
     const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
     const [selectedCell, setSelectedCell] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    // Stores actions for every cell
+    const [cellChecked, setCellChecked] = useState(board);
     const [cellActions, setCellActions] = useState({});
 
     const animatedValues = useRef(
@@ -32,16 +30,26 @@ const ChallengeBoard = () => {
                     useNativeDriver: false,
                 })
             );
-
             Animated.stagger(30, animations).start();
         }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
 
+    // Single source of truth for a cell's state — derived, not stored.
+    const getCellStatus = (cellIndex, isChecked) => {
+        if (cellIndex === currentStreakIndex) return 'current';
+        if (cellIndex < currentStreakIndex) return isChecked ? 'checked' : 'missed';
+        return 'future';
+    };
 
-    const openCell = (row, col) => {
-        setSelectedCell({ row, col });
+    const openCell = (rowIndex, collIndex) => {
+        const cellIndex = (rowIndex * 9) + collIndex;
+        const status = getCellStatus(cellIndex, cellChecked[rowIndex][collIndex]);
+
+        if (status !== 'checked' && status !== 'current') return;
+
+        setSelectedCell({ row: rowIndex, col: collIndex });
         setIsModalVisible(true);
     };
 
@@ -54,11 +62,20 @@ const ChallengeBoard = () => {
         if (!selectedCell) return;
 
         const key = `${selectedCell.row}-${selectedCell.col}`;
+        const cellIndex = (selectedCell.row * 9) + selectedCell.col;
 
         setCellActions((prev) => ({
             ...prev,
             [key]: actions,
         }));
+
+        if (cellIndex === currentStreakIndex) {
+            setCellChecked((prev) => {
+                const next = prev.map((r) => [...r]);
+                next[selectedCell.row][selectedCell.col] = true;
+                return next;
+            });
+        }
 
         closeModal();
     };
@@ -68,46 +85,54 @@ const ChallengeBoard = () => {
             <Text style={style.boardTitle}>BOARD</Text>
             <View style={style.boardContainer}>
                 {
-                    challengeBoard.map((row, rowIndex) => (
+                    cellChecked.map((row, rowIndex) => (
                         <View key={`row-${rowIndex}`} style={style.row}>
                             {
                                 row.map((collValue, collIndex) => {
 
                                     const cellIndex = (rowIndex * 9) + collIndex;
+                                    const status = getCellStatus(cellIndex, collValue);
+                                    const isEditable = status === 'current' || status === 'checked';
 
-                                    const targetColor = collValue ? theme.primary : theme.dark;
+                                    const targetColor =
+                                        status === 'checked' ? theme.primary :
+                                        status === 'current' ? (theme.success) :
+                                        status === 'missed' ? (theme.danger) :
+                                        theme.dark;
 
                                     const animatedBgColor = animatedValues[cellIndex].interpolate({
                                         inputRange: [0, 1],
                                         outputRange: [theme.backgroundMutedExtra, targetColor]
                                     });
 
-                                    return (
-                                        // 5. Change View to Animated.View
+                                    const cellStyle =
+                                        status === 'checked' ? style.cellChecked :
+                                        status === 'current' ? style.cellWillCheckToday :
+                                        status === 'missed' ? style.cellMissed :
+                                        style.cellWillCheck;
 
+                                    return (
                                         <AnimatedPressable
                                             key={`coll-${rowIndex}-${collIndex}`}
+                                            disabled={!isEditable}
                                             style={[
                                                 style.coll,
-                                                cellIndex === 8 ? style.cellWillCheckToday :
-                                                    cellIndex > 8 && !collValue ? style.cellWillCheck :
-                                                        cellIndex < 8 && !collValue ? style.cellNotChecked : style.cellChecked,
+                                                cellStyle,
                                                 {
                                                     backgroundColor: animatedBgColor,
+                                                    opacity: status === 'future' ? 0.5 : 1,
                                                 }
                                             ]}
-
                                             onPress={() => openCell(rowIndex, collIndex)}
-
                                         >
-
                                             <Text style={style.collIndexText}>
-                                                {collValue ? (
-                                                    <Ionicons name='checkmark-outline' size={20} />
+                                                {status === 'checked' ? (
+                                                    <Ionicons name='checkmark-outline' size={20} color={theme.light}/>
+                                                ) : status === 'missed' ? (
+                                                    <Ionicons name='close-outline' size={20} color={theme.light}/>
                                                 ) : (
                                                     cellIndex + 1
                                                 )}
-
                                             </Text>
                                         </AnimatedPressable>
                                     )

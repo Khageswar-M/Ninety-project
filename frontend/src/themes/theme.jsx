@@ -20,7 +20,7 @@ export const lightTheme = {
     primary: "#e85d04",
     text: "#000000",
     background: "#FAF9F6",
-    backgroundMuted: "#c1c1c1",
+    backgroundMuted: "#ffdcb4",
     backgroundMutedExtra: "#555555",
     textMuted: "#8a8a85",
     danger: "#a32d2d",
@@ -29,7 +29,7 @@ export const lightTheme = {
     darkLight: "#000000",
     light: "#ffffff",
     streak: "#534ab7",
-    border: "#8a8a85",
+    border: "#ffb35d",
     successLight: "#1eff00",
     btnDisable: "#3f3f3f",
 }

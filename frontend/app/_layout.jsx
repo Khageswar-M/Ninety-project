@@ -13,6 +13,7 @@ SplashScreen.preventAutoHideAsync();
 import { storage } from "../src/utils/storage.js";
 import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { useColorScheme } from "react-native";
+// import '../src/local_notifications/NotificationHandler'
 
 function AppNavigation() {
 

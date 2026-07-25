@@ -1,3 +1,5 @@
+
+export const currentStreakIndex = 8;
 export const board = [
         //00    01     02     03     04     05     06     07     08   
         [true, true, true, true, false, false, false, false, false],

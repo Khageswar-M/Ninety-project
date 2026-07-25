@@ -1,48 +1,111 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import { EvilIcons, Feather, Ionicons, Octicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Switch } from 'react-native-switch';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+    setDailyRemainder,
+    setRemainderTime,
+    setAiCoachDigest,
+    setMilestoneAlerts
+} from '../../redux/slices/notificationSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-
+import { storage } from '../../utils/storage';
 
 
 const Notifications = () => {
     const style = useSettingStyles();
-
     const theme = useSelector((state) => state.theme.theme);
-    const [dailyRemainder, setDailyRemainder] = useState(false);
-    const [showTimePicker, setShowTimePicker] = useState(false);
-    const [selectedTime, setSelectedTime] = useState(new Date());
-    const [remainderTime, setRemainderTime] = useState(new Date());
-    const [aiCoachDigest, setAiCoachDigest] = useState(false);
-    const [mileStone, setMileStone] = useState(false);
 
-    const handleDailyRemainder = () => {
-        setDailyRemainder((prev) => prev = !prev);
+    const STORAGE_KEY = {
+        DAILY_REMAINDER: "dailyRemainder",
+        REMAINDER_TIME: "remainderTime",
+        AI_COACH: "aiCoachDigest",
+        MILESTONE: "milestoneAlert"
     }
 
-    const handleRemainderTime = () => {
-        setShowTimePicker(true);
-    };
+    useEffect(() => {
+        loadNotificationSettings();
+    }, []);
 
-    const onTimeChange = (event, selectedTime) => {
+    const loadNotificationSettings = async () => {
+        try {
+            const dailyRemainder = await storage.get(STORAGE_KEY.DAILY_REMAINDER);
+            const remainderTime = await storage.get(STORAGE_KEY.REMAINDER_TIME);
+            const aiCoach = await storage.get(STORAGE_KEY.AI_COACH);
+            const mileStone = await storage.get(STORAGE_KEY.MILESTONE);
+
+            if (dailyRemainder != null) {
+                dispatch(setDailyRemainder(dailyRemainder));
+            }
+
+            if (remainderTime) {
+                const date = new Date(remainderTime);
+                dispatch(setRemainderTime(remainderTime));
+                setSelectedTime(date);
+            }
+
+            if (aiCoach != null) {
+                dispatch(setAiCoachDigest(aiCoach));
+            }
+
+            if (mileStone != null) {
+                dispatch(setMilestoneAlerts(mileStone));
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const dispatch = useDispatch();
+
+    const {
+        dailyRemainder,
+        remainderTime,
+        aiCoachDigest,
+        milestoneAlert,
+    } = useSelector((state) => state.notification);
+
+
+    const [showTimePicker, setShowTimePicker] = useState(false);
+
+    const [selectedTime, setSelectedTime] = useState(new Date());
+
+    const handleDailyRemainder = async () => {
+        const value = !dailyRemainder;
+        dispatch(setDailyRemainder(value));
+
+        await storage.set(STORAGE_KEY.DAILY_REMAINDER, value);
+    }
+
+    const handleTimeChange = async (event, time) => {
         setShowTimePicker(false);
 
-        if (event.type === 'set' && selectedTime) {
-            setSelectedTime(selectedTime);
-            setRemainderTime(selectedTime);
-        }
+        if (event.type !== "set" || !time) return;
+
+        setSelectedTime(time);
+
+        dispatch(setRemainderTime(time.toISOString()));
+
+        await storage.set(
+            STORAGE_KEY.REMAINDER_TIME,
+            time.toISOString()
+        );
     };
 
-    const handleAiCoachDigest = () => {
-        setAiCoachDigest((prev) => prev = !prev);
+    const handleAiCoachDigest = async () => {
+        const value = !aiCoachDigest;
+        dispatch(setAiCoachDigest(value));
+
+        await storage.set(STORAGE_KEY.AI_COACH, value);
     }
 
-    const handleMileStone = () => {
-        setMileStone((prev) => prev = !prev);
+    const handleMileStone = async () => {
+        const value = !milestoneAlert;
+        dispatch(setMilestoneAlerts(value));
+
+        await storage.set(STORAGE_KEY.MILESTONE, value);
     }
 
     const tabItems = [
@@ -64,7 +127,7 @@ const Notifications = () => {
             Icon: Octicons,
             iconName: "history",
             value: remainderTime,
-            changeValue: handleRemainderTime
+            changeValue: handleTimeChange
         },
         {
             id: 'ai-coach-digest',
@@ -83,10 +146,11 @@ const Notifications = () => {
             toggleBtn: true,
             Icon: Feather,
             iconName: "check-square",
-            value: mileStone,
+            value: milestoneAlert,
             changeValue: handleMileStone
         }
     ]
+
     return (
         <View>
             <Text style={style.componentTitle}>Notifications</Text>
@@ -147,13 +211,13 @@ const Notifications = () => {
                                         <View style={{ paddingRight: 10 }}>
                                             <TouchableOpacity
                                                 activeOpacity={0.7}
-                                                onPress={() => handleRemainderTime()}
+                                                onPress={() => setShowTimePicker(true)}
                                                 style={style.remainderTimeBtn}
                                             >
                                                 <Text style={style.remainderValueStyle}>
-                                                    {tab.value.toLocaleTimeString([], {
-                                                        hour: 'numeric',
-                                                        minute: '2-digit',
+                                                    {new Date(tab.value).toLocaleTimeString([], {
+                                                        hour: "numeric",
+                                                        minute: "2-digit",
                                                         hour12: true,
                                                     })}
                                                 </Text>
@@ -176,7 +240,7 @@ const Notifications = () => {
                     mode="time"
                     is24Hour={false}
                     display="default"
-                    onChange={onTimeChange}
+                    onChange={handleTimeChange}
                 />
             )}
 
