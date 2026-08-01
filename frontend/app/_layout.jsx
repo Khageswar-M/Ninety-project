@@ -1,8 +1,8 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { store } from "../src/redux/store";
 import { Provider } from "react-redux";
 import { StatusBar } from "expo-status-bar";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,20 +10,59 @@ import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
 import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 SplashScreen.preventAutoHideAsync();
+import { storage } from "../src/utils/storage.js";
+import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
+import { useColorScheme } from "react-native";
+// import '../src/local_notifications/NotificationHandler'
 
 function AppNavigation() {
 
   const [isReady, setIsRead] = useState(false);
+  const dispatch = useDispatch();
   const isDarkMode = useSelector((state) => state.theme.isDark);
+  const isLoggedIn = useSelector((state) => state.app.isLogin);
   const theme = useSelector((state) => state.theme.theme);
   const inset = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    async function loadTheme() {
+      const pastTheme = await storage.get("darkTheme");
+
+      switch (pastTheme) {
+        case "dark":
+          dispatch(setDarkTheme());
+          break;
+
+        case "light":
+          dispatch(setLightTheme());
+          break;
+
+        case "system":
+          if (colorScheme === "dark") {
+            dispatch(setDarkTheme());
+          } else {
+            dispatch(setLightTheme());
+          }
+          break;
+
+        default:
+          if (colorScheme === "dark") {
+            dispatch(setDarkTheme());
+          } else {
+            dispatch(setLightTheme());
+          }
+      }
+    }
+
+    loadTheme();
+  }, [colorScheme]);
 
   // Upload Font
   const [loaded] = useFonts({
     "Poppins-regular": require("../assets/fonts/Poppins-Regular.ttf"),
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
-
 
   useEffect(() => {
     async function prepare() {
@@ -48,9 +87,13 @@ function AppNavigation() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="(subScreens)" />
-        <Stack.Screen name="(auth)" />
+        <Stack.Protected guard={isLoggedIn}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(subScreens)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!isLoggedIn}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
       </Stack>
     </>
   )

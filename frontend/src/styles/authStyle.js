@@ -9,7 +9,6 @@ const authStyle = (theme) => StyleSheet.create({
     loginContainer: {
         flex: 1,
         paddingHorizontal: 24,
-        justifyContent: "space-between",
         paddingBottom: 35,
     },
 
@@ -151,6 +150,7 @@ const authStyle = (theme) => StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 10,
+        marginTop: 20
     },
 
     bottomText: {
@@ -166,10 +166,10 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
 
-    signupContainer:{
+    signupContainer: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        // justifyContent: 'space-between'
     },
 
     stepContainer: {
@@ -238,8 +238,6 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     primaryButton: {
-        marginTop: 24,
-        height: 56,
         borderRadius: 14,
         backgroundColor: theme.primary,
         justifyContent: "center",
@@ -252,6 +250,9 @@ const authStyle = (theme) => StyleSheet.create({
             width: 0,
             height: 3,
         },
+        paddingHorizontal: 30,
+        paddingVertical: 15,
+        marginTop: 20
     },
 
     primaryButtonText: {
@@ -298,13 +299,18 @@ const authStyle = (theme) => StyleSheet.create({
     footerLink: {
         marginTop: 22,
         textAlign: "center",
-        color: theme.border,
+        color: theme.text,
         fontSize: 15,
+    },
+
+    changeEmailBtn: {
+        alignSelf: 'flex-end',
     },
 
     footerLinkBold: {
         color: theme.primary,
         fontWeight: "700",
+        textAlign: 'center',
     },
 
     footerLinkDisabled: {
@@ -312,9 +318,9 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     changeEmailText: {
-        textAlign: "center",
+        textAlign: "left",
         color: theme.text,
-        fontSize: 15,
+        fontSize: 12,
         marginBottom: 25,
     },
 
@@ -325,12 +331,10 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     otpBox: {
-        width: 48,
-        height: 56,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: theme.border,
-        backgroundColor: theme.backgroundMuted,
+        width: 50,
+        height: 50,
+        borderBottomColor: theme.border,
+        borderBottomWidth: 1,
         textAlign: "center",
         fontSize: 22,
         fontWeight: "700",
@@ -338,7 +342,7 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     timerWrap: {
-        alignItems: "center",
+        alignItems: "flex-end",
         marginBottom: 15,
     },
 
@@ -349,7 +353,6 @@ const authStyle = (theme) => StyleSheet.create({
     },
 
     confirmationWrap: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 25,
@@ -364,7 +367,7 @@ const authStyle = (theme) => StyleSheet.create({
         fontSize: 30,
         fontWeight: "700",
         color: theme.text,
-        marginBottom: 12,
+        textAlign: 'center'
     },
 
     confirmationSubtitle: {
@@ -373,6 +376,15 @@ const authStyle = (theme) => StyleSheet.create({
         textAlign: "center",
         lineHeight: 24,
     },
+
+    accountCreatedSuccessContainer: {
+        flex: 1,
+        paddingVertical: 20,
+        flexDirection: 'column',
+        gap: 20,
+        alignItems: 'center',
+        justifyContent: 'space-evenly'
+    }
 });
 
 export default authStyle;

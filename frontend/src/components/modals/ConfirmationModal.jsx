@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from 'react-native'
-import  Modal  from 'react-native-modal'
+import Modal from 'react-native-modal'
 import { useThemeStyles } from '../../hook/useThemeStyles'
 
 const ConfirmationModal = ({
