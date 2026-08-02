@@ -56,8 +56,8 @@ app:
     refresh-token-expiration-ms: ${JWT_REFRESH_EXP} # 7 days
 
   otp:
-    expiry-minutes: ${OTP_EXPIRY_MIN:10}
-    length: 6
+    expiry-minutes: ${OTP_EXPIRY_MIN}
+    length: ${OTP_LENGTH}
 
   challenge:
     total-days: 90
