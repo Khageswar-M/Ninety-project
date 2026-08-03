@@ -17,80 +17,74 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler{
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            ResourceNotFoundException ex,
-            HttpServletRequest req
-    ){
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req, null);
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request){
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleEmailExists(
-            EmailAlreadyExistsException ex,
-            HttpServletRequest req
-    ){
+    public ResponseEntity<ApiError> handleEmailExists(EmailAlreadyExistsException ex, HttpServletRequest req){
         return build(HttpStatus.CONFLICT, ex.getMessage(), req, null);
     }
 
     @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
-    public ResponseEntity<ApiError> handleBadCredentials(Exception ex, HttpServletRequest req){
-        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), req, null);
+    public ResponseEntity<ApiError> handleBadCredentials(Exception ex, HttpServletRequest request){
+        return build(HttpStatus.UNAUTHORIZED, "Invalid email or password", request, null);
     }
 
     @ExceptionHandler(OtpException.class)
-    public ResponseEntity<ApiError> handleOtp(OtpException ex, HttpServletRequest req){
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req, null);
+    public ResponseEntity<ApiError> handleOtp(OtpException ex, HttpServletRequest request){
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(InvalidCheckInException.class)
-    public ResponseEntity<ApiError> handleInvalidCheckIn(InvalidCheckInException ex,  HttpServletRequest req){
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req, null);
+    public ResponseEntity<ApiError> handleInvalidCheckIn(InvalidCheckInException ex, HttpServletRequest request){
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(EmailDeliveryException.class)
-    public ResponseEntity<ApiError> handleEmailDelivery(EmailDeliveryException ex, HttpServletRequest req){
+    public ResponseEntity<ApiError> handleEmailDelivery(EmailDeliveryException ex, HttpServletRequest request){
         log.error("Email delivery failed", ex);
-        return build(HttpStatus.SERVICE_UNAVAILABLE, "Could not send email. Please try again shortly.", req, null);
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "Could not send email. Please try again shortly.", request, null);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest req){
-        return build(HttpStatus.FORBIDDEN, "You do not have permission to perform this action", req, null);
+    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request){
+        return build(HttpStatus.FORBIDDEN, "You do not have permission to perform this action", request, null);
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException ex, HttpServletRequest req){
-        return build(HttpStatus.UNAUTHORIZED, "Authentication Failed", req, null);
+    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException ex, HttpServletRequest request){
+        return build(HttpStatus.UNAUTHORIZED, "Authentication failed", request, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req){
+    public ResponseEntity<ApiError> handleValidException(MethodArgumentNotValidException ex, HttpServletRequest request){
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
-
-        return build(HttpStatus.BAD_REQUEST, "Validation failed", req, details);
+        return build(HttpStatus.BAD_REQUEST, "Validation failed.", request, details);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest req){
-        log.error("Unhandled exception at {}", req.getRequestURI(), ex);
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again latter.", req, null);
+    public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request){
+        log.error("Unhandled exception at {}", request.getRequestURI(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.", request, null);
     }
 
-    private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest req, List<String> details){
+    private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest request, List<String> details){
         ApiError error = ApiError.builder()
                 .success(false)
                 .status(status.value())
                 .error(status.getReasonPhrase())
                 .message(message)
-                .path(req.getRequestURI())
+                .path(request.getRequestURI())
                 .details(details)
                 .build();
-
         return ResponseEntity.status(status).body(error);
     }
+
+
 }
