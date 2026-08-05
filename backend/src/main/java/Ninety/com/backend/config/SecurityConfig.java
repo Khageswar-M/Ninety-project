@@ -1,6 +1,7 @@
 package Ninety.com.backend.config;
 
-import Ninety.com.backend.security.JwtAuthFilter;
+import Ninety.com.backend.exception.GlobalExceptionHandler;
+import Ninety.com.backend.security.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,61 +27,63 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
+
     private final UserDetailsService userDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
+    private final GlobalExceptionHandler exceptionHandler;
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/auth/**",
+            "api/v1/auth/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/actuator/health",
-            "/api/v1/otp/**"
+            "/actuator/health"
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+                http
+                        .csrf(csrf -> csrf.disable())
+                        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                .anyRequest().authenticated()
+                        )
+                        .authenticationProvider(authenticationProvider())
+                        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+                return http.build();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    public DaoAuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider provider  =  new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(12);
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(List.of("*")); 
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }

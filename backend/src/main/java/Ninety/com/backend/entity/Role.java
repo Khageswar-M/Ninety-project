@@ -1,6 +1,6 @@
 package Ninety.com.backend.entity;
 
-public enum Role {
+public enum Role{
     USER,
     ADMIN
 }

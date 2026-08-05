@@ -1,35 +1,39 @@
 package Ninety.com.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User {
-
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column( length = 100)
+    @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 254)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 10)
     @Builder.Default
     private Role role = Role.USER;
 
@@ -41,19 +45,13 @@ public class User {
     @Builder.Default
     private boolean enabled = true;
 
-    @Column(nullable = false, updatable = false)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    List<Challenge> challenges = new ArrayList<>();
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected  void onCreate(){
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
 }
