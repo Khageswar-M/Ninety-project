@@ -74,6 +74,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.", request, null);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(Exception ex, HttpServletRequest request){
+        log.error("Unhandled exception at {}", request.getRequestURI(), ex);
+        return build(HttpStatus.NOT_FOUND, "User not found.", request, null);
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest request, List<String> details){
         ApiError error = ApiError.builder()
                 .success(false)

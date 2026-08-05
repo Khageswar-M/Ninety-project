@@ -162,6 +162,14 @@
             <version>8.18.0</version>
         </dependency>
 
+        <!--H2Database-->
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 	</dependencies>
 
 	<build>
