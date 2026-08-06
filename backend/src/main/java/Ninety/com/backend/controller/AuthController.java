@@ -1,8 +1,10 @@
 package Ninety.com.backend.controller;
 
+import Ninety.com.backend.dto.request.RegisterRequest;
 import Ninety.com.backend.dto.request.SendOtpRequest;
 import Ninety.com.backend.dto.request.VerifyOtpRequest;
 import Ninety.com.backend.dto.response.ApiResponse;
+import Ninety.com.backend.service.AuthService;
 import Ninety.com.backend.service.EmailService;
 import Ninety.com.backend.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +26,7 @@ public class AuthController {
 
     private final OtpService otpService;
     private final EmailService emailService;
+    private final AuthService authService;
 
     @Operation(summary = "Send an email with attached OTP to the respective user for verify email")
     @PostMapping("/send-otp")
@@ -55,5 +58,19 @@ public class AuthController {
                 .body(ApiResponse.failure(
                         "Invalid OTP.", null));
     }
+
+
+    @Operation(summary = "Register with full name , email & password")
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<Void>> register(
+            @Valid
+            @RequestBody
+            RegisterRequest request
+    ){
+        authService.register(request);
+
+        return ResponseEntity.ok(ApiResponse.success("Registration successful", null));
+    }
+
 
 }
