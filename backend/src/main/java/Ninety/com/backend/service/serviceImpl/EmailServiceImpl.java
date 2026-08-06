@@ -2,6 +2,7 @@ package Ninety.com.backend.service.serviceImpl;
 
 import Ninety.com.backend.exception.EmailDeliveryException;
 import Ninety.com.backend.service.EmailService;
+import Ninety.com.backend.service.OtpService;
 import com.resend.Resend;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
@@ -18,6 +19,8 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService{
 
+    private final OtpService otpService;
+
     @Value("${resend.api-key}")
     private String apiKey;
 
@@ -31,7 +34,10 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     @Async
-    public CompletableFuture<Void> sendOtpEmail(String toEmail, String fullName, String otp) {
+    public CompletableFuture<Void> sendOtpEmail(String toEmail, String fullName) {
+
+        String otp = otpService.generateAndStoreOtp(toEmail);
+
         String html = """
                 <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
                     <h2>Verify your Ninety account</h2>

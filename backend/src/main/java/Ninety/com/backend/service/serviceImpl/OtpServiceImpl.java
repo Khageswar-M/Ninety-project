@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.dto.request.SendOtpRequest;
 import Ninety.com.backend.dto.request.VerifyOtpRequest;
 import Ninety.com.backend.service.OtpService;
 import lombok.RequiredArgsConstructor;
@@ -28,18 +29,18 @@ public class OtpServiceImpl implements OtpService {
     private int otpLength;
 
     @Override
-    public String generateAndStoreOtp(String email) {
+    public String generateAndStoreOtp(String toEmail) {
         String otp = generateNumericOtp(6);
-        redisTemplate.opsForValue().set(KEY_PREFIX + email, otp, Duration.ofMinutes(expiryMinutes));
-        log.debug("Generated OTP for {} (expires in {} min)", email, expiryMinutes);
+        redisTemplate.opsForValue().set(KEY_PREFIX + toEmail, otp, Duration.ofMinutes(expiryMinutes));
+        log.debug("Generated OTP for {} (expires in {} min)", toEmail, expiryMinutes);
         return otp;
     }
 
     @Override
     public boolean verifyOtp(VerifyOtpRequest request) {
-        String key = KEY_PREFIX + request.getEmail();
+        String key = KEY_PREFIX + request.email();
         Object stored = redisTemplate.opsForValue().get(key);
-        boolean valid = stored != null && stored.toString().equals(request.getOtp());
+        boolean valid = stored != null && stored.toString().equals(request.otp());
         if(valid){
             redisTemplate.delete(key);
         }
