@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.dto.request.VerifyOtpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,11 @@ class OtpServiceImplTest {
         when(valueOperations.get("otp" + email))
                 .thenReturn("123456");
 
-        boolean result = otpService.verifyOtp(email, otp);
+        VerifyOtpRequest request = new VerifyOtpRequest();
+        request.setEmail(email);
+        request.setOtp(otp);
+
+        boolean result = otpService.verifyOtp(request);
 
         assertTrue(result);
 
@@ -84,7 +89,11 @@ class OtpServiceImplTest {
         when(valueOperations.get("otp" + email))
                 .thenReturn(654321);
 
-        boolean result = otpService.verifyOtp(email, "123456");
+        VerifyOtpRequest request = new VerifyOtpRequest();
+        request.setEmail(email);
+        request.setOtp("123456");
+
+        boolean result = otpService.verifyOtp(request);
 
         assertFalse(result);
 
@@ -103,7 +112,11 @@ class OtpServiceImplTest {
         when(valueOperations.get("otp" + email))
                 .thenReturn(null);
 
-        boolean result = otpService.verifyOtp(email, "123456");
+        VerifyOtpRequest request = new VerifyOtpRequest();
+        request.setEmail(email);
+        request.setOtp(null);
+
+        boolean result = otpService.verifyOtp(request);
 
         assertFalse(result);
 

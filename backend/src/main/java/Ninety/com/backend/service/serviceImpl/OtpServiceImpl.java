@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.dto.request.VerifyOtpRequest;
 import Ninety.com.backend.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +36,10 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public boolean verifyOtp(String email, String otp) {
-        String key = KEY_PREFIX + email;
+    public boolean verifyOtp(VerifyOtpRequest request) {
+        String key = KEY_PREFIX + request.getEmail();
         Object stored = redisTemplate.opsForValue().get(key);
-        boolean valid = stored != null && stored.toString().equals(otp);
+        boolean valid = stored != null && stored.toString().equals(request.getOtp());
         if(valid){
             redisTemplate.delete(key);
         }
