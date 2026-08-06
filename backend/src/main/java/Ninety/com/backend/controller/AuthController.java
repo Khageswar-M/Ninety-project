@@ -10,13 +10,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/mail")
+@RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
-@Tag(name = "Mailing", description = "Handle Resend mailing operations for Send OTP")
-public class MailController {
+@Tag(name = "Authentication", description = "Control verify OTP , Register")
+public class AuthController {
 
     private final OtpService otpService;
     private final EmailService emailService;
