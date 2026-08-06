@@ -29,6 +29,15 @@ public class ApiResponse<T>{
 
     }
 
+    public static <T> ApiResponse<T> failure(String message, T data){
+        return ApiResponse.<T>builder()
+                .success(false)
+                .message(message)
+                .data(data)
+                .timestamp(Instant.now())
+                .build();
+    }
+
     public static <T> ApiResponse<T> success(T data){
         return success("OK", data);
     }
