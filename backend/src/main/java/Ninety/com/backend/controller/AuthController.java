@@ -1,9 +1,11 @@
 package Ninety.com.backend.controller;
 
+import Ninety.com.backend.dto.request.LoginRequest;
 import Ninety.com.backend.dto.request.RegisterRequest;
 import Ninety.com.backend.dto.request.SendOtpRequest;
 import Ninety.com.backend.dto.request.VerifyOtpRequest;
 import Ninety.com.backend.dto.response.ApiResponse;
+import Ninety.com.backend.dto.response.LoginResponse;
 import Ninety.com.backend.service.AuthService;
 import Ninety.com.backend.service.EmailService;
 import Ninety.com.backend.service.OtpService;
@@ -70,6 +72,17 @@ public class AuthController {
         authService.register(request);
 
         return ResponseEntity.ok(ApiResponse.success("Registration successful", null));
+    }
+
+    @Operation(summary = "Login with email & password, return JWT token")
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse> login(
+            @Valid
+            @RequestBody
+            LoginRequest request
+    ){
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
 
