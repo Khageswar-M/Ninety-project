@@ -1,0 +1,56 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: ninety-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: ninety-backend
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Local MySQL
+      DB_HOST: host.docker.internal
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # Redis (Docker)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXP: ${JWT_ACCESS_EXP}
+      JWT_REFRESH_EXP: ${JWT_REFRESH_EXP}
+
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+
+      OTP_EXPIRY_MIN: ${OTP_EXPIRY_MIN}
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  redis_data:
