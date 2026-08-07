@@ -4,7 +4,6 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    //   StyleSheet,
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -16,6 +15,7 @@ import RenderStepPassword from './RenderStepPassword'
 import RenderStepConfirmation from './RenderStepConfirmation'
 import RenderProgressBars from './RenderProgressBars'
 import { router } from 'expo-router'
+import { sendOtpMail } from '../../../API/auth/authApi'
 
 const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
@@ -87,12 +87,20 @@ const SignUp = () => {
     }
 
     // ---------- Step 2 -> submit handlers ----------
-    const handleSendOtp = () => {
-        if (!email) return
-        // TODO: trigger send OTP API call
-        setTimer(RESEND_SECONDS)
-        setStep(2)
-    }
+    const handleSendOtp = async () => {
+        if (!email) return;
+
+        try {
+            const response = await sendOtpMail(email);
+
+            if (response.success) {
+                setTimer(RESEND_SECONDS);
+                setStep(2);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const handleVerifyOtp = () => {
         const code = otp.join('')
