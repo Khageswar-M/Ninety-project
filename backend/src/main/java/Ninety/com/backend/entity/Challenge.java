@@ -35,6 +35,7 @@ public class Challenge{
     @Column(nullable = false, length = 100)
     private String title;
 
+    @Builder.Default
     @Lob
     @Convert(converter = GridConverter.class)
     @Column(name = "day_grid", columnDefinition = "LONGTEXT", nullable = false)

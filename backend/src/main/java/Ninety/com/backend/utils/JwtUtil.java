@@ -1,5 +1,6 @@
 package Ninety.com.backend.utils;
 
+import Ninety.com.backend.exception.UserNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -65,7 +66,7 @@ public class JwtUtil {
         try{
             return extractExpiration(token).before(new Date());
         }catch (Exception ex){
-             throw new UsernameNotFoundException("Invalid token");
+             throw new UserNotFoundException("Invalid token");
         }
     }
 
