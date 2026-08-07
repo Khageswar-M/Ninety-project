@@ -2,6 +2,8 @@ package Ninety.com.backend.dto.response;
 
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record LoginResponse(
         Long id,
@@ -10,6 +12,8 @@ public record LoginResponse(
         boolean isEnabled,
         String createdAt,
         String updatedAt,
-        String jwtToken
+        String jwtToken,
+        List<ChallengeResponse> challenges
+
 ) {
 }

@@ -2,11 +2,15 @@ package Ninety.com.backend.service.serviceImpl;
 
 import Ninety.com.backend.dto.request.LoginRequest;
 import Ninety.com.backend.dto.request.RegisterRequest;
+import Ninety.com.backend.dto.response.ActivityResponse;
+import Ninety.com.backend.dto.response.ChallengeResponse;
 import Ninety.com.backend.dto.response.LoginResponse;
+import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.Role;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.EmailAlreadyExistsException;
 import Ninety.com.backend.exception.InvalidCredentialsException;
+import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
 import Ninety.com.backend.service.AuthService;
 import Ninety.com.backend.service.EmailService;
@@ -20,6 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final ChallengeRepository challengeRepository;
 
     @Override
     @Transactional
@@ -48,6 +57,16 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+
+
+        Challenge challenge = Challenge.builder()
+                .user(user)
+                .title("My 90 Day Challenge")
+                .startedAt(LocalDate.now())
+                .build();
+
+        challengeRepository.save(challenge);
+
         log.info("Registered new user {}", user.getEmail());
 
     }
@@ -71,6 +90,43 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
 
+        List<ChallengeResponse> challengeResponses =
+                user.getChallenges()
+                        .stream()
+                        .sorted(
+                                Comparator.comparing(Challenge::isCompleted)
+                        )
+                        .map(challenge -> {
+
+                            List<ActivityResponse> activityResponses =
+                                    challenge.getActivities()
+                                            .stream()
+                                            .map(activity -> ActivityResponse.builder()
+                                                    .id(activity.getId())
+                                                    .dayNumber(activity.getDayNumber())
+                                                    .title(activity.getTitle())
+                                                    .createdAt(activity.getCreatedAt())
+                                                    .updatedAt(activity.getUpdatedAt())
+                                                    .build())
+                                            .toList();
+
+                            return ChallengeResponse.builder()
+                                    .id(challenge.getId())
+                                    .title(challenge.getTitle())
+                                    .dayGrid(challenge.getDayGrid())
+                                    .currentDay(challenge.getCurrentDay())
+                                    .currentStreak(challenge.getCurrentStreak())
+                                    .longestStreak(challenge.getLongestStreak())
+                                    .streakCount(challenge.getStreakCount())
+                                    .completedCount(challenge.getCompletedCount())
+                                    .startedAt(challenge.getStartedAt())
+                                    .completed(challenge.isCompleted())
+                                    .createdAt(challenge.getCreatedAt())
+                                    .updatedAt(challenge.getUpdatedAt())
+                                    .activities(activityResponses)
+                                    .build();
+                        }).toList();
+
         return LoginResponse.builder()
                 .id(user.getId())
                 .fullName(user.getFullName())
@@ -79,6 +135,7 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(user.getCreatedAt().toString())
                 .updatedAt(user.getUpdatedAt().toString())
                 .jwtToken(jwtToken)
+                .challenges(challengeResponses)
                 .build();
     }
 }
