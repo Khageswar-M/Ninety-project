@@ -90,14 +90,18 @@ const SignUp = () => {
     const handleSendOtp = async () => {
         if (!email) return;
 
+        console.log("Sending OTP...");
+        console.log("URL:", `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/v1/auth/send-otp`);
+
         try {
-            const response = await sendOtpMail(email);
+            const response = await sendOtpMail(email, "Khageswar");
 
             if (response.success) {
                 setTimer(RESEND_SECONDS);
                 setStep(2);
             }
         } catch (error) {
+            console.log("Error occurs");
             console.error(error);
         }
     };
