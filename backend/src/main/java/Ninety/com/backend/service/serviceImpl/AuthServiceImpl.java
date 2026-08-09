@@ -2,6 +2,7 @@ package Ninety.com.backend.service.serviceImpl;
 
 import Ninety.com.backend.dto.request.LoginRequest;
 import Ninety.com.backend.dto.request.RegisterRequest;
+import Ninety.com.backend.dto.request.UserExistsRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.dto.response.ChallengeResponse;
 import Ninety.com.backend.dto.response.LoginResponse;
@@ -137,5 +138,10 @@ public class AuthServiceImpl implements AuthService {
                 .jwtToken(jwtToken)
                 .challenges(challengeResponses)
                 .build();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
