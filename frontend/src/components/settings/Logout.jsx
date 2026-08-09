@@ -3,15 +3,21 @@ import { useSettingStyles } from '../../hook/useThemeStyles'
 import { MaterialIcons } from '@expo/vector-icons';
 import ConfirmationModal from '../modals/ConfirmationModal.jsx';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setLogin } from '../../redux/slices/appSlice.js';
 
 const Logout = () => {
     const style = useSettingStyles();
+    const dispatch = useDispatch();
 
     const [openLogoutConfirmationModal, setOpenLogoutConfirmationModal] = useState(false);
 
     const handleLogout = () => {
         try {
+            dispatch(setLogin(false));
             console.log("Logout successfully!");
+        }catch(error){
+            console.error(error);
         } finally {
             setOpenLogoutConfirmationModal(false);
         }

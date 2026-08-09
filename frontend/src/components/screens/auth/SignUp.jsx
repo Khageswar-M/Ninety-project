@@ -4,30 +4,51 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    //   StyleSheet,
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
+import RenderStepEmail from './RenderStepEmail';
+import RenderStepOtp from './RenderStepOtp';
+import RenderStepPassword from './RenderStepPassword'
+import RenderStepConfirmation from './RenderStepConfirmation'
+import RenderProgressBars from './RenderProgressBars'
+import { router } from 'expo-router'
+import { sendOtpMail, verifyOtp, signUp } from '../../../API/auth/authApi'
+import { validateEmail } from '../../../utils/validateEmail'
+import { validatePasswordStrength } from '../../../utils/validatePasswordStrength'
+import { isUserExists } from '../../../API/users/usersApi'
+import ConfirmationModal from '../../modals/ConfirmationModal'
 
 const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
 const RESEND_SECONDS = 30
 
 const SignUp = () => {
-    const styles = useAuthStyles()
-    const inset = useSafeAreaInsets()
 
-    // ---------- Global step state ----------
-    const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
+    const styles = useAuthStyles();
+    const inset = useSafeAreaInsets();
 
-    // ---------- Step 1: Email ----------
-    const [email, setEmail] = useState('')
 
-    // ---------- Step 2: OTP ----------
-    const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''))
-    const otpRefs = useRef([])
-    const [timer, setTimer] = useState(RESEND_SECONDS)
+    const [step, setStep] = useState(1);
+    const [fullName, setFullName] = useState('Khageswar Maharana');
+    const [fullNameError, setFullNameError] = useState(false);
+    const [email, setEmail] = useState('khageswarmaharana462@gmail.com');
+    const [emailError, setEmailError] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
+    const [timer, setTimer] = useState(RESEND_SECONDS);
+    const [isInvalidOtp, setIsInvalidOtp] = useState(false);
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMsg, setModalMsg] = useState('');
+    const otpRefs = useRef([]);
+
+
 
     useEffect(() => {
         if (step !== 2) return
@@ -39,6 +60,7 @@ const SignUp = () => {
     }, [step, timer])
 
     const handleOtpChange = (value, index) => {
+        setIsInvalidOtp(false);
         const updated = [...otp]
         updated[index] = value
         setOtp(updated)
@@ -53,260 +75,250 @@ const SignUp = () => {
         }
     }
 
-    const handleResendOtp = () => {
-        if (timer > 0) return
-        setOtp(Array(OTP_LENGTH).fill(''))
-        setTimer(RESEND_SECONDS)
-        // TODO: trigger resend OTP API call
-    }
-
-    // ---------- Step 3: Password ----------
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [passwordError, setPasswordError] = useState('')
-
-    const handleCreateAccount = () => {
+    // HANDLE REGISTER ACCOUNT
+    const handleCreateAccount = async () => {
+        setLoading(true);
         if (!password || !confirmPassword) {
             setPasswordError('Please fill in both fields')
             return
         }
+        if (password.length < 8) {
+            setPasswordError('Password must be at least 8 characters')
+            return
+        }
+
+        if (!validatePasswordStrength(password)) {
+            console.log(validatePasswordStrength(password));
+            setPasswordError('Password is too weak — add uppercase, numbers, or symbols')
+            return
+        }
+
         if (password !== confirmPassword) {
             setPasswordError('Passwords do not match')
             return
         }
         setPasswordError('')
-        // TODO: submit new password to backend
-        setStep(4)
+
+        try {
+            const response = await signUp(email, fullName, password);
+            if (response.data.success) {
+                setStep(4)
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
     }
+
+    // HANDLE FULL NAME CHANGE -> STEP - 1
+    const handleFullNameChange = (text) => {
+        setFullName(text);
+
+        if (fullNameError) {
+            setFullNameError(false);
+        }
+    };
+
+    // HANDLE EMAIL CHANGE -> STEP - 1
+    const handleEmailChange = (text) => {
+        setEmail(text);
+
+        if (emailError) {
+            setEmailError(false);
+        }
+    };
+
+    // HANDLE SEND OTP -> STEP - 1 & 2
+    const sendOtp = async () => {
+
+
+
+        const response = await sendOtpMail(email, fullName);
+
+        if (!response.success) {
+            throw new Error("Failed to send OTP");
+        }
+
+        return response;
+    };
 
     // ---------- Step 2 -> submit handlers ----------
-    const handleSendOtp = () => {
-        if (!email) return
-        // TODO: trigger send OTP API call
-        setTimer(RESEND_SECONDS)
-        setStep(2)
-    }
+    // HANDLE SEND OTP WITH DATA VALIDATION -> STEP - 1
+    const handleSendOtp = async () => {
+        const isFullNameEmpty = !fullName.trim();
+        const isEmailEmpty = !email.trim();
 
-    const handleVerifyOtp = () => {
-        const code = otp.join('')
-        if (code.length !== OTP_LENGTH) return
-        // TODO: verify OTP with backend
-        setStep(3)
-    }
+        setFullNameError(isFullNameEmpty);
+        setEmailError(isEmailEmpty);
 
+        if (isEmailEmpty || isFullNameEmpty) return;
+
+        if (!validateEmail(email)) {
+            setEmailError(true);
+            return;
+        }
+
+
+
+        console.log("Email: ", email, " FullName: ", fullName);
+
+        setLoading(true);
+
+        try {
+
+            const userExists = await isUserExists(email);
+
+            if (userExists) {
+                console.log("User already exists");
+                setModalTitle("User Exists");
+                setModalMsg("User already exists with this email.")
+                setIsVisible(true);
+                return;
+            }
+
+            await sendOtp();
+
+            setTimer(RESEND_SECONDS);
+            setStep(2);
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE RESENT OTP -> STEP - 2
+    const handleResendOtp = async () => {
+        if (timer > 0 || loading) return;
+
+        setOtp(Array(OTP_LENGTH).fill(''));
+        setLoading(true);
+
+        try {
+            await sendOtp();
+
+            setTimer(RESEND_SECONDS);
+        } catch (error) {
+            console.error("Error resending OTP:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE VERIFY OTP -> STEP - 2
+    const handleVerifyOtp = async () => {
+        const code = otp.join('');
+
+        if (code.length !== OTP_LENGTH) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await verifyOtp(email, code);
+
+            if (response.data.success) {
+                setIsInvalidOtp(false);
+                setStep(3);
+            }
+        } catch (error) {
+            setIsInvalidOtp(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE CHANGE EMAIL -> STEP - 2
     const handleChangeEmail = () => {
         setOtp(Array(OTP_LENGTH).fill(''))
         setStep(1)
     }
 
-    const handleGoogleSignUp = () => {
-        // TODO: trigger Google OAuth signup
-    }
-
     const handleGoToLogin = () => {
-        // TODO: navigate to login screen, e.g. router.replace('/login')
+        router.replace("(auth)/LoginPage");
     }
 
     // ---------- Progress bar header ----------
     const renderProgressBars = () => (
-        <View style={styles.progressRow}>
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
-                const barIndex = i + 1
-                const isCompleted = barIndex < step
-                const isActive = barIndex === step
-                return (
-                    <View
-                        key={barIndex}
-                        style={[
-                            styles.progressBar,
-                            isCompleted && styles.progressBarCompleted,
-                            isActive && styles.progressBarActive,
-                        ]}
-                    />
-                )
-            })}
-        </View>
+        <RenderProgressBars
+            TOTAL_STEPS={TOTAL_STEPS}
+            step={step}
+        />
     )
 
     const renderHeader = (title) => (
         <View style={styles.headerWrap}>
-            <Text style={styles.appName}>Ninety</Text>
+            <Text style={styles.appName}>Ninety Productive Day's Tracker</Text>
             {renderProgressBars()}
             <Text style={styles.stepTitle}>{title}</Text>
         </View>
     )
 
+
     // ---------- Step 1: Email ----------
     const renderStepEmail = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepEmail
+            fullName={fullName}
+            setFullName={handleFullNameChange}
+            email={email}
+            setEmail={handleEmailChange}
+            handleSendOtp={handleSendOtp}
+            handleGoToLogin={handleGoToLogin}
+            loading={loading}
+            fullNameError={fullNameError}
+            emailError={emailError}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+        >
             {renderHeader('Create your account')}
-
-            <Text style={styles.label}>Email address</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="you@example.com"
-                placeholderTextColor="#9a9a9a"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-            />
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleSendOtp}
-                disabled={!email}
-            >
-                <Text style={styles.primaryButtonText}>Send OTP</Text>
-            </TouchableOpacity>
-
-            <View style={styles.signUpDividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity
-                style={styles.signupGoogleButton}
-                onPress={handleGoogleSignUp}
-            >
-                <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleGoToLogin}>
-                <Text style={styles.footerLink}>
-                    Already have an account? <Text style={styles.footerLinkBold}>Log in</Text>
-                </Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepEmail>
     )
 
     // ---------- Step 2: Verify OTP ----------
     const renderStepOtp = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepOtp
+            email={email}
+            handleChangeEmail={handleChangeEmail}
+            otp={otp}
+            OTP_LENGTH={OTP_LENGTH}
+            otpRefs={otpRefs}
+            handleOtpChange={handleOtpChange}
+            handleOtpKeyPress={handleOtpKeyPress}
+            timer={timer}
+            RESEND_SECONDS={RESEND_SECONDS}
+            handleVerifyOtp={handleVerifyOtp}
+            handleResendOtp={handleResendOtp}
+            loading={loading}
+            isInvalidOtp={isInvalidOtp}
+        >
             {renderHeader('Verify OTP')}
-
-            <TouchableOpacity onPress={handleChangeEmail}>
-                <Text style={styles.changeEmailText}>
-                    Code sent to {email || 'your email'} · <Text style={styles.footerLinkBold}>Change email</Text>
-                </Text>
-            </TouchableOpacity>
-
-            <View style={styles.otpRow}>
-                {otp.map((digit, index) => (
-                    <TextInput
-                        key={index}
-                        ref={(ref) => (otpRefs.current[index] = ref)}
-                        style={styles.otpBox}
-                        maxLength={1}
-                        keyboardType="number-pad"
-                        value={digit}
-                        onChangeText={(value) => handleOtpChange(value, index)}
-                        onKeyPress={(e) => handleOtpKeyPress(e, index)}
-                    />
-                ))}
-            </View>
-
-            <View style={styles.timerWrap}>
-                <CircularProgress
-                    value={timer}
-                    maxValue={RESEND_SECONDS}
-                    initialValue={RESEND_SECONDS}
-                    radius={40}
-                    duration={0}
-                    progressValueColor="#333"
-                    activeStrokeColor="#6C5CE7"
-                    inActiveStrokeColor="#E0E0E0"
-                    activeStrokeWidth={6}
-                    inActiveStrokeWidth={6}
-                    title="sec"
-                    titleColor="#999"
-                    titleStyle={{ fontSize: 10 }}
-                />
-            </View>
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleVerifyOtp}
-                disabled={otp.join('').length !== OTP_LENGTH}
-            >
-                <Text style={styles.primaryButtonText}>Verify OTP</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleResendOtp} disabled={timer > 0}>
-                <Text
-                    style={[
-                        styles.footerLink,
-                        timer > 0 && styles.footerLinkDisabled,
-                    ]}
-                >
-                    {timer > 0 ? `Resend OTP in ${timer}s` : 'Resend OTP'}
-                </Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepOtp>
     )
 
     // ---------- Step 3: Password ----------
     const renderStepPassword = () => (
-        <View style={styles.stepContainer}>
+        <RenderStepPassword
+            password={password}
+            setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            passwordError={passwordError}
+            handleCreateAccount={handleCreateAccount}
+            loading={loading}
+        >
             {renderHeader('Password')}
-
-            <Text style={styles.label}>New password</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="Enter password"
-                placeholderTextColor="#9a9a9a"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-
-            <Text style={styles.label}>Confirm password</Text>
-            <TextInput
-                style={styles.signUpInput}
-                placeholder="Re-enter password"
-                placeholderTextColor="#9a9a9a"
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-            />
-
-            {!!passwordError && (
-                <Text style={styles.errorText}>{passwordError}</Text>
-            )}
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleCreateAccount}
-            >
-                <Text style={styles.primaryButtonText}>Create Account</Text>
-            </TouchableOpacity>
-        </View>
+        </RenderStepPassword>
     )
 
     // ---------- Step 4: Confirmation ----------
     const renderStepConfirmation = () => (
-        <View style={styles.stepContainer}>
-            <View style={styles.headerWrap}>
-                <Text style={styles.appName}>Ninety</Text>
-            </View>
-
-            <View style={styles.confirmationWrap}>
-                <Text style={styles.confirmationEmoji}>✅</Text>
-                <Text style={styles.confirmationTitle}>Account created!</Text>
-                <Text style={styles.confirmationSubtitle}>
-                    Your account has been set up successfully. You can now log in and
-                    start your 90-day challenge.
-                </Text>
-            </View>
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleGoToLogin}
-            >
-                <Text style={styles.primaryButtonText}>Go to Login</Text>
-            </TouchableOpacity>
-        </View>
+        <RenderStepConfirmation
+            handleGoToLogin={handleGoToLogin}
+        >
+            {renderHeader("")}
+        </RenderStepConfirmation>
     )
 
     const renderStep = () => {
@@ -324,12 +336,36 @@ const SignUp = () => {
         }
     }
 
+
     return (
-        <View
-            style={[styles.signupContainer, { paddingTop: inset.top }]}
-        >
-            {renderStep()}
-        </View>
+        <>
+            <KeyboardAwareScrollView
+                enableOnAndroid={true}
+                keyboardShouldPersistTaps="handled"
+                enableAutomaticScroll={true}
+                enableResetScrollToCoords={true}
+                enableOnAndroid={true}
+                keyboardOpeningTime={20}
+                style={[styles.signupContainer, { paddingTop: inset.top }]}
+            >
+                {renderStep()}
+            </KeyboardAwareScrollView>
+
+            {
+                isVisible && (
+                    <ConfirmationModal
+                        isVisible={isVisible}
+                        onCancel={() => setIsVisible(false)}
+                        onAction={() => setIsVisible(false)}
+                        title={modalTitle || "Alert"}
+                        message={modalMsg}
+                        cancelBtnTitle="OK"
+                        visible={false}
+                    />
+                )
+            }
+        </>
+
     )
 }
 

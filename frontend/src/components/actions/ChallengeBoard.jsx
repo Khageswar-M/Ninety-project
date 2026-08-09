@@ -1,21 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { View, Text, Animated } from 'react-native';
-// UTILS
-import { board } from '../../utils/RawData';
-// HOOKS
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, Animated, Pressable } from 'react-native';
+import { board, currentStreakIndex } from '../../utils/RawData';
 import { useActionStyles } from '../../hook/useThemeStyles';
-// REDUX
 import { useSelector } from 'react-redux';
-// ICON
 import { Ionicons } from '@expo/vector-icons';
+import CellDetailsModal from '../modals/CellDetailsModal';
 
 const ChallengeBoard = () => {
     const style = useActionStyles();
-    const challengeBoard = board;
     const theme = useSelector((state) => state.theme.theme);
 
-    // 1. Create an array of 90 Animated Values (10 rows * 9 columns)
-    // We use .current so it only generates once on mount
+    const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+    const [selectedCell, setSelectedCell] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [cellChecked, setCellChecked] = useState(board);
+    const [cellActions, setCellActions] = useState({});
+
     const animatedValues = useRef(
         Array.from({ length: 90 }).map(() => new Animated.Value(0))
     ).current;
@@ -29,59 +30,111 @@ const ChallengeBoard = () => {
                     useNativeDriver: false,
                 })
             );
-
             Animated.stagger(30, animations).start();
-        }, 1000); // Wait until the header animation completes
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
+
+    // Single source of truth for a cell's state — derived, not stored.
+    const getCellStatus = (cellIndex, isChecked) => {
+        if (cellIndex === currentStreakIndex) return 'current';
+        if (cellIndex < currentStreakIndex) return isChecked ? 'checked' : 'missed';
+        return 'future';
+    };
+
+    const openCell = (rowIndex, collIndex) => {
+        const cellIndex = (rowIndex * 9) + collIndex;
+        const status = getCellStatus(cellIndex, cellChecked[rowIndex][collIndex]);
+
+        if (status !== 'checked' && status !== 'current') return;
+
+        setSelectedCell({ row: rowIndex, col: collIndex });
+        setIsModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setSelectedCell(null);
+    };
+
+    const saveCellActions = (actions) => {
+        if (!selectedCell) return;
+
+        const key = `${selectedCell.row}-${selectedCell.col}`;
+        const cellIndex = (selectedCell.row * 9) + selectedCell.col;
+
+        setCellActions((prev) => ({
+            ...prev,
+            [key]: actions,
+        }));
+
+        if (cellIndex === currentStreakIndex) {
+            setCellChecked((prev) => {
+                const next = prev.map((r) => [...r]);
+                next[selectedCell.row][selectedCell.col] = true;
+                return next;
+            });
+        }
+
+        closeModal();
+    };
 
     return (
         <View>
             <Text style={style.boardTitle}>BOARD</Text>
             <View style={style.boardContainer}>
                 {
-                    challengeBoard.map((row, rowIndex) => (
+                    cellChecked.map((row, rowIndex) => (
                         <View key={`row-${rowIndex}`} style={style.row}>
                             {
                                 row.map((collValue, collIndex) => {
-                                    // Calculate 1D index (0 to 89) to grab the correct Animated.Value
-                                    // Note: Multiplied by 9 (columns), not 10, so the numbers flow correctly!
-                                    const cellIndex = (rowIndex * 9) + collIndex;
 
-                                    // 4. Interpolate from a neutral/invisible state to the target color
-                                    const targetColor = collValue ? theme.primary : theme.dark;
+                                    const cellIndex = (rowIndex * 9) + collIndex;
+                                    const status = getCellStatus(cellIndex, collValue);
+                                    const isEditable = status === 'current' || status === 'checked';
+
+                                    const targetColor =
+                                        status === 'checked' ? theme.primary :
+                                        status === 'current' ? (theme.success) :
+                                        status === 'missed' ? (theme.danger) :
+                                        theme.dark;
 
                                     const animatedBgColor = animatedValues[cellIndex].interpolate({
                                         inputRange: [0, 1],
-                                        // Start transparent (or a neutral color), animate to final color
                                         outputRange: [theme.backgroundMutedExtra, targetColor]
                                     });
 
+                                    const cellStyle =
+                                        status === 'checked' ? style.cellChecked :
+                                        status === 'current' ? style.cellWillCheckToday :
+                                        status === 'missed' ? style.cellMissed :
+                                        style.cellWillCheck;
+
                                     return (
-                                        // 5. Change View to Animated.View
-                                        <Animated.View
+                                        <AnimatedPressable
                                             key={`coll-${rowIndex}-${collIndex}`}
+                                            disabled={!isEditable}
                                             style={[
                                                 style.coll,
-                                                cellIndex === 8 ? style.cellWillCheckToday :
-                                                    cellIndex > 8 && !collValue ? style.cellWillCheck :
-                                                        cellIndex < 8 && !collValue ? style.cellNotChecked : style.cellChecked,
+                                                cellStyle,
                                                 {
                                                     backgroundColor: animatedBgColor,
-                                                    // Safely apply border color without boolean injection
-                                                    // borderColor: cellIndex === 8 ? theme.successLight : theme.border
+                                                    opacity: status === 'future' ? 0.5 : 1,
                                                 }
                                             ]}
+                                            onPress={() => openCell(rowIndex, collIndex)}
                                         >
                                             <Text style={style.collIndexText}>
-                                                {collValue ? (
-                                                    <Ionicons name='checkmark-outline' size={20} />
+                                                {status === 'checked' ? (
+                                                    <Ionicons name='checkmark-outline' size={20} color={theme.light}/>
+                                                ) : status === 'missed' ? (
+                                                    <Ionicons name='close-outline' size={20} color={theme.light}/>
                                                 ) : (
-                                                    cellIndex + 1 // Reused the fixed math here for accuracy!
+                                                    cellIndex + 1
                                                 )}
                                             </Text>
-                                        </Animated.View>
+                                        </AnimatedPressable>
                                     )
                                 })
                             }
@@ -96,6 +149,24 @@ const ChallengeBoard = () => {
                     Yesterday / 12:00PM
                 </Text>
             </View>
+
+            <CellDetailsModal
+                isVisible={isModalVisible}
+                onCancel={closeModal}
+                onAction={saveCellActions}
+                title={
+                    selectedCell
+                        ? `Day ${(selectedCell.row * 9) + selectedCell.col + 1}`
+                        : ""
+                }
+                initialActions={
+                    selectedCell
+                        ? cellActions[
+                        `${selectedCell.row}-${selectedCell.col}`
+                        ] || []
+                        : []
+                }
+            />
         </View>
     )
 }

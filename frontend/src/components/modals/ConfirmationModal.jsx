@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from 'react-native'
-import  Modal  from 'react-native-modal'
+import Modal from 'react-native-modal'
 import { useThemeStyles } from '../../hook/useThemeStyles'
 
 const ConfirmationModal = ({
@@ -9,7 +9,8 @@ const ConfirmationModal = ({
     title,
     message,
     cancelBtnTitle,
-    actionBtnTitle
+    actionBtnTitle,
+    visible = true
 }) => {
 
     const style = useThemeStyles();
@@ -41,14 +42,19 @@ const ConfirmationModal = ({
                         </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[style.modalButton, style.modalDeleteButton]}
-                        onPress={onAction}
-                    >
-                        <Text style={style.modalDeleteBtnText}>
-                            {actionBtnTitle || "Delete"}
-                        </Text>
-                    </TouchableOpacity>
+                    {
+                        visible && (
+                            <TouchableOpacity
+                                style={[style.modalButton, style.modalDeleteButton]}
+                                onPress={onAction}
+                            >
+                                <Text style={style.modalDeleteBtnText}>
+                                    {actionBtnTitle || "Delete"}
+                                </Text>
+                            </TouchableOpacity>
+                        )
+                    }
+
                 </View>
             </View>
         </Modal>
