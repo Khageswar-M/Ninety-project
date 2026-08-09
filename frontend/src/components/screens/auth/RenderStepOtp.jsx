@@ -4,6 +4,7 @@ import { useAuthStyles } from '../../../hook/useThemeStyles'
 import { TouchableOpacity } from 'react-native';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { ActivityIndicator } from 'react-native';
 
 const RenderStepOtp = ({
     children,
@@ -17,7 +18,9 @@ const RenderStepOtp = ({
     timer,
     RESEND_SECONDS,
     handleVerifyOtp,
-    handleResendOtp
+    handleResendOtp,
+    loading,
+    isInvalidOtp
 }) => {
     const styles = useAuthStyles();
     const theme = useSelector((state) => state.theme.theme);
@@ -37,7 +40,7 @@ const RenderStepOtp = ({
                     <TextInput
                         key={index}
                         ref={(ref) => (otpRefs.current[index] = ref)}
-                        style={styles.otpBox}
+                        style={[styles.otpBox, isInvalidOtp && {borderBottomColor: '#ff0a0a'}]}
                         maxLength={1}
                         keyboardType="number-pad"
                         value={digit}
@@ -80,7 +83,14 @@ const RenderStepOtp = ({
                 onPress={handleVerifyOtp}
                 disabled={otp.join('').length !== OTP_LENGTH}
             >
-                <Text style={styles.primaryButtonText}>Verify OTP</Text>
+                {
+                    loading ? (
+                        <ActivityIndicator size="small" color="#fff"/>
+                    ) : (
+                        <Text style={styles.primaryButtonText}>Verify OTP</Text>
+                    )
+                }
+                
             </TouchableOpacity>
 
 

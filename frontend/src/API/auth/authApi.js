@@ -10,3 +10,22 @@ export const sendOtpMail = async (toEmail, fullName) => {
 
     return response.data;
 }
+
+export const verifyOtp = async (email, otp) =>{
+    const response = await api.post("/api/v1/auth/verify-otp",{
+        email,
+        otp
+    });
+
+    return response;
+}
+
+export const signUp = async (email, fullName, password) => {
+    const response = await api.post("/api/v1/auth/register",{
+        email,
+        fullName,
+        password
+    });
+
+    return response;
+}

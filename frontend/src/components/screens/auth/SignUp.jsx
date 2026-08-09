@@ -15,26 +15,40 @@ import RenderStepPassword from './RenderStepPassword'
 import RenderStepConfirmation from './RenderStepConfirmation'
 import RenderProgressBars from './RenderProgressBars'
 import { router } from 'expo-router'
-import { sendOtpMail } from '../../../API/auth/authApi'
+import { sendOtpMail, verifyOtp, signUp } from '../../../API/auth/authApi'
+import { validateEmail } from '../../../utils/validateEmail'
+import { validatePasswordStrength } from '../../../utils/validatePasswordStrength'
+import { isUserExists } from '../../../API/users/usersApi'
+import ConfirmationModal from '../../modals/ConfirmationModal'
 
 const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
 const RESEND_SECONDS = 30
 
 const SignUp = () => {
-    const styles = useAuthStyles()
-    const inset = useSafeAreaInsets()
 
-    // ---------- Global step state ----------
-    const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: Password, 4: Confirmation
+    const styles = useAuthStyles();
+    const inset = useSafeAreaInsets();
 
-    // ---------- Step 1: Email ----------
-    const [email, setEmail] = useState('khageswarmaharana462@gmail.com')
 
-    // ---------- Step 2: OTP ----------
-    const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''))
-    const otpRefs = useRef([])
-    const [timer, setTimer] = useState(RESEND_SECONDS)
+    const [step, setStep] = useState(1);
+    const [fullName, setFullName] = useState('Khageswar Maharana');
+    const [fullNameError, setFullNameError] = useState(false);
+    const [email, setEmail] = useState('khageswarmaharana462@gmail.com');
+    const [emailError, setEmailError] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
+    const [timer, setTimer] = useState(RESEND_SECONDS);
+    const [isInvalidOtp, setIsInvalidOtp] = useState(false);
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMsg, setModalMsg] = useState('');
+    const otpRefs = useRef([]);
+
+
 
     useEffect(() => {
         if (step !== 2) return
@@ -46,6 +60,7 @@ const SignUp = () => {
     }, [step, timer])
 
     const handleOtpChange = (value, index) => {
+        setIsInvalidOtp(false);
         const updated = [...otp]
         updated[index] = value
         setOtp(updated)
@@ -60,66 +75,165 @@ const SignUp = () => {
         }
     }
 
-    const handleResendOtp = () => {
-        if (timer > 0) return
-        setOtp(Array(OTP_LENGTH).fill(''))
-        setTimer(RESEND_SECONDS)
-        // TODO: trigger resend OTP API call
-    }
-
-    // ---------- Step 3: Password ----------
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [passwordError, setPasswordError] = useState('')
-
-    const handleCreateAccount = () => {
+    // HANDLE REGISTER ACCOUNT
+    const handleCreateAccount = async () => {
+        setLoading(true);
         if (!password || !confirmPassword) {
             setPasswordError('Please fill in both fields')
             return
         }
+        if (password.length < 8) {
+            setPasswordError('Password must be at least 8 characters')
+            return
+        }
+
+        if (!validatePasswordStrength(password)) {
+            console.log(validatePasswordStrength(password));
+            setPasswordError('Password is too weak — add uppercase, numbers, or symbols')
+            return
+        }
+
         if (password !== confirmPassword) {
             setPasswordError('Passwords do not match')
             return
         }
         setPasswordError('')
-        // TODO: submit new password to backend
-        setStep(4)
-    }
-
-    // ---------- Step 2 -> submit handlers ----------
-    const handleSendOtp = async () => {
-        if (!email) return;
-
-        console.log("Sending OTP...");
-        console.log("URL:", `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/v1/auth/send-otp`);
 
         try {
-            const response = await sendOtpMail(email, "Khageswar");
-
-            if (response.success) {
-                setTimer(RESEND_SECONDS);
-                setStep(2);
+            const response = await signUp(email, fullName, password);
+            if (response.data.success) {
+                setStep(4)
             }
-        } catch (error) {
-            console.log("Error occurs");
-            console.error(error);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // HANDLE FULL NAME CHANGE -> STEP - 1
+    const handleFullNameChange = (text) => {
+        setFullName(text);
+
+        if (fullNameError) {
+            setFullNameError(false);
         }
     };
 
-    const handleVerifyOtp = () => {
-        const code = otp.join('')
-        if (code.length !== OTP_LENGTH) return
-        // TODO: verify OTP with backend
-        setStep(3)
-    }
+    // HANDLE EMAIL CHANGE -> STEP - 1
+    const handleEmailChange = (text) => {
+        setEmail(text);
 
+        if (emailError) {
+            setEmailError(false);
+        }
+    };
+
+    // HANDLE SEND OTP -> STEP - 1 & 2
+    const sendOtp = async () => {
+
+
+
+        const response = await sendOtpMail(email, fullName);
+
+        if (!response.success) {
+            throw new Error("Failed to send OTP");
+        }
+
+        return response;
+    };
+
+    // ---------- Step 2 -> submit handlers ----------
+    // HANDLE SEND OTP WITH DATA VALIDATION -> STEP - 1
+    const handleSendOtp = async () => {
+        const isFullNameEmpty = !fullName.trim();
+        const isEmailEmpty = !email.trim();
+
+        setFullNameError(isFullNameEmpty);
+        setEmailError(isEmailEmpty);
+
+        if (isEmailEmpty || isFullNameEmpty) return;
+
+        if (!validateEmail(email)) {
+            setEmailError(true);
+            return;
+        }
+
+
+
+        console.log("Email: ", email, " FullName: ", fullName);
+
+        setLoading(true);
+
+        try {
+
+            const userExists = await isUserExists(email);
+
+            if (userExists) {
+                console.log("User already exists");
+                setModalTitle("User Exists");
+                setModalMsg("User already exists with this email.")
+                setIsVisible(true);
+                return;
+            }
+
+            await sendOtp();
+
+            setTimer(RESEND_SECONDS);
+            setStep(2);
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE RESENT OTP -> STEP - 2
+    const handleResendOtp = async () => {
+        if (timer > 0 || loading) return;
+
+        setOtp(Array(OTP_LENGTH).fill(''));
+        setLoading(true);
+
+        try {
+            await sendOtp();
+
+            setTimer(RESEND_SECONDS);
+        } catch (error) {
+            console.error("Error resending OTP:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE VERIFY OTP -> STEP - 2
+    const handleVerifyOtp = async () => {
+        const code = otp.join('');
+
+        if (code.length !== OTP_LENGTH) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await verifyOtp(email, code);
+
+            if (response.data.success) {
+                setIsInvalidOtp(false);
+                setStep(3);
+            }
+        } catch (error) {
+            setIsInvalidOtp(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // HANDLE CHANGE EMAIL -> STEP - 2
     const handleChangeEmail = () => {
         setOtp(Array(OTP_LENGTH).fill(''))
         setStep(1)
-    }
-
-    const handleGoogleSignUp = () => {
-        // TODO: trigger Google OAuth signup
     }
 
     const handleGoToLogin = () => {
@@ -136,7 +250,7 @@ const SignUp = () => {
 
     const renderHeader = (title) => (
         <View style={styles.headerWrap}>
-            <Text style={styles.appName}>Ninety</Text>
+            <Text style={styles.appName}>Ninety Productive Day's Tracker</Text>
             {renderProgressBars()}
             <Text style={styles.stepTitle}>{title}</Text>
         </View>
@@ -146,11 +260,17 @@ const SignUp = () => {
     // ---------- Step 1: Email ----------
     const renderStepEmail = () => (
         <RenderStepEmail
+            fullName={fullName}
+            setFullName={handleFullNameChange}
             email={email}
-            setEmail={setEmail}
+            setEmail={handleEmailChange}
             handleSendOtp={handleSendOtp}
-            handleGoogleSignUp={handleGoogleSignUp}
             handleGoToLogin={handleGoToLogin}
+            loading={loading}
+            fullNameError={fullNameError}
+            emailError={emailError}
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
         >
             {renderHeader('Create your account')}
         </RenderStepEmail>
@@ -170,6 +290,8 @@ const SignUp = () => {
             RESEND_SECONDS={RESEND_SECONDS}
             handleVerifyOtp={handleVerifyOtp}
             handleResendOtp={handleResendOtp}
+            loading={loading}
+            isInvalidOtp={isInvalidOtp}
         >
             {renderHeader('Verify OTP')}
         </RenderStepOtp>
@@ -184,6 +306,7 @@ const SignUp = () => {
             setConfirmPassword={setConfirmPassword}
             passwordError={passwordError}
             handleCreateAccount={handleCreateAccount}
+            loading={loading}
         >
             {renderHeader('Password')}
         </RenderStepPassword>
@@ -193,7 +316,9 @@ const SignUp = () => {
     const renderStepConfirmation = () => (
         <RenderStepConfirmation
             handleGoToLogin={handleGoToLogin}
-        />
+        >
+            {renderHeader("")}
+        </RenderStepConfirmation>
     )
 
     const renderStep = () => {
@@ -211,18 +336,36 @@ const SignUp = () => {
         }
     }
 
+
     return (
-        <KeyboardAwareScrollView
-            enableOnAndroid={true}
-            keyboardShouldPersistTaps="handled"
-            enableAutomaticScroll={true}
-            enableResetScrollToCoords={true}
-            enableOnAndroid={true}
-            keyboardOpeningTime={20}
-            style={[styles.signupContainer, { paddingTop: inset.top }]}
-        >
-            {renderStep()}
-        </KeyboardAwareScrollView>
+        <>
+            <KeyboardAwareScrollView
+                enableOnAndroid={true}
+                keyboardShouldPersistTaps="handled"
+                enableAutomaticScroll={true}
+                enableResetScrollToCoords={true}
+                enableOnAndroid={true}
+                keyboardOpeningTime={20}
+                style={[styles.signupContainer, { paddingTop: inset.top }]}
+            >
+                {renderStep()}
+            </KeyboardAwareScrollView>
+
+            {
+                isVisible && (
+                    <ConfirmationModal
+                        isVisible={isVisible}
+                        onCancel={() => setIsVisible(false)}
+                        onAction={() => setIsVisible(false)}
+                        title={modalTitle || "Alert"}
+                        message={modalMsg}
+                        cancelBtnTitle="OK"
+                        visible={false}
+                    />
+                )
+            }
+        </>
+
     )
 }
 

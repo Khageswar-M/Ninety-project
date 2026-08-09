@@ -6,15 +6,17 @@ import Verified from '../../../../assets/icons/Verified.json'
 import { useEffect, useRef } from 'react';
 
 const RenderStepConfirmation = ({
-    handleGoToLogin
+    children,
+    handleGoToLogin,
 }) => {
     const styles = useAuthStyles();
 
     return (
         <View style={styles.stepContainer}>
-            <View style={styles.headerWrap}>
+            {/* <View style={styles.headerWrap}>
                 <Text style={styles.appName}>Ninety</Text>
-            </View>
+            </View> */}
+            {children}
 
             <View style={styles.accountCreatedSuccessContainer}>
                 <View style={styles.confirmationWrap}>
