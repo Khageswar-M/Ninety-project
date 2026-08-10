@@ -8,6 +8,7 @@ const _layout = () => {
     >
       <Stack.Screen name="LoginPage" />
       <Stack.Screen name="SignUpPage" />
+      <Stack.Screen name="ForgetPassword" />
     </Stack>
   )
 }

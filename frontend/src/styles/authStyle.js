@@ -102,6 +102,10 @@ const authStyle = (theme) => StyleSheet.create({
         },
     },
 
+    error:{
+        color: theme.danger
+    },
+
     loginText: {
         color: "#FFFFFF",
         fontSize: 17,
@@ -169,7 +173,6 @@ const authStyle = (theme) => StyleSheet.create({
     signupContainer: {
         flex: 1,
         flexDirection: 'column',
-        // justifyContent: 'space-between'
     },
 
     stepContainer: {

@@ -13,7 +13,7 @@ SplashScreen.preventAutoHideAsync();
 import { storage } from "../src/utils/storage.js";
 import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { useColorScheme } from "react-native";
-// import '../src/local_notifications/NotificationHandler'
+import { setLogin } from "../src/redux/slices/appSlice.js";
 
 function AppNavigation() {
 
@@ -24,6 +24,7 @@ function AppNavigation() {
   const theme = useSelector((state) => state.theme.theme);
   const inset = useSafeAreaInsets();
   const colorScheme = useColorScheme();
+
 
   useEffect(() => {
     async function loadTheme() {
@@ -55,6 +56,17 @@ function AppNavigation() {
       }
     }
 
+    async function wasLoggedIn() {
+      const storedUser = await storage.get("@ninety_user");
+
+      if (storedUser?.jwtToken) {
+        dispatch(setLogin(true));
+      } else {
+        dispatch(setLogin(false));
+      }
+    }
+
+    wasLoggedIn();
     loadTheme();
   }, [colorScheme]);
 
@@ -77,7 +89,20 @@ function AppNavigation() {
     prepare();
   }, [loaded]);
 
+  // Get all AsyncStorage data
+  // useEffect(() => {
+  //   const loadStorageData = async () => {
+  //     const allStorageData = await storage.getAll();
+
+  //     console.log("ALL STORAGE DATA:", allStorageData);
+  //   };
+
+  //   loadStorageData();
+  // }, []);
+
   if (!isReady) return (<SplashScreenPage />);
+
+
 
   return (
     <>

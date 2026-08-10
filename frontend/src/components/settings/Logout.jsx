@@ -5,6 +5,7 @@ import ConfirmationModal from '../modals/ConfirmationModal.jsx';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setLogin } from '../../redux/slices/appSlice.js';
+import { storage } from '../../utils/storage.js';
 
 const Logout = () => {
     const style = useSettingStyles();
@@ -12,8 +13,9 @@ const Logout = () => {
 
     const [openLogoutConfirmationModal, setOpenLogoutConfirmationModal] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         try {
+            await storage.remove("@ninety_user");
             dispatch(setLogin(false));
             console.log("Logout successfully!");
         }catch(error){
