@@ -2,6 +2,7 @@ package Ninety.com.backend.service;
 
 import Ninety.com.backend.dto.request.LoginRequest;
 import Ninety.com.backend.dto.request.RegisterRequest;
+import Ninety.com.backend.dto.request.UpdatePasswordRequest;
 import Ninety.com.backend.dto.request.UserExistsRequest;
 import Ninety.com.backend.dto.response.LoginResponse;
 
@@ -11,5 +12,7 @@ public interface AuthService {
     LoginResponse login(LoginRequest request);
 
     boolean existsByEmail(String email);
+
+    void updatePassword(UpdatePasswordRequest request);
 
 }

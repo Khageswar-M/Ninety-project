@@ -2,6 +2,7 @@ package Ninety.com.backend.service.serviceImpl;
 
 import Ninety.com.backend.dto.request.LoginRequest;
 import Ninety.com.backend.dto.request.RegisterRequest;
+import Ninety.com.backend.dto.request.UpdatePasswordRequest;
 import Ninety.com.backend.dto.request.UserExistsRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.dto.response.ChallengeResponse;
@@ -11,6 +12,7 @@ import Ninety.com.backend.entity.Role;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.EmailAlreadyExistsException;
 import Ninety.com.backend.exception.InvalidCredentialsException;
+import Ninety.com.backend.exception.UserNotFoundException;
 import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
 import Ninety.com.backend.service.AuthService;
@@ -143,5 +145,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void updatePassword(UpdatePasswordRequest request) {
+        User existingUser = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+
+        existingUser.setPassword(
+                passwordEncoder.encode(request.password())
+        );
+
+        userRepository.save(existingUser);
     }
 }

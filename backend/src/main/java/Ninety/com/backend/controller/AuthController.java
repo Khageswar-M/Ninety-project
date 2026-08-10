@@ -79,5 +79,17 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
+    @Operation(summary = "Update user with new password")
+    @PostMapping("/update-password")
+    public ResponseEntity<ApiResponse<Void>> updatedPassword(
+            @Valid
+            @RequestBody
+            UpdatePasswordRequest request
+    ){
+        authService.updatePassword(request);
+
+        return ResponseEntity.ok(ApiResponse.success("Password updated successfully.", null));
+    }
+
 
 }
