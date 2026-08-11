@@ -6,7 +6,7 @@ import { useAuthStyles } from '../../src/hook/useThemeStyles'
 const ForgetPassword = () => {
     const style = useAuthStyles();
   return (
-    <View style={style.signupContainer}>
+    <View style={style.container}>
       <SignUp mode="forgotPassword"/>
     </View>
   )

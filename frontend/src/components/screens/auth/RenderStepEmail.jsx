@@ -15,25 +15,38 @@ const RenderStepEmail = ({
     loading,
     fullNameError,
     emailError,
+    isVisible,
+    setIsVisible,
+    requireFullName,
+    mode
 }) => {
     const styles = useAuthStyles();
     return (
         <View style={styles.stepContainer}>
             {children}
 
-            <Text style={styles.label}>Full name</Text>
-            <TextInput
-                style={[styles.signUpInput, fullNameError && {
-                    borderColor: '#ff0e0e'
-                }]}
-                placeholder="John Doe"
-                placeholderTextColor="#9a9a9a"
-                autoCapitalize="none"
-                keyboardType="default"
-                value={fullName}
-                onChangeText={setFullName}
 
-            />
+            {
+                mode === "signup" && (
+                    <>
+                        <Text style={styles.label}>Full name</Text>
+                        <TextInput
+                            style={[styles.signUpInput, fullNameError && {
+                                borderColor: '#ff0e0e'
+                            }]}
+                            placeholder="John Doe"
+                            placeholderTextColor="#9a9a9a"
+                            autoCapitalize="none"
+                            keyboardType="default"
+                            value={fullName}
+                            onChangeText={setFullName}
+
+                        />
+                    </>
+                )
+            }
+
+
 
             <Text style={styles.label}>Email address</Text>
             <TextInput

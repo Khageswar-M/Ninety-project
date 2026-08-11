@@ -8,9 +8,10 @@ import { useEffect, useRef } from 'react';
 const RenderStepConfirmation = ({
     children,
     handleGoToLogin,
+    mode
 }) => {
     const styles = useAuthStyles();
-
+    const forgetPassword = mode === "forgotPassword";
     return (
         <View style={styles.stepContainer}>
             {/* <View style={styles.headerWrap}>
@@ -27,17 +28,23 @@ const RenderStepConfirmation = ({
                         style={{ width: 150, height: 150 }}
                     />
 
-                    <Text style={styles.confirmationTitle}>Account created!</Text>
+
+                    <Text style={styles.confirmationTitle}>
+                        {forgetPassword ? "Updated!" : "Account Created!"}
+                    </Text>
+
                     <Text style={styles.confirmationSubtitle}>
-                        Your account has been set up successfully. You can now log in and
-                        start your 90-day challenge.
+                        {forgetPassword
+                            ? "Your password has been updated successfully. You can now log in with your new password."
+                            : "Your account has been set up successfully. You can now log in and start your 90-day challenge."
+                        }
                     </Text>
                 </View>
 
                 <TouchableOpacity
                     style={styles.primaryButton}
                     onPress={handleGoToLogin}
-                    
+
                 >
                     <Text style={styles.primaryButtonText}>Go to Login</Text>
                 </TouchableOpacity>

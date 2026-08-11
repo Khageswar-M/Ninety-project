@@ -11,6 +11,14 @@ export const sendOtpMail = async (toEmail, fullName) => {
     return response.data;
 }
 
+export const sendOtpMailForForgetPwd = async (toEmail) => {
+    const response = await api.post(`/api/v1/auth/send-forget-password-otp`, null, {
+        params: { toEmail },
+    });
+
+    return response.data;
+}
+
 export const verifyOtp = async (email, otp) =>{
     const response = await api.post("/api/v1/auth/verify-otp",{
         email,
@@ -35,6 +43,15 @@ export const login = async (email, password) => {
         email,
         password
     });
+
+    return response;
+}
+
+export const updatePassword = async (email, password) => {
+    const response = await api.post("/api/v1/auth/update-password",{
+        email,
+        password
+    })
 
     return response;
 }

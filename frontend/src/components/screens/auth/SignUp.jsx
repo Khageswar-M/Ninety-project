@@ -18,7 +18,7 @@ import { router } from 'expo-router'
 // NOTE: `updatePassword` must exist in authApi.js with a signature like
 // updatePassword(email, newPassword) -> Promise<{ data: { success: boolean } }>
 // (mirroring how `signUp` is shaped). Add it there if it doesn't exist yet.
-import { sendOtpMail, verifyOtp, signUp, updatePassword } from '../../../API/auth/authApi'
+import { sendOtpMail, verifyOtp, signUp, updatePassword, sendOtpMailForForgetPwd } from '../../../API/auth/authApi'
 import { validateEmail } from '../../../utils/validateEmail'
 import { validatePasswordStrength } from '../../../utils/validatePasswordStrength'
 import { isUserExists } from '../../../API/users/usersApi'
@@ -65,6 +65,7 @@ const SignUp = ({ mode = 'signup' }) => {
 
     const config = FLOW_CONFIG[mode] ?? FLOW_CONFIG.signup;
     const isForgotPassword = mode === 'forgotPassword';
+    const isSignup = mode === "signup";
 
     const styles = useAuthStyles();
     const inset = useSafeAreaInsets();
@@ -171,20 +172,30 @@ const SignUp = ({ mode = 'signup' }) => {
     };
 
     // HANDLE SEND OTP -> STEP - 1 & 2
-    const sendOtp = async () => {
-
+    // ---------- SIGNUP: send OTP ----------
+    const sendSignupOtp = async () => {
         const response = await sendOtpMail(email, fullName);
 
-        if (!response.success) {
-            throw new Error("Failed to send OTP");
+        if (!response?.success) {
+            throw new Error("Failed to send signup OTP");
         }
 
         return response;
     };
 
-    // ---------- Step 2 -> submit handlers ----------
-    // HANDLE SEND OTP WITH DATA VALIDATION -> STEP - 1
-    const handleSendOtp = async () => {
+    // ---------- FORGOT PASSWORD: send OTP ----------
+    const sendForgotPasswordOtp = async () => {
+        const response = await sendOtpMailForForgetPwd(email);
+
+        if (!response?.success) {
+            throw new Error("Failed to send forgot-password OTP");
+        }
+
+        return response;
+    };
+
+    // ---------- SIGNUP: validate + send OTP (Step 1) ----------
+    const handleSignupSendOtp = async () => {
         const isFullNameEmpty = config.requireFullName && !fullName.trim();
         const isEmailEmpty = !email.trim();
 
@@ -201,30 +212,75 @@ const SignUp = ({ mode = 'signup' }) => {
         setLoading(true);
 
         try {
-
             const userExists = await isUserExists(email);
 
-            // signup needs the email to be free; forgotPassword needs it to
-            // already belong to an account.
-            const blocked = isForgotPassword ? !userExists : userExists;
-
-            if (blocked) {
+            // signup needs the email to be free
+            if (userExists) {
                 setModalTitle(config.existsModal.title);
                 setModalMsg(config.existsModal.message);
                 setIsVisible(true);
                 return;
             }
 
-            await sendOtp();
+            await sendSignupOtp();
 
             setTimer(RESEND_SECONDS);
             setStep(2);
         } catch (error) {
-            console.error("Error sending OTP:", error);
+            console.error("Error sending signup OTP:", error);
+
+            setModalTitle("Something went wrong");
+            setModalMsg("We couldn't send the signup OTP. Please try again.");
+            setIsVisible(true);
         } finally {
             setLoading(false);
         }
     };
+
+    // ---------- FORGOT PASSWORD: validate + send OTP (Step 1) ----------
+    const handleForgotPasswordSendOtp = async () => {
+        const isEmailEmpty = !email.trim();
+
+        setEmailError(isEmailEmpty);
+
+        if (isEmailEmpty) return;
+
+        if (!validateEmail(email)) {
+            setEmailError(true);
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const userExists = await isUserExists(email);
+
+            // forgotPassword needs the email to already belong to an account
+            if (!userExists) {
+                setModalTitle(config.existsModal.title);
+                setModalMsg(config.existsModal.message);
+                setIsVisible(true);
+                return;
+            }
+
+            await sendForgotPasswordOtp();
+
+            setTimer(RESEND_SECONDS);
+            setStep(2);
+        } catch (error) {
+            console.error("Error sending forgot-password OTP:", error);
+
+            setModalTitle("Something went wrong");
+            setModalMsg("We couldn't send the password reset OTP. Please try again.");
+            setIsVisible(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ---------- Step 1 entry point (called from RenderStepEmail) ----------
+    const handleSendOtp = () =>
+        isSignup ? handleSignupSendOtp() : handleForgotPasswordSendOtp();
 
     // HANDLE RESENT OTP -> STEP - 2
     const handleResendOtp = async () => {
@@ -234,7 +290,11 @@ const SignUp = ({ mode = 'signup' }) => {
         setLoading(true);
 
         try {
-            await sendOtp();
+            if (isSignup) {
+                await sendSignupOtp();
+            } else {
+                await sendForgotPasswordOtp();
+            }
 
             setTimer(RESEND_SECONDS);
         } catch (error) {
@@ -297,6 +357,7 @@ const SignUp = ({ mode = 'signup' }) => {
 
     // ---------- Step 1: Email ----------
     const renderStepEmail = () => (
+
         <RenderStepEmail
             fullName={fullName}
             setFullName={handleFullNameChange}
@@ -314,10 +375,12 @@ const SignUp = ({ mode = 'signup' }) => {
         >
             {renderHeader(config.emailStepTitle)}
         </RenderStepEmail>
+        
     )
 
     // ---------- Step 2: Verify OTP ----------
     const renderStepOtp = () => (
+
         <RenderStepOtp
             email={email}
             handleChangeEmail={handleChangeEmail}
