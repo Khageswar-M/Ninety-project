@@ -12,9 +12,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -91,7 +95,27 @@ public class AuthController {
             LoginRequest request
     ){
         LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", response.jwtToken())
+                .httpOnly(true)
+                .secure(false) // true in production
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity
+                .ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        cookie.toString()
+                )
+                .body(
+                        ApiResponse.success(
+                                "Login successful",
+                                response
+                        )
+                );
     }
 
     @Operation(summary = "Update user with new password")
