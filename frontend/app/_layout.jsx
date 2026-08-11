@@ -1,24 +1,23 @@
-import { Redirect, Stack } from "expo-router";
-import { store } from "../src/redux/store";
-import { Provider } from "react-redux";
-import { StatusBar } from "expo-status-bar";
-import { useSelector, useDispatch } from "react-redux";
 import { useFonts } from "expo-font";
-import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
-import { useEffect, useState } from "react";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-SplashScreen.preventAutoHideAsync();
-import { storage } from "../src/utils/storage.js";
-import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
-import { setLogin } from "../src/redux/slices/appSlice.js";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
+import { hydrateApp } from "../src/redux/slices/appSlice.js";
+import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
+import { store } from "../src/redux/store";
+import { storage } from "../src/utils/storage.js";
+SplashScreen.preventAutoHideAsync();
 
 function AppNavigation() {
 
-  const [isReady, setIsRead] = useState(false);
   const dispatch = useDispatch();
+
+  const [isReady, setIsRead] = useState(false);
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const isLoggedIn = useSelector((state) => state.app.isLogin);
   const theme = useSelector((state) => state.theme.theme);
@@ -26,49 +25,121 @@ function AppNavigation() {
   const colorScheme = useColorScheme();
 
 
+  // App initialization
   useEffect(() => {
-    async function loadTheme() {
-      const pastTheme = await storage.get("darkTheme");
 
-      switch (pastTheme) {
-        case "dark":
-          dispatch(setDarkTheme());
-          break;
+    const initializeApp = async () => {
 
-        case "light":
-          dispatch(setLightTheme());
-          break;
+      try {
 
-        case "system":
-          if (colorScheme === "dark") {
-            dispatch(setDarkTheme());
-          } else {
-            dispatch(setLightTheme());
-          }
-          break;
+        const storedUser =
+          await storage.get("@ninety_user");
 
-        default:
-          if (colorScheme === "dark") {
-            dispatch(setDarkTheme());
-          } else {
-            dispatch(setLightTheme());
-          }
+        if (!storedUser) {
+
+          dispatch(
+            hydrateApp({
+              isLogin: false
+            })
+          );
+
+          return;
+        }
+
+        const challenge =
+          storedUser?.challenges?.[0];
+
+        dispatch(
+
+          hydrateApp({
+
+            isLogin:
+              Boolean(storedUser?.jwtToken),
+
+            dayGrid:
+              challenge?.dayGrid ?? [],
+
+            currentDay:
+              challenge?.currentDay ?? 0,
+
+            completedCount:
+              challenge?.completedCount ?? 0,
+
+            currentStreak:
+              challenge?.currentStreakCount ?? 0,
+
+            missedDaysCount: 0,
+            successRate: 0,
+            bestStreak: 0
+          })
+        );
+      } catch (error) {
+
+        console.error(
+          "Failed to hydrate app:",
+          error
+        );
+
+        dispatch(
+
+          hydrateApp({
+            isLogin: false
+          })
+        );
+
       }
-    }
+    };
 
-    async function wasLoggedIn() {
-      const storedUser = await storage.get("@ninety_user");
+    initializeApp();
 
-      if (storedUser?.jwtToken) {
-        dispatch(setLogin(true));
-      } else {
-        dispatch(setLogin(false));
+  }, [dispatch]);
+
+  // Theme
+  useEffect(() => {
+
+    const loadTheme = async () => {
+
+      try {
+
+        const pastTheme =
+          await storage.get("darkTheme");
+
+        switch (pastTheme) {
+
+          case "dark":
+            dispatch(setDarkTheme());
+            break;
+
+          case "light":
+            dispatch(setLightTheme());
+            break;
+
+          case "system":
+            colorScheme === "dark"
+              ? dispatch(setDarkTheme())
+              : dispatch(setLightTheme());
+            break;
+
+          default:
+            colorScheme === "dark"
+              ? dispatch(setDarkTheme())
+              : dispatch(setLightTheme());
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Failed to load theme:",
+          error
+        );
+
       }
-    }
 
-    wasLoggedIn();
+    };
+
     loadTheme();
-  }, [colorScheme]);
+
+  }, [colorScheme, dispatch]);
 
   // Upload Font
   const [loaded] = useFonts({
@@ -88,17 +159,6 @@ function AppNavigation() {
 
     prepare();
   }, [loaded]);
-
-  // Get all AsyncStorage data
-  // useEffect(() => {
-  //   const loadStorageData = async () => {
-  //     const allStorageData = await storage.getAll();
-
-  //     console.log("ALL STORAGE DATA:", allStorageData);
-  //   };
-
-  //   loadStorageData();
-  // }, []);
 
   if (!isReady) return (<SplashScreenPage />);
 
