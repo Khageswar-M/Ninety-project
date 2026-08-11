@@ -64,6 +64,36 @@ public class EmailServiceImpl implements EmailService{
         return send(toEmail, "Welcome to Ninety", html);
     }
 
+    @Override
+    public CompletableFuture<Void> sendPasswordResetOtp(String toEmail) {
+        String otp = otpService.generateAndStoreOtp(toEmail);
+
+        String html = """
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
+                <h2>Reset your Ninety account password</h2>
+
+                <p>Hi,</p>
+
+                <p>We received a request to reset your password.</p>
+
+                <p>Your password reset verification code is:</p>
+
+                <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px;">
+                    %s
+                </p>
+
+                <p>
+                    This code is valid for 10 minutes.
+                    If you didn't request a password reset, you can safely ignore this email.
+                </p>
+
+                <p>Thanks,<br>Ninety Team</p>
+            </div>
+            """.formatted(otp);
+
+        return send(toEmail, "Ninety Productive Day's Tracker - Password Verification code", html);
+    }
+
     private CompletableFuture<Void> send (String toEmail, String subject, String html){
         try{
             CreateEmailOptions params = CreateEmailOptions.builder()

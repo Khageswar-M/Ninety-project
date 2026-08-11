@@ -9,6 +9,8 @@ import Ninety.com.backend.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +30,25 @@ public class AuthController {
     @PostMapping("/send-otp")
     public ResponseEntity<ApiResponse<Void>> sendOtp(@Valid @RequestBody SendOtpRequest request){
 
-        String otp = otpService.generateAndStoreOtp(request.toEmail());
         emailService.sendOtpEmail(request.toEmail(), request.fullName());
 
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("OTP sent successfully. Please check you email for OTP.", null));
+    }
+
+    @Operation(summary = "Send an email with attached OTP to the respective user for forget password")
+    @PostMapping("/send-forget-password-otp")
+    public ResponseEntity<ApiResponse<Void>> sendPasswordResendOtp(
+            @NotBlank(message = "Valid email required.")
+            @Email
+            @RequestParam
+            String toEmail
+    ){
+        emailService.sendPasswordResetOtp(toEmail);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("OTP sent successfully.", null));
     }
 
 

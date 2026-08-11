@@ -6,4 +6,6 @@ public interface EmailService{
     CompletableFuture<Void> sendOtpEmail(String toEmail, String fullName);
 
     CompletableFuture<Void> sendWelcomeEmail(String toEmail, String fullName);
+
+    CompletableFuture<Void> sendPasswordResetOtp(String email);
 }
