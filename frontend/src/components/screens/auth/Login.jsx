@@ -76,7 +76,7 @@ const Login = () => {
         const user = {
           id,
           fullName,
-          email: userEmail,
+          email: userEmail, 
           jwtToken,
           challenges: challenges.map((challenge) => ({
             id: challenge.id,
