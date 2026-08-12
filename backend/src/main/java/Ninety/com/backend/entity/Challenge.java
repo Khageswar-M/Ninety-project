@@ -62,6 +62,10 @@ public class Challenge{
     private int completedCount = 0;
 
     @Column(nullable = false)
+    @Builder.Default
+    private int missedCount = 0;
+
+    @Column(nullable = false)
     private LocalDate startedAt;
 
     @Column(nullable = false)
@@ -72,7 +76,7 @@ public class Challenge{
     @Builder.Default
     private List<Activity> activities = new ArrayList<>();
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false) 
     @CreationTimestamp
     private LocalDate createdAt;
 

@@ -7,10 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/challenge")
@@ -40,6 +39,22 @@ public class ChallengeController {
         challengeService.deleteChallenge(challengeId);
 
         return ResponseEntity.ok(ApiResponse.success("Challenge deleted successfully."));
+    }
+
+    @GetMapping("/challenges-by-userId/{userId}")
+    public ResponseEntity<ApiResponse> challengesByUserId(
+            @PathVariable
+            Long userId
+    ){
+        List<ChallengeResponse> response = challengeService.getChallengesByUserId(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                        ApiResponse.success(
+                                "There are the challenges.",
+                                response
+                        )
+                );
     }
 
 

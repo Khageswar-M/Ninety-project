@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +58,32 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
+    public List<ChallengeResponse> getChallengesByUserId(Long userId) {
+
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+
+        List<Challenge> userChallenges = existingUser.getChallenges();
+
+        return userChallenges.stream()
+                .map(challenge -> ChallengeResponse.builder()
+                        .id(challenge.getId())
+                        .title(challenge.getTitle())
+                        .dayGrid(challenge.getDayGrid())
+                        .currentDay(challenge.getCurrentDay())
+                        .currentStreak(challenge.getCurrentStreak())
+                        .longestStreak(challenge.getLongestStreak())
+                        .streakCount(challenge.getStreakCount())
+                        .missedCount(challenge.getMissedCount())
+                        .completed(challenge.isCompleted())
+                        .createdAt(challenge.getCreatedAt())
+                        .updatedAt(challenge.getUpdatedAt())
+                        .build()
+                ).toList();
+    }
+
+
+    @Override
     public void deleteChallenge(Long challengeId) {
 
         Challenge challenge = existingChallenge(challengeId);
@@ -80,6 +107,43 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
 
         return myCurrentStreakDay;
+    }
+
+    @Override
+    public void computeStreakCounts(Long challengeId) {
+
+        Challenge challenge = existingChallenge(challengeId);
+
+        boolean[][] grid = challenge.getDayGrid();
+        int currentDay = getMyCurrentStreakDay(challenge.getId());
+
+        int maxStreak = 0;
+        int currentStreak = 0;
+        int missedDayCount = 0;
+
+        for(int day = 1; day < currentDay; day++){
+
+            int row = (day - 1) / 10;
+            int col = (day - 1) % 10;
+
+            if(grid[row][col]){
+
+                currentStreak++;
+                maxStreak = Math.max(maxStreak, currentStreak);
+
+            }else{
+
+                missedDayCount++;
+                currentStreak = 0;
+
+            }
+        }
+
+        challenge.setLongestStreak(maxStreak);
+        challenge.setCurrentStreak(currentStreak);
+        challenge.setMissedCount(missedDayCount);
+
+        challengeRepository.save(challenge);
     }
 
     private Challenge existingChallenge(Long challengeId){

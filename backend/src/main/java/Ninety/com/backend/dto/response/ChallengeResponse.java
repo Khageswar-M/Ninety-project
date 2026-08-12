@@ -14,6 +14,7 @@ public record ChallengeResponse(
         int currentStreak,
         int longestStreak,
         int streakCount,
+        int missedCount,
         int completedCount,
         LocalDate startedAt,
         boolean completed,

@@ -97,6 +97,7 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
 
+
         List<ChallengeResponse> challengeResponses =
                 user.getChallenges()
                         .stream()
@@ -104,6 +105,8 @@ public class AuthServiceImpl implements AuthService {
                                 Comparator.comparing(Challenge::isCompleted)
                         )
                         .map(challenge -> {
+
+                            challengeService.computeStreakCounts(challenge.getId());
 
                             List<ActivityResponse> activityResponses =
                                     challenge.getActivities()
@@ -125,6 +128,7 @@ public class AuthServiceImpl implements AuthService {
                                     .currentStreak(challenge.getCurrentStreak())
                                     .longestStreak(challenge.getLongestStreak())
                                     .streakCount(challenge.getStreakCount())
+                                    .missedCount(challenge.getMissedCount())
                                     .completedCount(challenge.getCompletedCount())
                                     .startedAt(challenge.getStartedAt())
                                     .completed(challenge.isCompleted())
