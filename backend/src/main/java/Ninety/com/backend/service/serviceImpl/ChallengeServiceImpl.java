@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -57,9 +58,35 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public void deleteChallenge(Long challengeId) {
-        Challenge existingChallenge = challengeRepository.findById(challengeId)
+
+        Challenge challenge = existingChallenge(challengeId);
+
+        challengeRepository.deleteById(challenge.getId());
+    }
+
+    @Override
+    public int getMyCurrentStreakDay(Long challengeId) {
+
+        Challenge challenge = existingChallenge(challengeId);
+
+        int myCurrentStreakDay = (int) ChronoUnit.DAYS.between(
+                challenge.getCreatedAt(),
+                LocalDate.now()
+        ) + 1;
+
+        if(myCurrentStreakDay >= 91){
+            challenge.setCompleted(true);
+            challengeRepository.save(challenge);
+        }
+
+        return myCurrentStreakDay;
+    }
+
+    private Challenge existingChallenge(Long challengeId){
+
+        Challenge existedChallenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new ChallengeNotFoundException("Challenge not found."));
 
-        challengeRepository.deleteById(challengeId);
+        return existedChallenge;
     }
 }

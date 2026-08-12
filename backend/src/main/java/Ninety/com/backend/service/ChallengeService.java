@@ -6,4 +6,6 @@ public interface ChallengeService {
     ChallengeResponse createChallenge(Long userId);
 
     void deleteChallenge(Long challengeId);
+
+    int getMyCurrentStreakDay(Long challengeId);
 }

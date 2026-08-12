@@ -16,6 +16,7 @@ import Ninety.com.backend.exception.UserNotFoundException;
 import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
 import Ninety.com.backend.service.AuthService;
+import Ninety.com.backend.service.ChallengeService;
 import Ninety.com.backend.service.EmailService;
 import Ninety.com.backend.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final ChallengeRepository challengeRepository;
+    private final ChallengeService challengeService;
 
     @Override
     @Transactional
@@ -119,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
                                     .id(challenge.getId())
                                     .title(challenge.getTitle())
                                     .dayGrid(challenge.getDayGrid())
-                                    .currentDay(challenge.getCurrentDay())
+                                    .currentDay(challengeService.getMyCurrentStreakDay(challenge.getId()))
                                     .currentStreak(challenge.getCurrentStreak())
                                     .longestStreak(challenge.getLongestStreak())
                                     .streakCount(challenge.getStreakCount())
