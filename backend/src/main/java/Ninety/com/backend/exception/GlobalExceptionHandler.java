@@ -80,6 +80,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "User not found.", request, null);
     }
 
+    @ExceptionHandler(ChallengeNotFoundException.class)
+    public ResponseEntity<ApiError> handleChallengeNotFound(Exception ex, HttpServletRequest request){
+        log.error("Unhandled exception at {}", request.getRequestURI(), ex);
+        return build(HttpStatus.NOT_FOUND, "Challenge not found." , request, null);
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest request, List<String> details){
         ApiError error = ApiError.builder()
                 .success(false)

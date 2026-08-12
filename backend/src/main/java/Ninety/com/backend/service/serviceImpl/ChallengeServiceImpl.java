@@ -3,6 +3,7 @@ package Ninety.com.backend.service.serviceImpl;
 import Ninety.com.backend.dto.response.ChallengeResponse;
 import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.User;
+import Ninety.com.backend.exception.ChallengeNotFoundException;
 import Ninety.com.backend.exception.UserNotFoundException;
 import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
@@ -52,5 +53,13 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .updatedAt(newChallenge.getUpdatedAt())
                 .activities(null)
                 .build();
+    }
+
+    @Override
+    public void deleteChallenge(Long challengeId) {
+        Challenge existingChallenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ChallengeNotFoundException("Challenge not found."));
+
+        challengeRepository.deleteById(challengeId);
     }
 }

@@ -2,6 +2,8 @@ package Ninety.com.backend.security;
 
 import Ninety.com.backend.service.AppUserDetailsService;
 import Ninety.com.backend.utils.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -77,20 +79,56 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             email = jwtUtil.extractEmail(jwt);
             if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = appUserDetailsService.loadUserByUsername(email);
-                if(jwtUtil.validateToken(jwt, userDetails)){
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+                try{
+                    if(jwtUtil.validateToken(jwt, userDetails)){
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                    }
+                }catch(ExpiredJwtException e){
+                    sendUnauthorizedResponse(
+                            response,
+                            "Your session has expired. Please login again."
+                    );
+                    return;
+
+                }catch (JwtException e){
+                    sendUnauthorizedResponse(
+                            response,
+                            "Invalid authentication token. Please login again."
+                    );
+
+                    return;
                 }
+
             }
         }
 
         filterChain.doFilter(request, response);
 
+    }
+
+    protected void sendUnauthorizedResponse(
+            HttpServletResponse response,
+            String message
+    ) throws IOException{
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+
+        response.getWriter().write("""
+                {
+                    
+                    "success" : false,
+                    "status" : 401,
+                    "error" : "Unauthorized",
+                    "message" : "%s"
+                }
+                """.formatted(message));
     }
 }

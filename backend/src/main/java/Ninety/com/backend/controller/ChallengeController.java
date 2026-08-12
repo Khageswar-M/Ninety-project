@@ -32,4 +32,15 @@ public class ChallengeController {
     }
 
 
+    @PostMapping("/delete-challenge/{challengeId}")
+    public ResponseEntity<ApiResponse> deleteChallenge(
+            @PathVariable
+            Long challengeId
+    ){
+        challengeService.deleteChallenge(challengeId);
+
+        return ResponseEntity.ok(ApiResponse.success("Challenge deleted successfully."));
+    }
+
+
 }
