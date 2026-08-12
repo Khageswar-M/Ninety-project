@@ -86,6 +86,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "Challenge not found." , request, null);
     }
 
+    @ExceptionHandler(ActivityNotFoundException.class)
+    public ResponseEntity<ApiError> handleActivityNotFound(Exception ex, HttpServletRequest request){
+        log.error("Unhandled exceptoin at {}", request.getRequestURI(), ex);
+        return build(HttpStatus.NOT_FOUND, "Activity no found.", request, null);
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest request, List<String> details){
         ApiError error = ApiError.builder()
                 .success(false)

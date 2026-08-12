@@ -95,7 +95,6 @@ public class ChallengeServiceImpl implements ChallengeService {
                 ).toList();
     }
 
-
     @Override
     public void deleteChallenge(Long challengeId) {
 

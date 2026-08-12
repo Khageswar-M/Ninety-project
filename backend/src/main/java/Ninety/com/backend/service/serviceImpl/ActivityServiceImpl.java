@@ -4,6 +4,7 @@ import Ninety.com.backend.dto.request.CreateActivityRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.entity.Activity;
 import Ninety.com.backend.entity.Challenge;
+import Ninety.com.backend.exception.ActivityNotFoundException;
 import Ninety.com.backend.exception.ChallengeNotFoundException;
 import Ninety.com.backend.repository.ActivityRepository;
 import Ninety.com.backend.repository.ChallengeRepository;
@@ -48,5 +49,19 @@ public class ActivityServiceImpl implements ActivityService {
                 .createdAt(newActivity.getCreatedAt())
                 .updatedAt(newActivity.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    public void deleteActivity(Long activityId) {
+        Activity activity = findActivity(activityId);
+
+        activityRepository.delete(activity);
+    }
+
+    private Activity findActivity(Long id){
+        Activity existingActivity = activityRepository.findById(id)
+                .orElseThrow(() -> new ActivityNotFoundException("Activity not found"));
+
+        return existingActivity;
     }
 }

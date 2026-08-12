@@ -10,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/activity")
@@ -40,5 +37,21 @@ public class ActivityController {
                                 response
                         )
                 );
+    }
+
+    @DeleteMapping("/delete-activity/{activityId}")
+    @Operation(summary = "Use to delete the respective activity by id.")
+    public ResponseEntity<ApiResponse> deleteActivity(
+            @PathVariable
+            Long activityId
+    ){
+        activityService.deleteActivity(activityId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Activity deleted successfully.",
+                        null
+                )
+        );
     }
 }
