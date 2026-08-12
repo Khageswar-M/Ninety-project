@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.dto.response.ChallengeResponse;
 import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.User;
@@ -78,6 +79,18 @@ public class ChallengeServiceImpl implements ChallengeService {
                         .completed(challenge.isCompleted())
                         .createdAt(challenge.getCreatedAt())
                         .updatedAt(challenge.getUpdatedAt())
+                        .activities(
+                                challenge.getActivities()
+                                    .stream()
+                                        .map(activity -> ActivityResponse.builder()
+                                                .id(activity.getId())
+                                                .dayNumber(activity.getDayNumber())
+                                                .title(activity.getTitle())
+                                                .createdAt(activity.getCreatedAt())
+                                                .updatedAt(activity.getUpdatedAt())
+                                                .build()
+                                        ).toList()
+                        )
                         .build()
                 ).toList();
     }
