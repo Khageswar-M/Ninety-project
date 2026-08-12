@@ -4,6 +4,8 @@ import Ninety.com.backend.dto.request.ActivityUpdateRequest;
 import Ninety.com.backend.dto.request.CreateActivityRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 
+import java.util.List;
+
 public interface ActivityService {
 
     ActivityResponse createActivity(CreateActivityRequest request);
@@ -11,4 +13,6 @@ public interface ActivityService {
     void deleteActivity(Long activityId);
 
     void updateActivity(ActivityUpdateRequest request);
+
+    List<ActivityResponse> getAllActivitiesByDay(Long challengeId, int dayNumber);
 }

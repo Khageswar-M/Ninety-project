@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/activity")
 @RequiredArgsConstructor
@@ -72,5 +74,26 @@ public class ActivityController {
                         ""
                 )
         );
+    }
+
+    @GetMapping("/activities")
+    @Operation(summary = "Use to get all the activities by the dayNumber.")
+    public ResponseEntity<ApiResponse> activitiesByDayNumber(
+            @RequestParam
+            Long challengeId,
+
+            @RequestParam
+            int dayNumber
+    ){
+        List<ActivityResponse> responses =
+                activityService.getAllActivitiesByDay(challengeId, dayNumber);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                        ApiResponse.success(
+                                "Filtered activities.",
+                                responses
+                        )
+                );
     }
 }
