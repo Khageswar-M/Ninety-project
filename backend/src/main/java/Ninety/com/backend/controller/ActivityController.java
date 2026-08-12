@@ -1,5 +1,6 @@
 package Ninety.com.backend.controller;
 
+import Ninety.com.backend.dto.request.ActivityUpdateRequest;
 import Ninety.com.backend.dto.request.CreateActivityRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.dto.response.ApiResponse;
@@ -21,7 +22,7 @@ public class ActivityController {
 
     private final ActivityService activityService;
 
-    @PostMapping("/create-activity")
+    @PostMapping("/create")
     @Operation(summary = "Help's to create a new activity for the current streak.")
     public ResponseEntity<ApiResponse> createActivity(
             @Valid
@@ -39,7 +40,7 @@ public class ActivityController {
                 );
     }
 
-    @DeleteMapping("/delete-activity/{activityId}")
+    @DeleteMapping("/delete/{activityId}")
     @Operation(summary = "Use to delete the respective activity by id.")
     public ResponseEntity<ApiResponse> deleteActivity(
             @PathVariable
@@ -51,6 +52,24 @@ public class ActivityController {
                 ApiResponse.success(
                         "Activity deleted successfully.",
                         null
+                )
+        );
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "Use to update the respective activity by id.")
+    public ResponseEntity<ApiResponse> updateActivity(
+            @Valid
+            @RequestBody
+            ActivityUpdateRequest request
+    ){
+
+        activityService.updateActivity(request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Updated successfully.",
+                        ""
                 )
         );
     }

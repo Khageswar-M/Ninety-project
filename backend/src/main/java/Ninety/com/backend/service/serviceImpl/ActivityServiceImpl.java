@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.dto.request.ActivityUpdateRequest;
 import Ninety.com.backend.dto.request.CreateActivityRequest;
 import Ninety.com.backend.dto.response.ActivityResponse;
 import Ninety.com.backend.entity.Activity;
@@ -57,6 +58,16 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityRepository.delete(activity);
     }
+
+    @Override
+    public void updateActivity(ActivityUpdateRequest request) {
+        Activity activity = findActivity(request.activityId());
+
+        activity.setTitle(request.newTitle());
+
+        activityRepository.save(activity);
+    }
+
 
     private Activity findActivity(Long id){
         Activity existingActivity = activityRepository.findById(id)
