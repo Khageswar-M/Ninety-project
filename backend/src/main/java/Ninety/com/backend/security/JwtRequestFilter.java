@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,13 +23,14 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final AppUserDetailsService appUserDetailsService;
     private final JwtUtil jwtUtil;
 
     private final List<String> PUBLIC_URLS = List.of(
-            "/api/v1/auth/**",
+            "/api/v1/auth/",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -45,11 +47,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        if(PUBLIC_URLS.contains(path)){
+        System.out.println("Requested path is: " + path);
+
+//        boolean isPublic = PUBLIC_URLS.stream()
+//                .anyMatch(url -> path.startsWith(url));
+
+        boolean isPublic = PUBLIC_URLS.stream()
+                .anyMatch(path::startsWith);
+
+        if (isPublic) {
             filterChain.doFilter(request, response);
             return;
         }
-
+        log.info("/api/v1/auth/send-otp executes ");
 
         String jwt = null;
         String email = null;

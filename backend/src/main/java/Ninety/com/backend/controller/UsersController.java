@@ -4,6 +4,7 @@ import Ninety.com.backend.dto.response.ApiResponse;
 import Ninety.com.backend.service.serviceImpl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "UserController", description = "Control users exists with credentials.")
+@Slf4j
 public class UsersController {
 
     private final AuthServiceImpl authService;
@@ -21,7 +23,6 @@ public class UsersController {
     @GetMapping("/exists")
     public ResponseEntity<ApiResponse> checkUserExists(@RequestParam String email){
         boolean exists = authService.existsByEmail(email);
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         exists

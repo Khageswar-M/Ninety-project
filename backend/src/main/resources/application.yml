@@ -3,6 +3,10 @@ server:
   address: 0.0.0.0
 
 spring:
+
+  main:
+    lazy-initialization: true
+
   application:
     name: backend
 
@@ -16,6 +20,10 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
+
+  ai:
+    openai:
+      api-key: ${OPEN_AI_KEY}
 
   jpa:
     hibernate:
