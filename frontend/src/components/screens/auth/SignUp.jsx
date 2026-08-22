@@ -179,30 +179,30 @@ const SignUp = ({ mode = 'signup' }) => {
         if (!response?.success) {
             throw new Error("Failed to send signup OTP");
         }
-
         return response;
     };
 
-    // ---------- FORGOT PASSWORD: send OTP ----------
     const sendForgotPasswordOtp = async () => {
         const response = await sendOtpMailForForgetPwd(email);
-
         if (!response?.success) {
             throw new Error("Failed to send forgot-password OTP");
         }
-
         return response;
     };
 
     // ---------- SIGNUP: validate + send OTP (Step 1) ----------
     const handleSignupSendOtp = async () => {
-        const isFullNameEmpty = config.requireFullName && !fullName.trim();
+        const isFullNameEmpty =
+            config.requireFullName && !fullName.trim();
+
         const isEmailEmpty = !email.trim();
 
         setFullNameError(isFullNameEmpty);
         setEmailError(isEmailEmpty);
 
-        if (isEmailEmpty || isFullNameEmpty) return;
+        if (isEmailEmpty || isFullNameEmpty) {
+            return;
+        }
 
         if (!validateEmail(email)) {
             setEmailError(true);
@@ -214,24 +214,35 @@ const SignUp = ({ mode = 'signup' }) => {
         try {
             const userExists = await isUserExists(email);
 
-            // signup needs the email to be free
+            console.log("userExists:", userExists);
+            console.log("type:", typeof userExists);
+
+            // Email already registered
             if (userExists) {
+                console.log("User already exists");
+
                 setModalTitle(config.existsModal.title);
                 setModalMsg(config.existsModal.message);
                 setIsVisible(true);
+
                 return;
             }
+
+            // Email is available
+            console.log("User does not exist. Sending signup OTP...");
 
             await sendSignupOtp();
 
             setTimer(RESEND_SECONDS);
             setStep(2);
-        } catch (error) {
-            console.error("Error sending signup OTP:", error);
+
+        } catch (e) {
+            // console.error("Error sending signup OTP:", error);
 
             setModalTitle("Something went wrong");
             setModalMsg("We couldn't send the signup OTP. Please try again.");
             setIsVisible(true);
+
         } finally {
             setLoading(false);
         }
@@ -268,7 +279,7 @@ const SignUp = ({ mode = 'signup' }) => {
             setTimer(RESEND_SECONDS);
             setStep(2);
         } catch (error) {
-            console.error("Error sending forgot-password OTP:", error);
+            // console.error("Error sending forgot-password OTP:", error);
 
             setModalTitle("Something went wrong");
             setModalMsg("We couldn't send the password reset OTP. Please try again.");
@@ -375,7 +386,7 @@ const SignUp = ({ mode = 'signup' }) => {
         >
             {renderHeader(config.emailStepTitle)}
         </RenderStepEmail>
-        
+
     )
 
     // ---------- Step 2: Verify OTP ----------

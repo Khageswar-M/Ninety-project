@@ -81,10 +81,12 @@ const CellDetailsModal = ({
             isVisible={isVisible}
             onBackdropPress={resetAndCancel}
             onBackButtonPress={resetAndCancel}
-            animationIn="zoomIn"
-            animationOut="zoomOut"
-            backdropOpacity={0.5}
+            animationIn="fadeIn"
+            animationOut="fadeOut"
+            backdropOpacity={0}
             avoidKeyboard
+            useNativeDriver
+            hideModalContentWhileAnimating={false}
         >
             <View style={[localStyles.card, { backgroundColor: theme.background }]}>
                 <Text style={[localStyles.title, { color: theme.primary }]}>

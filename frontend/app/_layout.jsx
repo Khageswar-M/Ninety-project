@@ -162,8 +162,6 @@ function AppNavigation() {
 
   if (!isReady) return (<SplashScreenPage />);
 
-
-
   return (
     <>
       <StatusBar style={isDarkMode ? "light" : "dark"} />

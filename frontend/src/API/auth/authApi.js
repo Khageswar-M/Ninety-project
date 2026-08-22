@@ -3,10 +3,13 @@ import api from "../api";
 
 
 export const sendOtpMail = async (toEmail, fullName) => {
+    console.log("api call")
+
     const response = await api.post("/api/v1/auth/send-otp",{
         toEmail,
         fullName
     });
+    // console.log(response);
 
     return response.data;
 }
