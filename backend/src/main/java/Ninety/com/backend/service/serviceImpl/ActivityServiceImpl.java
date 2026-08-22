@@ -14,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,19 +32,43 @@ public class ActivityServiceImpl implements ActivityService {
 
 
     @Override
+    @Transactional
     public ActivityResponse createActivity(CreateActivityRequest request) {
 
         Challenge existingChallenge = challengeRepository.findById(request.challengeId())
                 .orElseThrow(() -> new ChallengeNotFoundException("Challenge not found."));
 
+        int currentDay = existingChallenge.getCurrentDay();
+
+        if(currentDay < 1 || currentDay > 90){
+            throw new IllegalStateException(
+                    "Challenge current day must be between 1 and 90"
+            );
+        }
+
+        int row = (currentDay - 1) / 10;
+        int col = (currentDay - 1) % 10;
+
+        boolean[][] dayGrid = existingChallenge.getDayGrid();
+
+        if(!dayGrid[row][col]){
+            dayGrid[row][col] = true;
+
+            existingChallenge.setDayGrid(dayGrid);
+
+            existingChallenge.setCompletedCount(
+                    existingChallenge.getCompletedCount() + 1
+            );
+        }
+
         Activity newActivity = Activity.builder()
                 .challenge(existingChallenge)
-                .dayNumber(existingChallenge.getCurrentDay())
+                .dayNumber(currentDay)
                 .title(request.title())
                 .build();
 
-
         activityRepository.save(newActivity);
+
 
         ActivityResponse response = ActivityResponse.builder()
                 .id(newActivity.getId())
@@ -58,7 +82,7 @@ public class ActivityServiceImpl implements ActivityService {
                 "activities:challenge:"
                         + request.challengeId()
                         + ":day:"
-                        + existingChallenge.getCurrentDay();
+                        + currentDay;
 
         List<ActivityResponse> cachedActivities =
                 (List<ActivityResponse>) redisTemplate.opsForValue()
