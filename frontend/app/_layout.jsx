@@ -12,12 +12,17 @@ import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { store } from "../src/redux/store";
 import { storage } from "../src/utils/storage.js";
 SplashScreen.preventAutoHideAsync();
+import { storage } from "../src/utils/storage.js";
+import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
+import { useColorScheme } from "react-native";
+// import '../src/local_notifications/NotificationHandler'
 
 function AppNavigation() {
 
   const dispatch = useDispatch();
 
   const [isReady, setIsRead] = useState(false);
+  const dispatch = useDispatch();
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const isLoggedIn = useSelector((state) => state.app.isLogin);
   const theme = useSelector((state) => state.theme.theme);
