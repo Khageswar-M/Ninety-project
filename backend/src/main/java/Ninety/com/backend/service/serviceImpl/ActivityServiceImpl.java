@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,7 +149,7 @@ public class ActivityServiceImpl implements ActivityService {
                 ).toList();
 
         redisTemplate.opsForValue()
-                .set(redisKey, responses);
+                .set(redisKey, responses, Duration.ofMinutes(5));
 
         return responses;
     }

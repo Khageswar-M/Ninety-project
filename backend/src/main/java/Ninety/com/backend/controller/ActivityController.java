@@ -24,6 +24,22 @@ public class ActivityController {
 
     private final ActivityService activityService;
 
+    @GetMapping("/{challengeId}/days/{dayNumber}")
+    @Operation(summary = "Get all stored activities of the requested day.")
+    public ResponseEntity<ApiResponse> getAllActivity(
+            @PathVariable Long challengeId,
+            @PathVariable int dayNumber
+    ){
+        List<ActivityResponse> allActivities = activityService.getAllActivitiesByDay(challengeId, dayNumber);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Activities found successfully.",
+                            allActivities
+                )
+        );
+    }
+
     @PostMapping("/create")
     @Operation(summary = "Help's to create a new activity for the current streak.")
     public ResponseEntity<ApiResponse> createActivity(
