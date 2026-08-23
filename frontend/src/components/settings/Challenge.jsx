@@ -3,9 +3,12 @@ import { Ionicons, Octicons, EvilIcons, MaterialIcons } from '@expo/vector-icons
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import ConfirmationModal from '../modals/ConfirmationModal';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const Challenge = () => {
     const style = useSettingStyles();
+    const currentDay = useSelector((state) => state.app.currentDay);
+    const currentDayPercentage = (currentDay / 90) * 100;
 
     const [deleteConformationModal, setDeleteConfirmationModal] = useState(false);
 
@@ -36,7 +39,7 @@ const Challenge = () => {
                             Overall-progress
                         </Text>
                         <Text style={style.challengeDesc}>
-                            23 days in - 67 remaining
+                            {currentDay} days in - {90 - currentDay} remaining
                         </Text>
                     </View>
                 </View>
@@ -45,7 +48,7 @@ const Challenge = () => {
                 <View style={style.progressBarContainer}>
                     {/* Day between */}
                     <View style={style.progressBarTitlesContainer}>
-                        <Text style={style.progressBarTitle}>Day 1</Text>
+                        <Text style={style.progressBarTitle}>Day {currentDay}</Text>
                         <Text style={style.progressBarTitle}>Day 90</Text>
                     </View>
 
@@ -55,7 +58,7 @@ const Challenge = () => {
                         {/* BAR */}
                         <View style={{
                             height: '100%',
-                            width: '70%',
+                            width: `${currentDayPercentage}%`,
                             backgroundColor: '#ff7300',
                             borderRadius: 10
                         }} />
@@ -68,7 +71,7 @@ const Challenge = () => {
                         </Text>
 
                         <Text style={[style.progressBarRemainingTitleLeft, style.progressBarRemainingTitleRight]}>
-                            100% done
+                            {currentDayPercentage.toFixed(0)}% done
                         </Text>
                     </View>
                 </View>

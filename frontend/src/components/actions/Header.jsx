@@ -10,10 +10,17 @@ const Header = () => {
     const style = useActionStyles();
 
     const completedCount = useSelector((state) => state.app.completedCount);
+    const challengeBoard = useSelector((state) => state.app.dayGrid);
+    const currentDay = useSelector((state) => state.app.currentDay);
     const TOTAL_DAY = 90;
-    const completedPercentage  = Math.round(
-        (completedCount / TOTAL_DAY) * 100
-    );
+
+    // Flatten the 2D matrix into a 1D array of 90 booleans
+    const checkedCount = (challengeBoard || [])
+        .flat()
+        .slice(0, currentDay)
+        .filter(Boolean).length;
+
+    const completedPercentage = Math.round((checkedCount / TOTAL_DAY) * 100);
 
     // Displayed percentage
     const [dayCount, setDayCount] = useState(0);
@@ -29,7 +36,7 @@ const Header = () => {
             duration: 1000,
             useNativeDriver: false,
         }).start();
-               
+
     }, [completedPercentage]);
 
     // Progress bar width
@@ -60,7 +67,7 @@ const Header = () => {
                         style={[
                             style.headerProgressBar,
                             {
-                                width: animatedWidth,
+                                width: `${completedPercentage}%`,
                             },
                         ]}
                     />

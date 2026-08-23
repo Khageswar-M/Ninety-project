@@ -10,3 +10,8 @@ export const addActivity = async (challengeId, title) => {
 
     return response.data;
 }
+
+export const getActivities = async (challengeId, dayNumber) => {
+    const response = await api.get(ACTIVITY_BASE_URL +`/${challengeId}/days/${dayNumber}`);
+    return response.data;
+}

@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     isLogin: false,
     dayGrid: [],
+    gridId: 0,
     currentDay: 0,
     completedCount: 0,
     missedDaysCount: 0,
@@ -25,6 +26,9 @@ const appSlice = createSlice({
 
             state.dayGrid =
                 action.payload.dayGrid ?? [];
+
+            state.gridId =
+                action.payload.gridId ?? 0;
 
             state.currentDay =
                 action.payload.currentDay ?? 0;
@@ -52,6 +56,10 @@ const appSlice = createSlice({
 
         setDayGrid(state, action){
             state.dayGrid = action.payload;
+        },
+
+        setGridId(state, action){
+            state.gridId = action.payload;
         },
 
         setCurrentDay(state, action){
@@ -85,6 +93,7 @@ export const {
     hydrateApp,
     setLogin,
     setDayGrid,
+    setGridId,
     setCurrentDay,
     setCompletedCount,
     setMissedDaysCount,

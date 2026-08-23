@@ -175,6 +175,9 @@ const resultStyles = (theme) => StyleSheet.create({
     completeCell:{
         backgroundColor: theme.primary
     },
+    notCompleteCell:{
+        backgroundColor: theme.danger
+    },
     aiCoachContainer: {
         marginTop: 5,
         backgroundColor: theme.backgroundMuted,

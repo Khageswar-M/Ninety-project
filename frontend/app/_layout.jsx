@@ -12,9 +12,6 @@ import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { store } from "../src/redux/store";
 import { storage } from "../src/utils/storage.js";
 SplashScreen.preventAutoHideAsync();
-import { storage } from "../src/utils/storage.js";
-import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
-import { useColorScheme } from "react-native";
 // import '../src/local_notifications/NotificationHandler'
 
 function AppNavigation() {
@@ -22,7 +19,6 @@ function AppNavigation() {
   const dispatch = useDispatch();
 
   const [isReady, setIsRead] = useState(false);
-  const dispatch = useDispatch();
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const isLoggedIn = useSelector((state) => state.app.isLogin);
   const theme = useSelector((state) => state.theme.theme);
@@ -52,7 +48,7 @@ function AppNavigation() {
         }
 
         const challenge =
-          storedUser?.challenges?.[0];
+          storedUser?.challenges?.[0]; 
 
         dispatch(
 
@@ -63,6 +59,9 @@ function AppNavigation() {
 
             dayGrid:
               challenge?.dayGrid ?? [],
+
+            gridId:
+              challenge?.id ?? 0,
 
             currentDay:
               challenge?.currentDay ?? 0,

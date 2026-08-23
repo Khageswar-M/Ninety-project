@@ -40,11 +40,13 @@ const actionStyle = (theme) => StyleSheet.create({
     },
     barContainer: {
         width: '85%',
-        alignItems: 'center'
+        alignItems: 'flex-start',
+        backgroundColor: theme.backgroundMutedExtra,
+        borderRadius: 5
     },
     headerProgressBar: {
         height: 7,
-        backgroundColor: theme.backgroundMutedExtra,
+        backgroundColor: theme.primary,
         borderRadius: 5
     },
     headerProgressBarCounter: {

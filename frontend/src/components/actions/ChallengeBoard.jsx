@@ -85,7 +85,9 @@ const ChallengeBoard = () => {
     };
 
     const openCell = (rowIndex, collIndex) => {
-        const cellIndex = (rowIndex * 9) + collIndex;
+        console.log("Requested cell: ", rowIndex, " and ", collIndex);
+        const cellIndex = (rowIndex * 9) + collIndex + 1;
+        console.log("Cell Index: ",cellIndex);
         const status = getCellStatus(cellIndex, cellChecked[rowIndex][collIndex]);
 
         if (status !== 'checked' && status !== 'current') return;
@@ -98,6 +100,10 @@ const ChallengeBoard = () => {
         setIsModalVisible(false);
         setSelectedCell(null);
     };
+
+    const handleCreateActivity = (action) => {
+        
+    }
 
     const saveCellActions = (actions) => {
         if (!selectedCell) return;
@@ -197,8 +203,11 @@ const ChallengeBoard = () => {
                 onAction={saveCellActions}
                 title={
                     selectedCell
-                        ? `Day ${(selectedCell.row * 9) + selectedCell.col + 1}`
+                        ? `Day ${(selectedCell.row * 10) + selectedCell.col + 1}`
                         : ""
+                }
+                dayNumber = {
+                    selectedCell ? (selectedCell.row * 10) + selectedCell.col + 1 : 1
                 }
                 initialActions={
                     selectedCell
