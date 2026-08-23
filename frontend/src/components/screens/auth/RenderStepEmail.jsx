@@ -1,21 +1,45 @@
 import { View, Text, TextInput } from 'react-native'
 import { useAuthStyles } from '../../../hook/useThemeStyles'
 import { TouchableOpacity } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import ConfirmationModal from '../../modals/ConfirmationModal';
+
 const RenderStepEmail = ({
     children,
+    fullName,
+    setFullName,
     email,
     setEmail,
     handleSendOtp,
-    handleGoogleSignUp,
-    handleGoToLogin
+    handleGoToLogin,
+    loading,
+    fullNameError,
+    emailError,
 }) => {
     const styles = useAuthStyles();
     return (
         <View style={styles.stepContainer}>
             {children}
+
+            <Text style={styles.label}>Full name</Text>
+            <TextInput
+                style={[styles.signUpInput, fullNameError && {
+                    borderColor: '#ff0e0e'
+                }]}
+                placeholder="John Doe"
+                placeholderTextColor="#9a9a9a"
+                autoCapitalize="none"
+                keyboardType="default"
+                value={fullName}
+                onChangeText={setFullName}
+
+            />
+
             <Text style={styles.label}>Email address</Text>
             <TextInput
-                style={styles.signUpInput}
+                style={[styles.signUpInput, emailError && {
+                    borderColor: '#ff0e0e'
+                }]}
                 placeholder="you@example.com"
                 placeholderTextColor="#9a9a9a"
                 autoCapitalize="none"
@@ -27,22 +51,17 @@ const RenderStepEmail = ({
             <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={handleSendOtp}
-                disabled={!email}
+                disabled={!email || loading}
             >
-                <Text style={styles.primaryButtonText}>Send OTP</Text>
-            </TouchableOpacity>
+                {
+                    loading ? (
+                        <ActivityIndicator size='small' color="#fff" />
+                    ) : (
+                        <Text style={styles.primaryButtonText}>Send OTP</Text>
+                    )
+                }
 
-            <View style={styles.signUpDividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.dividerLine} />
-            </View>
 
-            <TouchableOpacity
-                style={styles.signupGoogleButton}
-                onPress={handleGoogleSignUp}
-            >
-                <Text style={styles.googleButtonText}>Continue with Google</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleGoToLogin}>
@@ -50,7 +69,9 @@ const RenderStepEmail = ({
                     Already have an account? <Text style={styles.footerLinkBold}>Log in</Text>
                 </Text>
             </TouchableOpacity>
+
         </View>
+
     )
 }
 
