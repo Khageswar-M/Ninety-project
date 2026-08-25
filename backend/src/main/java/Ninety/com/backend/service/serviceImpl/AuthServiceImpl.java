@@ -93,50 +93,13 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
+        user.setLogin(true);
+
+        userRepository.save(user);
+
         String jwtToken = jwtUtil.generateToken(request.email());
 
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
-
-
-        List<ChallengeResponse> challengeResponses =
-                user.getChallenges()
-                        .stream()
-                        .sorted(
-                                Comparator.comparing(Challenge::isCompleted)
-                        )
-                        .map(challenge -> {
-
-                            challengeService.computeStreakCounts(challenge.getId());
-
-                            List<ActivityResponse> activityResponses =
-                                    challenge.getActivities()
-                                            .stream()
-                                            .map(activity -> ActivityResponse.builder()
-                                                    .id(activity.getId())
-                                                    .dayNumber(activity.getDayNumber())
-                                                    .title(activity.getTitle())
-                                                    .createdAt(activity.getCreatedAt())
-                                                    .updatedAt(activity.getUpdatedAt())
-                                                    .build())
-                                            .toList();
-
-                            return ChallengeResponse.builder()
-                                    .id(challenge.getId())
-                                    .title(challenge.getTitle())
-                                    .dayGrid(challenge.getDayGrid())
-                                    .currentDay(challengeService.getMyCurrentStreakDay(challenge.getId()))
-                                    .currentStreak(challenge.getCurrentStreak())
-                                    .longestStreak(challenge.getLongestStreak())
-                                    .streakCount(challenge.getStreakCount())
-                                    .missedCount(challenge.getMissedCount())
-                                    .completedCount(challenge.getCompletedCount())
-                                    .startedAt(challenge.getStartedAt())
-                                    .completed(challenge.isCompleted())
-                                    .createdAt(challenge.getCreatedAt())
-                                    .updatedAt(challenge.getUpdatedAt())
-                                    .activities(activityResponses)
-                                    .build();
-                        }).toList();
 
         return LoginResponse.builder()
                 .id(user.getId())
@@ -146,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(user.getCreatedAt().toString())
                 .updatedAt(user.getUpdatedAt().toString())
                 .jwtToken(jwtToken)
-                .challenges(challengeResponses)
+                .isLogin(true)
                 .build();
     }
 
