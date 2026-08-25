@@ -28,74 +28,58 @@ function AppNavigation() {
 
   // App initialization
   useEffect(() => {
-
     const initializeApp = async () => {
-
       try {
+        const storedUser = await storage.get("@ninety_user");
 
-        const storedUser =
-          await storage.get("@ninety_user");
-
-        if (!storedUser) {
+        if (!storedUser?.jwtToken || !storedUser?.tokenExpiresAt) {
+          await storage.remove("@ninety_user");
 
           dispatch(
             hydrateApp({
-              isLogin: false
+              isLogin: false,
             })
           );
 
           return;
         }
 
-        const challenge =
-          storedUser?.challenges?.[0]; 
+        const isTokenExpired =
+          Date.now() >= storedUser.tokenExpiresAt;
 
+        if (isTokenExpired) {
+          console.log("JWT token has expired.");
+
+          await storage.remove("@ninety_user");
+
+          dispatch(
+            hydrateApp({
+              isLogin: false,
+            })
+          );
+
+          return;
+        }
+
+        // Token is still valid
         dispatch(
-
           hydrateApp({
-
-            isLogin:
-              Boolean(storedUser?.jwtToken),
-
-            dayGrid:
-              challenge?.dayGrid ?? [],
-
-            gridId:
-              challenge?.id ?? 0,
-
-            currentDay:
-              challenge?.currentDay ?? 0,
-
-            completedCount:
-              challenge?.completedCount ?? 0,
-
-            currentStreak:
-              challenge?.currentStreakCount ?? 0,
-
-            missedDaysCount: 0,
-            successRate: 0,
-            bestStreak: 0
+            isLogin: true,
           })
         );
+
       } catch (error) {
-
-        console.error(
-          "Failed to hydrate app:",
-          error
-        );
+        console.error("Failed to hydrate app:", error);
 
         dispatch(
-
           hydrateApp({
-            isLogin: false
+            isLogin: false,
           })
         );
-
       }
     };
 
     initializeApp();
-
   }, [dispatch]);
 
   // Theme

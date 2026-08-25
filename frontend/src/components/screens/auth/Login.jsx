@@ -32,22 +32,22 @@ const Login = () => {
   console.log(remember);
 
   useEffect(() => {
-   const loadRememberedUser = async() => {
-    try{
-      const rememberedData = await storage.get("remember");
+    const loadRememberedUser = async () => {
+      try {
+        const rememberedData = await storage.get("remember");
 
-      if(rememberedData?.wasRemember){
-        setEmail(rememberedData.wasEmail || "");
-        setPassword(rememberedData.wasPassword || "");
-        setRemember(true);
+        if (rememberedData?.wasRemember) {
+          setEmail(rememberedData.wasEmail || "");
+          setPassword(rememberedData.wasPassword || "");
+          setRemember(true);
+        }
+      } catch (error) {
+        console.error("Remember data error: ", error);
       }
-    }catch(error){
-      console.error("Remember data error: ", error);
     }
-   }
 
-   loadRememberedUser();
-  },[]);
+    loadRememberedUser();
+  }, []);
 
   const handleLogin = async () => {
     const trimmedEmail = email.trim();
@@ -69,30 +69,33 @@ const Login = () => {
           id,
           fullName,
           email: userEmail,
+          isEnabled,
+          createdAt,
+          updatedAt,
           jwtToken,
-          challenges,
+          isLogin,
+          expiresIn
         } = response.data.data;
+
+
+        const tokenExpiresAt = Date.now() + (expiresIn * 1000);
 
         const user = {
           id,
           fullName,
-          email: userEmail, 
+          email: userEmail,
+          isEnabled,
+          createdAt,
+          updatedAt,
           jwtToken,
-          challenges: challenges.map((challenge) => ({
-            id: challenge.id,
-            title: challenge.title,
-            dayGrid: challenge.dayGrid,
-            currentDay: challenge.currentDay,
-            currentStreakCount: challenge.currentStreak,
-            completedCount: challenge.completedCount,
-            startedAt: challenge.startedAt,
-            completed: challenge.completed,
-          })),
+          isLogin,
+          expiresIn,
+          tokenExpiresAt
         };
 
         await storage.set("@ninety_user", user);
 
-        if(remember){
+        if (remember) {
           const rememberObj = {
             wasRemember: true,
             wasEmail: user.email,
@@ -119,7 +122,6 @@ const Login = () => {
       keyboardShouldPersistTaps="handled"
       enableAutomaticScroll={true}
       enableResetScrollToCoords={true}
-      enableOnAndroid={true}
       keyboardOpeningTime={20}
       style={[styles.loginContainer, { paddingTop: inset.top }]}
     >

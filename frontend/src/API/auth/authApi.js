@@ -50,6 +50,18 @@ export const login = async (email, password) => {
     return response;
 }
 
+export const logout = async () => {
+  try {
+    const response = await api.post("/api/v1/auth/logout");
+
+    return response;
+  } catch (error) {
+    console.error("Logout API error:", error);
+    throw error;
+  }
+};
+
+
 export const updatePassword = async (email, password) => {
     const response = await api.post("/api/v1/auth/update-password",{
         email,
