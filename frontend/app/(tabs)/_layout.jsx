@@ -1,11 +1,9 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
-import { View, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Actions from '../../src/components/screens/Actions.jsx'
 import Results from '../../src/components/screens/Results.jsx'
 import Settings from '../../src/components/screens/Settings.jsx'
 import { useSelector } from 'react-redux'
-import SplashScreen from '../../src/components/splash/SplashScreen.jsx'
 import { Fonts } from '../../src/constants/Fonts.js'
 import { Ionicons, Feather } from '@expo/vector-icons'
 

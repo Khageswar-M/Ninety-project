@@ -1,5 +1,6 @@
 package Ninety.com.backend.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,7 @@ public class User{
     @Column(nullable = false)
     private String password;
 
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     @Builder.Default
@@ -44,6 +46,10 @@ public class User{
     @Column(nullable = false)
     @Builder.Default
     private boolean enabled = true;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isLogin = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default

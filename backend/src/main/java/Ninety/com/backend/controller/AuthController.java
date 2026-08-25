@@ -1,9 +1,6 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.request.LoginRequest;
-import Ninety.com.backend.dto.request.RegisterRequest;
-import Ninety.com.backend.dto.request.SendOtpRequest;
-import Ninety.com.backend.dto.request.VerifyOtpRequest;
+import Ninety.com.backend.dto.request.*;
 import Ninety.com.backend.dto.response.ApiResponse;
 import Ninety.com.backend.dto.response.LoginResponse;
 import Ninety.com.backend.service.AuthService;
@@ -12,13 +9,16 @@ import Ninety.com.backend.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -34,12 +34,25 @@ public class AuthController {
     @PostMapping("/send-otp")
     public ResponseEntity<ApiResponse<Void>> sendOtp(@Valid @RequestBody SendOtpRequest request){
 
-        String otp = otpService.generateAndStoreOtp(request.toEmail());
         emailService.sendOtpEmail(request.toEmail(), request.fullName());
 
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("OTP sent successfully. Please check you email for OTP.", null));
+    }
+
+    @Operation(summary = "Send an email with attached OTP to the respective user for forget password")
+    @PostMapping("/send-forget-password-otp")
+    public ResponseEntity<ApiResponse<Void>> sendPasswordResendOtp(
+            @NotBlank(message = "Valid email required.")
+            @Email
+            @RequestParam
+            String toEmail
+    ){
+        emailService.sendPasswordResetOtp(toEmail);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("OTP sent successfully.", null));
     }
 
 
@@ -82,7 +95,39 @@ public class AuthController {
             LoginRequest request
     ){
         LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", response.jwtToken())
+                .httpOnly(true)
+                .secure(false) // true in production
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity
+                .ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        cookie.toString()
+                )
+                .body(
+                        ApiResponse.success(
+                                "Login successful",
+                                response
+                        )
+                );
+    }
+
+    @Operation(summary = "Update user with new password")
+    @PostMapping("/update-password")
+    public ResponseEntity<ApiResponse<Void>> updatedPassword(
+            @Valid
+            @RequestBody
+            UpdatePasswordRequest request
+    ){
+        authService.updatePassword(request);
+
+        return ResponseEntity.ok(ApiResponse.success("Password updated successfully.", null));
     }
 
 

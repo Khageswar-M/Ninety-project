@@ -6,7 +6,7 @@ const SignUpPage = () => {
   const style = useAuthStyles();
   return (
     <View style={style.container}>
-      <SignUp />
+      <SignUp mode="signup"/>
     </View>
   )
 }

@@ -1,9 +1,11 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { useResultStyles } from '../../hook/useThemeStyles'
+import { useSelector } from 'react-redux';
 
 const Header = () => {
     const style = useResultStyles();
+    const currentDay = useSelector((state) => state.app.currentDay);
     return (
         <View style={style.header}>
             <View style={style.headerTextContainer}>
@@ -12,7 +14,7 @@ const Header = () => {
             </View>
 
             <View style={style.headerTotalDay}>
-                <Text style={style.totalDayText}>Day 23</Text>
+                <Text style={style.totalDayText}>Day {currentDay}</Text>
             </View>
         </View>
     )

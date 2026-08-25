@@ -34,7 +34,7 @@ public class Activity {
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 

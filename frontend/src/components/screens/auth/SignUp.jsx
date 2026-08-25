@@ -15,7 +15,10 @@ import RenderStepPassword from './RenderStepPassword'
 import RenderStepConfirmation from './RenderStepConfirmation'
 import RenderProgressBars from './RenderProgressBars'
 import { router } from 'expo-router'
-import { sendOtpMail, verifyOtp, signUp } from '../../../API/auth/authApi'
+// NOTE: `updatePassword` must exist in authApi.js with a signature like
+// updatePassword(email, newPassword) -> Promise<{ data: { success: boolean } }>
+// (mirroring how `signUp` is shaped). Add it there if it doesn't exist yet.
+import { sendOtpMail, verifyOtp, signUp, updatePassword, sendOtpMailForForgetPwd } from '../../../API/auth/authApi'
 import { validateEmail } from '../../../utils/validateEmail'
 import { validatePasswordStrength } from '../../../utils/validatePasswordStrength'
 import { isUserExists } from '../../../API/users/usersApi'
@@ -25,7 +28,44 @@ const TOTAL_STEPS = 4
 const OTP_LENGTH = 6
 const RESEND_SECONDS = 30
 
-const SignUp = () => {
+// Text/behaviour that differs between the two flows lives here, so the
+// step logic below stays identical for both and there's one place to
+// edit copy.
+const FLOW_CONFIG = {
+    signup: {
+        appName: "Ninety Productive Day's Tracker",
+        emailStepTitle: 'Create your account',
+        otpStepTitle: 'Verify OTP',
+        passwordStepTitle: 'Set Password',
+        passwordButtonLabel: 'Create Account',
+        confirmationTitle: 'Account Created!',
+        requireFullName: true,
+        existsModal: {
+            title: 'User Exists',
+            message: 'User already exists with this email.',
+        },
+    },
+    forgotPassword: {
+        appName: "Ninety Productive Day's Tracker",
+        emailStepTitle: 'Reset your password',
+        otpStepTitle: 'Verify OTP',
+        passwordStepTitle: 'New Password',
+        passwordButtonLabel: 'Update Password',
+        confirmationTitle: 'Password Updated!',
+        requireFullName: false,
+        existsModal: {
+            title: 'No Account Found',
+            message: 'No account exists with this email.',
+        },
+    },
+}
+
+// mode: 'signup' (default) | 'forgotPassword'
+const SignUp = ({ mode = 'signup' }) => {
+
+    const config = FLOW_CONFIG[mode] ?? FLOW_CONFIG.signup;
+    const isForgotPassword = mode === 'forgotPassword';
+    const isSignup = mode === "signup";
 
     const styles = useAuthStyles();
     const inset = useSafeAreaInsets();
@@ -75,9 +115,10 @@ const SignUp = () => {
         }
     }
 
-    // HANDLE REGISTER ACCOUNT
-    const handleCreateAccount = async () => {
-        setLoading(true);
+    // HANDLE STEP 3 SUBMIT -> creates account (signup) or updates password (forgotPassword)
+    // Validation now runs BEFORE setLoading(true), fixing a bug in the original
+    // where an early return on invalid input left `loading` stuck at true.
+    const handlePasswordSubmit = async () => {
         if (!password || !confirmPassword) {
             setPasswordError('Please fill in both fields')
             return
@@ -86,21 +127,22 @@ const SignUp = () => {
             setPasswordError('Password must be at least 8 characters')
             return
         }
-
         if (!validatePasswordStrength(password)) {
-            console.log(validatePasswordStrength(password));
             setPasswordError('Password is too weak — add uppercase, numbers, or symbols')
             return
         }
-
         if (password !== confirmPassword) {
             setPasswordError('Passwords do not match')
             return
         }
         setPasswordError('')
+        setLoading(true);
 
         try {
-            const response = await signUp(email, fullName, password);
+            const response = isForgotPassword
+                ? await updatePassword(email, password)
+                : await signUp(email, fullName, password);
+
             if (response.data.success) {
                 setStep(4)
             }
@@ -130,63 +172,126 @@ const SignUp = () => {
     };
 
     // HANDLE SEND OTP -> STEP - 1 & 2
-    const sendOtp = async () => {
-
-
-
+    // ---------- SIGNUP: send OTP ----------
+    const sendSignupOtp = async () => {
         const response = await sendOtpMail(email, fullName);
 
-        if (!response.success) {
-            throw new Error("Failed to send OTP");
+        if (!response?.success) {
+            throw new Error("Failed to send signup OTP");
         }
-
         return response;
     };
 
-    // ---------- Step 2 -> submit handlers ----------
-    // HANDLE SEND OTP WITH DATA VALIDATION -> STEP - 1
-    const handleSendOtp = async () => {
-        const isFullNameEmpty = !fullName.trim();
+    const sendForgotPasswordOtp = async () => {
+        const response = await sendOtpMailForForgetPwd(email);
+        if (!response?.success) {
+            throw new Error("Failed to send forgot-password OTP");
+        }
+        return response;
+    };
+
+    // ---------- SIGNUP: validate + send OTP (Step 1) ----------
+    const handleSignupSendOtp = async () => {
+        const isFullNameEmpty =
+            config.requireFullName && !fullName.trim();
+
         const isEmailEmpty = !email.trim();
 
         setFullNameError(isFullNameEmpty);
         setEmailError(isEmailEmpty);
 
-        if (isEmailEmpty || isFullNameEmpty) return;
+        if (isEmailEmpty || isFullNameEmpty) {
+            return;
+        }
 
         if (!validateEmail(email)) {
             setEmailError(true);
             return;
         }
 
-
-
-        console.log("Email: ", email, " FullName: ", fullName);
-
         setLoading(true);
 
         try {
-
             const userExists = await isUserExists(email);
 
+            console.log("userExists:", userExists);
+            console.log("type:", typeof userExists);
+
+            // Email already registered
             if (userExists) {
                 console.log("User already exists");
-                setModalTitle("User Exists");
-                setModalMsg("User already exists with this email.")
+
+                setModalTitle(config.existsModal.title);
+                setModalMsg(config.existsModal.message);
                 setIsVisible(true);
+
                 return;
             }
 
-            await sendOtp();
+            // Email is available
+            console.log("User does not exist. Sending signup OTP...");
+
+            await sendSignupOtp();
 
             setTimer(RESEND_SECONDS);
             setStep(2);
-        } catch (error) {
-            console.error("Error sending OTP:", error);
+
+        } catch (e) {
+            // console.error("Error sending signup OTP:", error);
+
+            setModalTitle("Something went wrong");
+            setModalMsg("We couldn't send the signup OTP. Please try again.");
+            setIsVisible(true);
+
         } finally {
             setLoading(false);
         }
     };
+
+    // ---------- FORGOT PASSWORD: validate + send OTP (Step 1) ----------
+    const handleForgotPasswordSendOtp = async () => {
+        const isEmailEmpty = !email.trim();
+
+        setEmailError(isEmailEmpty);
+
+        if (isEmailEmpty) return;
+
+        if (!validateEmail(email)) {
+            setEmailError(true);
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const userExists = await isUserExists(email);
+
+            // forgotPassword needs the email to already belong to an account
+            if (!userExists) {
+                setModalTitle(config.existsModal.title);
+                setModalMsg(config.existsModal.message);
+                setIsVisible(true);
+                return;
+            }
+
+            await sendForgotPasswordOtp();
+
+            setTimer(RESEND_SECONDS);
+            setStep(2);
+        } catch (error) {
+            // console.error("Error sending forgot-password OTP:", error);
+
+            setModalTitle("Something went wrong");
+            setModalMsg("We couldn't send the password reset OTP. Please try again.");
+            setIsVisible(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ---------- Step 1 entry point (called from RenderStepEmail) ----------
+    const handleSendOtp = () =>
+        isSignup ? handleSignupSendOtp() : handleForgotPasswordSendOtp();
 
     // HANDLE RESENT OTP -> STEP - 2
     const handleResendOtp = async () => {
@@ -196,7 +301,11 @@ const SignUp = () => {
         setLoading(true);
 
         try {
-            await sendOtp();
+            if (isSignup) {
+                await sendSignupOtp();
+            } else {
+                await sendForgotPasswordOtp();
+            }
 
             setTimer(RESEND_SECONDS);
         } catch (error) {
@@ -250,7 +359,7 @@ const SignUp = () => {
 
     const renderHeader = (title) => (
         <View style={styles.headerWrap}>
-            <Text style={styles.appName}>Ninety Productive Day's Tracker</Text>
+            <Text style={styles.appName}>{config.appName}</Text>
             {renderProgressBars()}
             <Text style={styles.stepTitle}>{title}</Text>
         </View>
@@ -259,6 +368,7 @@ const SignUp = () => {
 
     // ---------- Step 1: Email ----------
     const renderStepEmail = () => (
+
         <RenderStepEmail
             fullName={fullName}
             setFullName={handleFullNameChange}
@@ -271,13 +381,17 @@ const SignUp = () => {
             emailError={emailError}
             isVisible={isVisible}
             setIsVisible={setIsVisible}
+            requireFullName={config.requireFullName}
+            mode={mode}
         >
-            {renderHeader('Create your account')}
+            {renderHeader(config.emailStepTitle)}
         </RenderStepEmail>
+
     )
 
     // ---------- Step 2: Verify OTP ----------
     const renderStepOtp = () => (
+
         <RenderStepOtp
             email={email}
             handleChangeEmail={handleChangeEmail}
@@ -293,7 +407,7 @@ const SignUp = () => {
             loading={loading}
             isInvalidOtp={isInvalidOtp}
         >
-            {renderHeader('Verify OTP')}
+            {renderHeader(config.otpStepTitle)}
         </RenderStepOtp>
     )
 
@@ -305,10 +419,12 @@ const SignUp = () => {
             confirmPassword={confirmPassword}
             setConfirmPassword={setConfirmPassword}
             passwordError={passwordError}
-            handleCreateAccount={handleCreateAccount}
+            handleCreateAccount={handlePasswordSubmit}
             loading={loading}
+            submitLabel={config.passwordButtonLabel}
+            mode={mode}
         >
-            {renderHeader('Password')}
+            {renderHeader(config.passwordStepTitle)}
         </RenderStepPassword>
     )
 
@@ -316,8 +432,9 @@ const SignUp = () => {
     const renderStepConfirmation = () => (
         <RenderStepConfirmation
             handleGoToLogin={handleGoToLogin}
+            mode={mode}
         >
-            {renderHeader("")}
+            {renderHeader(config.confirmationTitle)}
         </RenderStepConfirmation>
     )
 
@@ -344,7 +461,6 @@ const SignUp = () => {
                 keyboardShouldPersistTaps="handled"
                 enableAutomaticScroll={true}
                 enableResetScrollToCoords={true}
-                enableOnAndroid={true}
                 keyboardOpeningTime={20}
                 style={[styles.signupContainer, { paddingTop: inset.top }]}
             >
@@ -370,4 +486,3 @@ const SignUp = () => {
 }
 
 export default SignUp;
-

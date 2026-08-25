@@ -3,9 +3,11 @@ import { useSettingStyles } from '../../hook/useThemeStyles'
 import { Ionicons, EvilIcons, Feather } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { useSelector } from 'react-redux';
 
 const Profile = () => {
     const style = useSettingStyles();
+    const currentDay = useSelector((state) => state.app.currentDay);
     return (
         <View>
             <Text style={style.componentTitle}>Profile</Text>
@@ -34,7 +36,7 @@ const Profile = () => {
                         </Text>
                         <View style={style.userAchievement}>
                             <EvilIcons name='trophy' style={style.trophy} />
-                            <Text style={style.userAchievementTitle}>Day 23 of 90</Text>
+                            <Text style={style.userAchievementTitle}>Day {currentDay} of 90</Text>
                         </View>
                     </View>
                 </View>

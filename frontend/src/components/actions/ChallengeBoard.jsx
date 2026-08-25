@@ -5,6 +5,7 @@ import { useActionStyles } from '../../hook/useThemeStyles';
 import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import CellDetailsModal from '../modals/CellDetailsModal';
+import { storage } from '../../utils/storage';
 
 const ChallengeBoard = () => {
     const style = useActionStyles();
@@ -14,8 +15,41 @@ const ChallengeBoard = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const [cellChecked, setCellChecked] = useState(board);
+    const [cellChecked, setCellChecked] = useState([]);
+    const [currentDay, setCurrentDay] = useState(0);
     const [cellActions, setCellActions] = useState({});
+
+    useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const user = await storage.get("@ninety_user");
+
+                if (!user) {
+                    console.log("No user found in storage.");
+                    return;
+                }
+
+                console.log("Ninety user:", user);
+
+                const challenge = user.challenges?.[0];
+
+                if (!challenge) {
+                    console.log("No challenge found.");
+                    return;
+                }
+
+                console.log("Day grid: ", challenge.dayGrid);
+                console.log("Current day: ", challenge.currentDay);
+
+                setCellChecked(challenge.dayGrid);
+                setCurrentDay(challenge.currentDay);
+            } catch (error) {
+                console.error("Failed to load challenge data: ", error);
+            }
+        }
+
+        loadUserData();
+    }, [])
 
     const animatedValues = useRef(
         Array.from({ length: 90 }).map(() => new Animated.Value(0))
@@ -38,13 +72,22 @@ const ChallengeBoard = () => {
 
     // Single source of truth for a cell's state — derived, not stored.
     const getCellStatus = (cellIndex, isChecked) => {
-        if (cellIndex === currentStreakIndex) return 'current';
-        if (cellIndex < currentStreakIndex) return isChecked ? 'checked' : 'missed';
+
+        const currentIndex = currentDay - 1;
+
+        if (cellIndex === currentIndex) return 'current';
+
+        if (cellIndex < currentIndex) {
+            return isChecked ? 'checked' : 'missed';
+        }
+
         return 'future';
     };
 
     const openCell = (rowIndex, collIndex) => {
-        const cellIndex = (rowIndex * 9) + collIndex;
+        console.log("Requested cell: ", rowIndex, " and ", collIndex);
+        const cellIndex = (rowIndex * 9) + collIndex + 1;
+        console.log("Cell Index: ",cellIndex);
         const status = getCellStatus(cellIndex, cellChecked[rowIndex][collIndex]);
 
         if (status !== 'checked' && status !== 'current') return;
@@ -58,6 +101,10 @@ const ChallengeBoard = () => {
         setSelectedCell(null);
     };
 
+    const handleCreateActivity = (action) => {
+        
+    }
+
     const saveCellActions = (actions) => {
         if (!selectedCell) return;
 
@@ -69,7 +116,7 @@ const ChallengeBoard = () => {
             [key]: actions,
         }));
 
-        if (cellIndex === currentStreakIndex) {
+        if (cellIndex === currentDay) {
             setCellChecked((prev) => {
                 const next = prev.map((r) => [...r]);
                 next[selectedCell.row][selectedCell.col] = true;
@@ -90,15 +137,15 @@ const ChallengeBoard = () => {
                             {
                                 row.map((collValue, collIndex) => {
 
-                                    const cellIndex = (rowIndex * 9) + collIndex;
+                                    const cellIndex = (rowIndex * 10) + collIndex ;
                                     const status = getCellStatus(cellIndex, collValue);
                                     const isEditable = status === 'current' || status === 'checked';
 
                                     const targetColor =
                                         status === 'checked' ? theme.primary :
-                                        status === 'current' ? (theme.success) :
-                                        status === 'missed' ? (theme.danger) :
-                                        theme.dark;
+                                            status === 'current' ? (theme.success) :
+                                                status === 'missed' ? (theme.danger) :
+                                                    theme.dark;
 
                                     const animatedBgColor = animatedValues[cellIndex].interpolate({
                                         inputRange: [0, 1],
@@ -107,9 +154,9 @@ const ChallengeBoard = () => {
 
                                     const cellStyle =
                                         status === 'checked' ? style.cellChecked :
-                                        status === 'current' ? style.cellWillCheckToday :
-                                        status === 'missed' ? style.cellMissed :
-                                        style.cellWillCheck;
+                                            status === 'current' ? style.cellWillCheckToday :
+                                                status === 'missed' ? style.cellMissed :
+                                                    style.cellWillCheck;
 
                                     return (
                                         <AnimatedPressable
@@ -127,9 +174,9 @@ const ChallengeBoard = () => {
                                         >
                                             <Text style={style.collIndexText}>
                                                 {status === 'checked' ? (
-                                                    <Ionicons name='checkmark-outline' size={20} color={theme.light}/>
+                                                    <Ionicons name='checkmark-outline' size={20} color={theme.light} />
                                                 ) : status === 'missed' ? (
-                                                    <Ionicons name='close-outline' size={20} color={theme.light}/>
+                                                    <Ionicons name='close-outline' size={20} color={theme.light} />
                                                 ) : (
                                                     cellIndex + 1
                                                 )}
@@ -156,8 +203,11 @@ const ChallengeBoard = () => {
                 onAction={saveCellActions}
                 title={
                     selectedCell
-                        ? `Day ${(selectedCell.row * 9) + selectedCell.col + 1}`
+                        ? `Day ${(selectedCell.row * 10) + selectedCell.col + 1}`
                         : ""
+                }
+                dayNumber = {
+                    selectedCell ? (selectedCell.row * 10) + selectedCell.col + 1 : 1
                 }
                 initialActions={
                     selectedCell

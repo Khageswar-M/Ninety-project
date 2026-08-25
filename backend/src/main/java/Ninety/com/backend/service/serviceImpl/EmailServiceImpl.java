@@ -40,11 +40,11 @@ public class EmailServiceImpl implements EmailService{
 
         String html = """
                 <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
-                    <h2>Verify your Ninety account</h2>
+                    <h2>Verify your Ninety Productive Day Tracker account</h2>
                     <p>Hi %s,</p>
-                    <p>Your verification code is:</p>
+                    <p>Your verification code is: </p>
                     <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px;">%s</p>
-                    <p>This code expires shortly. If you didn't request this, you can ignore this email.</p>
+                    <p>This code is valid for 10 minutes. If you didn't request this, you can ignore this email.</p>
                 </div>
                 """.formatted(fullName, otp);
 
@@ -57,11 +57,41 @@ public class EmailServiceImpl implements EmailService{
     public CompletableFuture<Void> sendWelcomeEmail(String toEmail, String fullName) {
         String html = """
                  <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
-                    <h2>Welcome to Ninety, %s!</h2>
+                    <h2>Welcome to Ninety Productive Day's Tracker, %s!</h2>
                     <p>Your 90-day journey starts now. Consistency beats intensity - show up every day.</p>
                 </div>
                 """.formatted(fullName);
         return send(toEmail, "Welcome to Ninety", html);
+    }
+
+    @Override
+    public CompletableFuture<Void> sendPasswordResetOtp(String toEmail) {
+        String otp = otpService.generateAndStoreOtp(toEmail);
+
+        String html = """
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto;">
+                <h2>Reset your Ninety account password</h2>
+
+                <p>Hi,</p>
+
+                <p>We received a request to reset your password.</p>
+
+                <p>Your password reset verification code is:</p>
+
+                <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px;">
+                    %s
+                </p>
+
+                <p>
+                    This code is valid for 10 minutes.
+                    If you didn't request a password reset, you can safely ignore this email.
+                </p>
+
+                <p>Thanks,<br>Ninety Team</p>
+            </div>
+            """.formatted(otp);
+
+        return send(toEmail, "Ninety Productive Day's Tracker - Password Verification code", html);
     }
 
     private CompletableFuture<Void> send (String toEmail, String subject, String html){

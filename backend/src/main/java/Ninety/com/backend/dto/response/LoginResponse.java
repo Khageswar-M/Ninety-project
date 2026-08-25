@@ -13,7 +13,6 @@ public record LoginResponse(
         String createdAt,
         String updatedAt,
         String jwtToken,
-        List<ChallengeResponse> challenges
-
+        boolean isLogin
 ) {
 }
