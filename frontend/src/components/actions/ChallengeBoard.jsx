@@ -9,6 +9,14 @@ import { getChallenges } from '../../API/challenge/challengesApi';
 import { router } from 'expo-router';
 import { setDayGrid, setCurrentDay, setGridId } from '../../redux/slices/appSlice';
 
+// Grid is 9 rows x 10 columns = 90 cells. Every index computed anywhere in
+// this file uses the SAME 0-indexed formula: rowIndex * COLS + collIndex.
+// currentDay / dayNumber stay 1-indexed ("Day 1" .. "Day 90") — convert with
+// +1 / -1 at the boundary, never mix bases.
+const COLS = 10;
+const toCellIndex = (rowIndex, collIndex) => (rowIndex * COLS) + collIndex; // 0-indexed
+const toDayNumber = (rowIndex, collIndex) => toCellIndex(rowIndex, collIndex) + 1; // 1-indexed
+
 const ChallengeBoard = ({ refreshTrigger }) => {
 
     const dispatch = useDispatch();
@@ -39,15 +47,11 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         try {
             const storedChallenge = await storage.get("@ninety_board");
 
-            console.log("ChallengeBoard cache:", storedChallenge);
-
             if (storedChallenge) {
                 const now = new Date();
                 const expiredAt = new Date(storedChallenge.expired);
 
                 if (now < expiredAt) {
-                    console.log("Using cached challenge board");
-
                     // Local state
                     setCellChecked(storedChallenge.challengeBoard);
                     setLocalCurrentDay(storedChallenge.currentDay);
@@ -67,28 +71,19 @@ const ChallengeBoard = ({ refreshTrigger }) => {
 
                     return;
                 }
-
-                console.log("Cached challenge expired");
             }
 
             const user = await storage.get("@ninety_user");
 
             if (!user) {
-                dispatch(
-                    hydrateApp({
-                        isLogin: false,
-                    })
-                );
-
                 router.replace("(auth)/LoginPage");
                 return;
             }
 
             const response = await getChallenges(user.id);
-            const challenge = response[0];
+            const challenge = response.data[0];
 
             if (!challenge) {
-                console.log("No challenge found");
                 return;
             }
 
@@ -160,8 +155,8 @@ const ChallengeBoard = ({ refreshTrigger }) => {
     }, []);
 
     // Single source of truth for a cell's state — derived, not stored.
+    // cellIndex must always be the 0-indexed (rowIndex * COLS + collIndex) value.
     const getCellStatus = (cellIndex, isChecked) => {
-
         const currentIndex = currentDay - 1;
 
         if (cellIndex === currentIndex) return 'current';
@@ -174,10 +169,9 @@ const ChallengeBoard = ({ refreshTrigger }) => {
     };
 
     const openCell = (rowIndex, collIndex) => {
-        console.log("Requested cell: ", rowIndex, " and ", collIndex);
-        const cellIndex = (rowIndex * 9) + collIndex + 1;
-        console.log("Cell Index: ", cellIndex);
-        const status = getCellStatus(cellIndex, cellChecked[rowIndex][collIndex]);
+        const cellIndex = toCellIndex(rowIndex, collIndex); // 0-indexed, matches render loop
+        const isChecked = cellChecked[rowIndex][collIndex];
+        const status = getCellStatus(cellIndex, isChecked);
 
         if (status !== 'checked' && status !== 'current') return;
 
@@ -194,14 +188,15 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         if (!selectedCell) return;
 
         const key = `${selectedCell.row}-${selectedCell.col}`;
-        const cellIndex = (selectedCell.row * 9) + selectedCell.col;
+        const cellIndex = toCellIndex(selectedCell.row, selectedCell.col); // 0-indexed
+        const dayNumber = cellIndex + 1; // 1-indexed, same base as currentDay
 
         setCellActions((prev) => ({
             ...prev,
             [key]: actions,
         }));
 
-        if (cellIndex === currentDay) {
+        if (dayNumber === currentDay) {
             setCellChecked((prev) => {
                 const next = prev.map((r) => [...r]);
                 next[selectedCell.row][selectedCell.col] = true;
@@ -231,7 +226,7 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                                 {
                                     row.map((collValue, collIndex) => {
 
-                                        const cellIndex = (rowIndex * 10) + collIndex;
+                                        const cellIndex = toCellIndex(rowIndex, collIndex);
                                         const status = getCellStatus(cellIndex, collValue);
                                         const isEditable = status === 'current' || status === 'checked';
 
@@ -298,11 +293,11 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                 onAction={saveCellActions}
                 title={
                     selectedCell
-                        ? `Day ${(selectedCell.row * 10) + selectedCell.col + 1}`
+                        ? `Day ${toDayNumber(selectedCell.row, selectedCell.col)}`
                         : ""
                 }
                 dayNumber={
-                    selectedCell ? (selectedCell.row * 10) + selectedCell.col + 1 : 1
+                    selectedCell ? toDayNumber(selectedCell.row, selectedCell.col) : 1
                 }
                 initialActions={
                     selectedCell

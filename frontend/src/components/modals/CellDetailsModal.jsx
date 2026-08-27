@@ -328,5 +328,5 @@ const CellDetailsModal = ({
         </Modal >
     );
 };
-
+    
 export default CellDetailsModal;

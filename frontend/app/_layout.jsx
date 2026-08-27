@@ -26,6 +26,7 @@ function AppNavigation() {
   const inset = useSafeAreaInsets();
   const colorScheme = useColorScheme();
 
+  // storage.clear();
 
   // App initialization
   useEffect(() => {
