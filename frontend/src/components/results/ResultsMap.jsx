@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native';
 import { useResultStyles } from '../../hook/useThemeStyles';
-import { board } from '../../utils/RawData.js';
 import { useSelector } from 'react-redux';
 
 const ResultsMap = () => {

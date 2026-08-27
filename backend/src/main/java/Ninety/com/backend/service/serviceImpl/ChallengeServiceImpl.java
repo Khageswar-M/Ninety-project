@@ -13,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -36,7 +39,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .title("Your new 90 Day's challenge.")
                 .startedAt(LocalDate.now())
                 .createdAt(LocalDate.now())
-                .updatedAt(LocalDate.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         challengeRepository.save(newChallenge);
@@ -46,15 +49,8 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .title(newChallenge.getTitle())
                 .dayGrid(newChallenge.getDayGrid())
                 .currentDay(newChallenge.getCurrentDay())
-                .currentStreak(newChallenge.getCurrentStreak())
-                .longestStreak(newChallenge.getLongestStreak())
-                .streakCount(newChallenge.getStreakCount())
-                .completedCount(newChallenge.getCompletedCount())
-                .startedAt(newChallenge.getStartedAt())
-                .completed(newChallenge.isCompleted())
                 .createdAt(newChallenge.getCreatedAt())
                 .updatedAt(newChallenge.getUpdatedAt())
-                .activities(null)
                 .build();
     }
 
@@ -66,31 +62,30 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         List<Challenge> userChallenges = existingUser.getChallenges();
 
+        // Newest challenge first
+        userChallenges.sort(
+                Comparator.comparing(Challenge::getCreatedAt).reversed()
+        );
+
+        Challenge currentChallenge = userChallenges.get(0);
+
+        LocalDate createdOn = currentChallenge.getCreatedAt();
+        LocalDate today = LocalDate.now();
+
+        int daysPassed = (int)ChronoUnit.DAYS.between(createdOn, today) + 1;
+
+        currentChallenge.setCurrentDay(daysPassed);
+
+        challengeRepository.save(currentChallenge);
+
         return userChallenges.stream()
                 .map(challenge -> ChallengeResponse.builder()
                         .id(challenge.getId())
                         .title(challenge.getTitle())
                         .dayGrid(challenge.getDayGrid())
                         .currentDay(challenge.getCurrentDay())
-                        .currentStreak(challenge.getCurrentStreak())
-                        .longestStreak(challenge.getLongestStreak())
-                        .streakCount(challenge.getStreakCount())
-                        .missedCount(challenge.getMissedCount())
-                        .completed(challenge.isCompleted())
                         .createdAt(challenge.getCreatedAt())
                         .updatedAt(challenge.getUpdatedAt())
-                        .activities(
-                                challenge.getActivities()
-                                    .stream()
-                                        .map(activity -> ActivityResponse.builder()
-                                                .id(activity.getId())
-                                                .dayNumber(activity.getDayNumber())
-                                                .title(activity.getTitle())
-                                                .createdAt(activity.getCreatedAt())
-                                                .updatedAt(activity.getUpdatedAt())
-                                                .build()
-                                        ).toList()
-                        )
                         .build()
                 ).toList();
     }

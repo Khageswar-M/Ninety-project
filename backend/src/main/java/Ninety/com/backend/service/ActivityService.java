@@ -12,7 +12,7 @@ public interface ActivityService {
 
     void deleteActivity(Long activityId);
 
-    void updateActivity(ActivityUpdateRequest request);
+    ActivityResponse updateActivity(ActivityUpdateRequest request);
 
     List<ActivityResponse> getAllActivitiesByDay(Long challengeId, int dayNumber);
 }

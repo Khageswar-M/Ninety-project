@@ -13,6 +13,7 @@ public record LoginResponse(
         String createdAt,
         String updatedAt,
         String jwtToken,
-        boolean isLogin
+        boolean isLogin,
+        Long expiresIn
 ) {
 }

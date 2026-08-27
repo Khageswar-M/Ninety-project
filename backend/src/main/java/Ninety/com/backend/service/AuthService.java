@@ -11,6 +11,8 @@ public interface AuthService {
 
     LoginResponse login(LoginRequest request);
 
+    void logout();
+
     boolean existsByEmail(String email);
 
     void updatePassword(UpdatePasswordRequest request);

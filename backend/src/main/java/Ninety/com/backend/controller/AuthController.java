@@ -118,6 +118,19 @@ public class AuthController {
                 );
     }
 
+    @Operation(summary = "Logout the currently authenticated user.")
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(){
+        authService.logout();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Logout successful",
+                        null
+                )
+        );
+    }
+
     @Operation(summary = "Update user with new password")
     @PostMapping("/update-password")
     public ResponseEntity<ApiResponse<Void>> updatedPassword(
