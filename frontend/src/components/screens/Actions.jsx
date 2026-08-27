@@ -16,11 +16,14 @@ const Actions = () => {
   const style = useActionStyles();
   const [refreshing, setRefreshing] = useState(false);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   const onRefresh = useCallback( async () => {
     setRefreshing(true);
 
     try {
       console.log("refreshing...");
+      setRefreshTrigger(prev => prev + 1);
     } finally {
       setRefreshing(false);
     }
@@ -48,7 +51,7 @@ const Actions = () => {
 
       {/* BOARD */}
       <View style={[style.headerParent]}>
-        <ChallengeBoard />
+        <ChallengeBoard refreshTrigger={refreshTrigger}/>
       </View>
 
       {/* GOALS */}

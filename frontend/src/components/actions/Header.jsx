@@ -9,7 +9,6 @@ const Header = () => {
 
     const style = useActionStyles();
 
-    const completedCount = useSelector((state) => state.app.completedCount);
     const challengeBoard = useSelector((state) => state.app.dayGrid);
     const currentDay = useSelector((state) => state.app.currentDay);
     const TOTAL_DAY = 90;
@@ -21,9 +20,6 @@ const Header = () => {
         .filter(Boolean).length;
 
     const completedPercentage = Math.round((checkedCount / TOTAL_DAY) * 100);
-
-    // Displayed percentage
-    const [dayCount, setDayCount] = useState(0);
 
     // One animation controls everything
     const progressAnim = useRef(new Animated.Value(0)).current;

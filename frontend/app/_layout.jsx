@@ -11,6 +11,7 @@ import { hydrateApp } from "../src/redux/slices/appSlice.js";
 import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { store } from "../src/redux/store";
 import { storage } from "../src/utils/storage.js";
+import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
 SplashScreen.preventAutoHideAsync();
 // import '../src/local_notifications/NotificationHandler'
 
@@ -173,7 +174,9 @@ function AppNavigation() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <AppNavigation />
+      <NetworkProvider>
+        <AppNavigation />
+      </NetworkProvider>
     </Provider>
   );
 }
