@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,5 +82,5 @@ public class Challenge{
     private LocalDate createdAt;
 
     @UpdateTimestamp
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 }

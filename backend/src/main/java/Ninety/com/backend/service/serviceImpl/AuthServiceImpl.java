@@ -12,6 +12,7 @@ import Ninety.com.backend.entity.Role;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.EmailAlreadyExistsException;
 import Ninety.com.backend.exception.InvalidCredentialsException;
+import Ninety.com.backend.exception.UnauthorizedException;
 import Ninety.com.backend.exception.UserNotFoundException;
 import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
@@ -25,6 +26,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -99,7 +103,11 @@ public class AuthServiceImpl implements AuthService {
 
         String jwtToken = jwtUtil.generateToken(request.email());
 
+
+
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+        Date expiration = jwtUtil.extractExpiration(jwtToken);
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) * 1000;
 
         return LoginResponse.builder()
                 .id(user.getId())
@@ -110,7 +118,49 @@ public class AuthServiceImpl implements AuthService {
                 .updatedAt(user.getUpdatedAt().toString())
                 .jwtToken(jwtToken)
                 .isLogin(true)
+                .expiresIn(expiresIn)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void logout() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            throw new UnauthorizedException("User is not authenticated.");
+        }
+
+        log.info("Authentication class: {}",
+                authentication.getClass().getName());
+
+        log.info("Authentication name: {}",
+                authentication.getName());
+
+        log.info("Authentication principal: {}",
+                authentication.getPrincipal());
+
+        log.info("Authentication authorities: {}",
+                authentication.getAuthorities());
+
+        String email = authentication.getName();
+
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found for authentication name: " + email
+                        )
+                );
+
+        existingUser.setLogin(false);
+
+        userRepository.save(existingUser);
+
+        log.info("User {} logged out successfully.", email);
     }
 
     @Override

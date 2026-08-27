@@ -9,12 +9,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/activity")
 @RequiredArgsConstructor
@@ -74,7 +76,7 @@ public class ActivityController {
         );
     }
 
-    @PutMapping("/update")
+    @PatchMapping("/update")
     @Operation(summary = "Use to update the respective activity by id.")
     public ResponseEntity<ApiResponse> updateActivity(
             @Valid
@@ -82,12 +84,13 @@ public class ActivityController {
             ActivityUpdateRequest request
     ){
 
-        activityService.updateActivity(request);
+        log.info("/update enter.");
+        ActivityResponse response = activityService.updateActivity(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Updated successfully.",
-                        ""
+                        response
                 )
         );
     }
