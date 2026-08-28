@@ -55,6 +55,15 @@ public class User{
     @Builder.Default
     List<Challenge> challenges = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<Goal> goals = new ArrayList<>();
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

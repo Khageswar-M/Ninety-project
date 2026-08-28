@@ -97,6 +97,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "Unauthorized exception.", request, null);
     }
 
+    @ExceptionHandler(GoalNotFoundException.class)
+    public ResponseEntity<ApiError> handleGoalNotFoundException(Exception ex, HttpServletRequest request){
+        return build(HttpStatus.NOT_FOUND, "Goal not found.", request, null);
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message, HttpServletRequest request, List<String> details){
         ApiError error = ApiError.builder()
                 .success(false)
