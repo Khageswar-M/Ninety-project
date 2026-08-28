@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native'
 // STATES
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // COMPONENT
 import GoalTag from '../common/GoalTag';
@@ -11,54 +11,105 @@ import { useActionStyles } from '../../hook/useThemeStyles'
 // ICONS
 import { Feather, Octicons } from '@expo/vector-icons';
 
-const AddGoals = () => {
+import { storage } from '../../utils/storage';
+import { router } from 'expo-router';
+import { getAllGoals, updateGoal } from '../../API/goals/goalsApi';
+
+const AddGoals = ({ refreshTrigger }) => {
     const style = useActionStyles();
     const [focus, setFocus] = useState(false);
     const [goal, setGoal] = useState('');
-    const [goals, setGoals] = useState([
-        {
-            id: 1,
-            title: "Make physic",
-            createdAt: '12/05/2026T12:00'
-        },
-        {
-            id: 2,
-            title: "Complete",
-            createdAt: '12/05/2026T12:00'
-        },
-        {
-            id: 3,
-            title: "DSA",
-            createdAt: '12/05/2026T12:00'
-        },
-        {
-            id: 4,
-            title: "Project",
-            createdAt: '12/05/2026T12:00'
-        },
-        {
-            id: 5,
-            title: "Project that makes you win!",
-            createdAt: '12/05/2026T12:00'
-        },
-    ]);
-    console.log(goal);
-    const handleAddGoals = () => {
-            if (!goal.trim()) return;
+    const [goals, setGoals] = useState([]);
+    const [goalId, setGoalId] = useState();
+    const [userId, setUserId] = useState(null);
 
-            const newGoal = {
-                id: Date.now(),
-                title: goal.trim(),
-                createdAt: new Date().toISOString(),
-            };
+    // NEW: track whether we're editing an existing goal
+    const [editingGoal, setEditingGoal] = useState(null); // will hold the full goal object or null
 
-            setGoals(prevGoals => [...prevGoals, newGoal]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchAllGoals();
+    }, [refreshTrigger])
+
+    const fetchAllGoals = useCallback(async () => {
+        setLoading(true);
+
+        try {
+            const user = await storage.get("@ninety_user");
+            if (!user?.id) {
+                router.replace("(auth)/LoginPage.jsx");
+                return;
+            }
+
+            setUserId(user.id);
+
+            const response = await getAllGoals(userId);
+            setGoals(response?.data.data);
+        } catch (e) {
+            console.error(e);
+            Alert.alert("Failed to fetch all goals.");
+        } finally {
+            setLoading(false);
+        }
+    })
+
+    const handleUpdateGoal = async () => {
+        if (!goal.trim() || !editingGoal) return;
+
+        try {
+            const response = await updateGoal(goalId, goal.trim());
+            console.log(response);
+
+            // sync local state with the updated title
+            setGoals(prevGoals =>
+                prevGoals.map(g =>
+                    g.id === editingGoal.id ? { ...g, title: goal.trim() } : g
+                )
+            );
+
+            setEditingGoal(null);
             setGoal("");
+        } catch (e) {
+            console.log(e);
+            Alert.alert("Update failed. Please try again.");
+        }
+    };
+
+    const handleAddGoals = () => {
+        if (!goal.trim()) return;
+
+        // ADD MODE only now — update mode has its own handler
+        const newGoal = {
+            id: Date.now(),
+            title: goal.trim(),
+            createdAt: new Date().toISOString(),
         };
+
+        setGoals(prevGoals => [...prevGoals, newGoal]);
+        setGoal("");
+    };
+
+    // NEW: called when a goal tag is tapped
+    const handleSelectGoal = (goalItem) => {
+        setEditingGoal(goalItem);
+        setGoal(goalItem.title);
+        setGoalId(goalItem.id);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingGoal(null);
+        setGoal("");
+    };
+
     return (
         <View>
             {/* TITLE */}
-            <Text style={style.boardTitle}>ADD YOUR GOALS</Text>
+            <Text style={style.boardTitle}>
+                {
+                    goal === "" ? "ADD YOUR GOALS" : "UPDATE YOUR GOAL"
+                }
+            </Text>
 
             {/* ADD INPUT */}
             <View style={style.goalsAddInputContainer}>
@@ -72,7 +123,7 @@ const AddGoals = () => {
                     <TextInput
                         style={[style.goalsAddInput,
                         focus && style.goalsAddInputFocused]}
-                        placeholder='Enter your goal'
+                        placeholder={editingGoal ? 'Update your goal' : 'Enter your goal'}
                         placeholderTextColor={'#535353'}
                         onFocus={() => setFocus(true)}
                         onBlur={() => setFocus(false)}
@@ -91,8 +142,18 @@ const AddGoals = () => {
                     </Text>
                 </View>
 
+                {/* Cancel button, only visible while editing */}
+                {editingGoal && (
+                    <TouchableOpacity
+                        style={style.addBtn}
+                        activeOpacity={0.8}
+                        onPress={handleCancelEdit}
+                    >
+                        <Feather name='x' style={style.addBtnTitle} />
+                    </TouchableOpacity>
+                )}
 
-                {/* Add Input Button */}
+                {/* Add/Update Input Button */}
                 <TouchableOpacity
                     style={[style.addBtn,
                     {
@@ -100,14 +161,21 @@ const AddGoals = () => {
                             style.addBtnActive : style.addBtnInactive
                     }]}
                     activeOpacity={0.8}
-                    onPress={() => handleAddGoals()}
+                    onPress={() => editingGoal ? handleUpdateGoal() : handleAddGoals()}
                 >
-                    <Feather name='plus' style={style.addBtnTitle} />
+                    <Feather name={editingGoal ? 'check' : 'plus'} style={style.addBtnTitle} />
                 </TouchableOpacity>
             </View>
 
             {/* GOALS */}
-            <GoalTag goals={goals} setGoals={setGoals} />
+            <GoalTag
+                goals={goals}
+                setGoals={setGoals}
+                loading={loading}
+                setGoalId={setGoalId}
+                onSelectGoal={handleSelectGoal}
+                selectedGoalId={editingGoal?.id}
+            />
         </View>
     );
 }

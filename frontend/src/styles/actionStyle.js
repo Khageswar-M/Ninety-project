@@ -202,8 +202,10 @@ const actionStyle = (theme) => StyleSheet.create({
     },
     goalsTagIcon: {
         fontSize: 18,
-        transform: 'rotate(45deg)',
-        color: theme.text
+        color: theme.text,
+        backgroundColor: '#ffffff47',
+        borderRadius: 5,
+        padding: 2
     },
     card: {
         borderRadius: 16,

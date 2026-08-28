@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getChallenges } from '../../API/challenge/challengesApi';
 import { storage } from '../../utils/storage';
 
-const ResultsMap = () => {
+const ResultsMap = ({refreshKey}) => {
     const style = useResultStyles();
 
     const [challenges, setChallenges] = useState([]);
@@ -12,7 +12,7 @@ const ResultsMap = () => {
 
     useEffect(() => {
         fetchAllChallenges();
-    }, []);
+    }, [refreshKey]);
 
     const fetchAllChallenges = async () => {
         setLoading(true);
@@ -71,14 +71,6 @@ const ResultsMap = () => {
 
                     return (
                         <View key={challenge.id}>
-
-                            <Text style={style.componentTitle}>
-                                {challenge.title}
-                            </Text>
-
-                            <Text>
-                                Current Day: {challenge.currentDay}
-                            </Text>
 
                             <View style={style.mapContainer}>
                                 {flatGrid.map((cell, index) => (

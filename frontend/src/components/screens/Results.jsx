@@ -36,7 +36,7 @@ const Results = () => {
     >
       {/* Header */}
       <View>
-        <Header />
+        <Header refreshKey={refreshKey}/>
       </View>
 
       <View style={style.headerContainer}>
@@ -48,7 +48,7 @@ const Results = () => {
       </View>
 
       <View style={style.headerContainer}>
-        <ResultsMap />
+        <ResultsMap refreshKey={refreshKey}/>
       </View>
 
       <View style={style.headerContainer}>

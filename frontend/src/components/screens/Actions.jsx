@@ -56,7 +56,7 @@ const Actions = () => {
 
       {/* GOALS */}
       <View style={[style.headerParent]}>
-        <AddGoals />
+        <AddGoals refreshTrigger={refreshTrigger}/>
       </View>
     </KeyboardAwareScrollView>
   )

@@ -61,9 +61,12 @@ const Login = () => {
     setError("");
     setLoading(true);
 
-    try {
-      const response = await login(trimmedEmail, trimmedPassword);
+    console.log("Email: ", trimmedEmail, " and Password: ", trimmedPassword);
 
+    try {
+      console.log("log enter")
+      const response = await login(trimmedEmail, trimmedPassword);
+      console.log("Login response: " + response);
       if (response.data.success) {
         const {
           id,
@@ -106,10 +109,12 @@ const Login = () => {
 
         dispatch(setLogin(true));
       } else {
+        console.log("Error in else.");
         setError(response.data.message || "Invalid email or password");
       }
     } catch (e) {
       console.log(e);
+      console.log("Error in catch.")
       setError("Invalid email or password");
     } finally {
       setLoading(false);

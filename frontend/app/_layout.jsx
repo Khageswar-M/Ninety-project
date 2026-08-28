@@ -34,6 +34,8 @@ function AppNavigation() {
       try {
         const storedUser = await storage.get("@ninety_user");
 
+        console.log(storedUser)
+
         if (!storedUser?.jwtToken || !storedUser?.tokenExpiresAt) {
           await storage.remove("@ninety_user");
 
@@ -175,9 +177,9 @@ function AppNavigation() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <NetworkProvider>
+      {/* <NetworkProvider> */}
         <AppNavigation />
-      </NetworkProvider>
+      {/* </NetworkProvider> */}
     </Provider>
   );
 }

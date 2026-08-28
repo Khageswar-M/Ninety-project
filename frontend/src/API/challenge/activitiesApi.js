@@ -1,4 +1,3 @@
-import axios from "axios";
 import api from "../api";
 
 const ACTIVITY_BASE_URL = "/api/v1/activity"
@@ -16,9 +15,9 @@ export const getActivities = async (challengeId, dayNumber) => {
     return response.data;
 }
 
-export const updateActivity = async (challengeId, newTitle) => {
+export const updateActivity = async (activityId, newTitle) => {
     const response = await api.patch(ACTIVITY_BASE_URL + "/update", {
-        challengeId, newTitle
+        activityId, newTitle
     });
 
     return response.data;

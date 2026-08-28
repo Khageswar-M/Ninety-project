@@ -114,6 +114,7 @@ const CellDetailsModal = ({
             // 1. Capture snapshot for rollback
             const previousEntries = [...entries];
             const targetId = editingId;
+            console.log("Target update id: ",targetId);
             setEditingId(null);
 
             // 2. Optimistic update
@@ -328,5 +329,5 @@ const CellDetailsModal = ({
         </Modal >
     );
 };
-    
+
 export default CellDetailsModal;

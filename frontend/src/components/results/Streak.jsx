@@ -1,24 +1,25 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text } from 'react-native';
 import { useResultStyles } from '../../hook/useThemeStyles';
 import { useSelector } from 'react-redux';
 
 const TOTAL_DAYS = 90;
+const ANIMATION_DURATION_MS = 1000;
 
 const Streak = ({ refreshKey }) => {
     const style = useResultStyles();
     const rawGrid = useSelector((state) => state.app.dayGrid);
     const currentDay = useSelector((state) => state.app.currentDay) || 0;
 
-    const [animatedCurrent, setAnimatedCurrent] = useState(0);
-    const [animatedBest, setAnimatedBest] = useState(0);
-    const [animatedDaysLeft, setAnimatedDaysLeft] = useState(0);
 
-    const activeTimers = useRef([]);
+    const [counts, setCounts] = useState({ current: 0, best: 0, daysLeft: 0 });
+    const rafId = useRef(null);
 
     // 1. Calculate actual streak metrics
     const { currentStreak, bestStreak, daysLeft } = useMemo(() => {
-        const grid = (rawGrid || []).flat().slice(0, currentDay);
+        const safeGrid = Array.isArray(rawGrid) ? rawGrid.flat() : [];
+        const safeCurrentDay = Math.max(0, Math.min(currentDay, safeGrid.length));
+        const grid = safeGrid.slice(0, safeCurrentDay);
 
         let runningStreak = 0;
         let maxStreak = 0;
@@ -34,9 +35,9 @@ const Streak = ({ refreshKey }) => {
             }
         }
 
-        // Current streak is the active consecutive run at the end of the slice
         let trailingStreak = 0;
-        for (let i = grid.length - 1; i >= 0; i--) {
+        
+        for (let i = currentDay - 1; i >= 0; i--) {
             if (grid[i]) {
                 trailingStreak++;
             } else {
@@ -47,48 +48,58 @@ const Streak = ({ refreshKey }) => {
         return {
             currentStreak: trailingStreak,
             bestStreak: maxStreak,
-            daysLeft: Math.max(0, TOTAL_DAYS - currentDay),
+            daysLeft: Math.max(0, TOTAL_DAYS - safeCurrentDay),
         };
     }, [rawGrid, currentDay]);
 
-    // 2. Safe count-up animation helper
-    const animateCount = (target, setter) => {
-        if (target <= 0) {
-            setter(0);
+    // 2. Debug log — only fires when the underlying data actually changes,
+    //    not on every animation tick/render.
+    useEffect(() => {
+        console.log('Raw Grid in streak: ', rawGrid);
+    }, [rawGrid]);
+
+    // 3. Single rAF loop drives all three counters together — one render
+    //    per frame instead of three independent interval-driven render storms.
+    useEffect(() => {
+        const targets = { current: currentStreak, best: bestStreak, daysLeft: daysLeft };
+        const startValues = { current: 0, best: 0, daysLeft: 0 };
+        const startTime = performance.now();
+
+        if (rafId.current) {
+            cancelAnimationFrame(rafId.current);
+            rafId.current = null;
+        }
+
+        const allZero = Object.values(targets).every((t) => t <= 0);
+        if (allZero) {
+            setCounts({ current: 0, best: 0, daysLeft: 0 });
             return;
         }
 
-        let count = 0;
-        const duration = 1000;
-        const stepTime = Math.max(16, Math.floor(duration / target));
-        const increment = Math.ceil(target / (duration / stepTime));
+        const tick = (now) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / ANIMATION_DURATION_MS);
 
-        const timer = setInterval(() => {
-            count += increment;
-            if (count >= target) {
-                setter(target);
-                clearInterval(timer);
+            setCounts({
+                current: Math.round(startValues.current + (targets.current - startValues.current) * progress),
+                best: Math.round(startValues.best + (targets.best - startValues.best) * progress),
+                daysLeft: Math.round(startValues.daysLeft + (targets.daysLeft - startValues.daysLeft) * progress),
+            });
+
+            if (progress < 1) {
+                rafId.current = requestAnimationFrame(tick);
             } else {
-                setter(count);
+                rafId.current = null;
             }
-        }, stepTime);
+        };
 
-        activeTimers.current.push(timer);
-    };
-
-    // 3. Trigger animations whenever targets or refreshKey change
-    useEffect(() => {
-        // Clear any ongoing intervals before starting new ones
-        activeTimers.current.forEach(clearInterval);
-        activeTimers.current = [];
-
-        animateCount(currentStreak, setAnimatedCurrent);
-        animateCount(bestStreak, setAnimatedBest);
-        animateCount(daysLeft, setAnimatedDaysLeft);
+        rafId.current = requestAnimationFrame(tick);
 
         return () => {
-            activeTimers.current.forEach(clearInterval);
-            activeTimers.current = [];
+            if (rafId.current) {
+                cancelAnimationFrame(rafId.current);
+                rafId.current = null;
+            }
         };
     }, [currentStreak, bestStreak, daysLeft, refreshKey]);
 
@@ -99,21 +110,21 @@ const Streak = ({ refreshKey }) => {
             <View style={style.streakContainer}>
                 <View style={style.streakType}>
                     <Text style={[style.streakCount, style.currentStreak]}>
-                        {animatedCurrent}
+                        {counts.current}
                     </Text>
                     <Text style={style.streakTitle}>Current</Text>
                 </View>
 
                 <View style={style.streakType}>
                     <Text style={[style.streakCount, style.bestStreak]}>
-                        {animatedBest}
+                        {counts.best}
                     </Text>
                     <Text style={style.streakTitle}>Best</Text>
                 </View>
 
                 <View style={style.streakType}>
                     <Text style={[style.streakCount, style.daysLeft]}>
-                        {animatedDaysLeft}
+                        {counts.daysLeft}
                     </Text>
                     <Text style={style.streakTitle}>Days Left</Text>
                 </View>
