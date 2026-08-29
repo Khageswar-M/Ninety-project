@@ -4,5 +4,12 @@
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
   },
-  "cSpell.words": ["datetimepicker", "Entypo", "Maharana", "moto", "Pressable"]
+  "cSpell.words": [
+    "datetimepicker",
+    "Entypo",
+    "jetpack",
+    "Maharana",
+    "moto",
+    "Pressable"
+  ]
 }

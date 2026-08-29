@@ -9,7 +9,7 @@ const settingsStyles = (theme) => StyleSheet.create({
     containerContentStyle: {
         flexDirection: 'column',
         gap: 10,
-        paddingBottom: 100,
+        // paddingBottom: 100,
         flexGrow: 1,
         backgroundColor: theme.background
     },

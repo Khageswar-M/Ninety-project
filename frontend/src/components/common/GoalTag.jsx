@@ -5,13 +5,26 @@ import { Entypo } from '@expo/vector-icons'
 import { useActionStyles } from '../../hook/useThemeStyles'
 import ConfirmationModal from '../modals/ConfirmationModal.jsx'
 import EmptySvg from '../../../assets/icons/opps.svg';
+import { deleteGoal } from '../../API/goals/goalsApi.js'
 console.log("EmptySvg:", EmptySvg);
 console.log("EmptySvg type:", typeof EmptySvg);
 
-const GoalTag = ({ goals, setGoals, loading, setGoalId, onSelectGoal, selectedGoalId }) => {
+const GoalTag = ({
+    goals,
+    setGoals,
+    loading,
+    setGoalId,
+    onSelectGoal,
+    selectedGoalId,
+    isEditingGoal,
+    setEditingGoal,
+    isGoal,
+    setGoal
+}) => {
     const style = useActionStyles();
     const [visible, setVisible] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState(null);
+    const [sheetVisible, setSheetVisible] = useState(true);
 
     const openDeleteModal = (goalId) => {
         setDeleteTargetId(goalId);
@@ -19,41 +32,43 @@ const GoalTag = ({ goals, setGoals, loading, setGoalId, onSelectGoal, selectedGo
     }
 
     const handleDelete = async () => {
-
+        if (isEditingGoal) setEditingGoal(null);
+        if (isGoal.trim()) setGoal('');
         try {
             console.log('deleting...');
             setGoals((prevGoals) => prevGoals.filter((goal) => goal.id != deleteTargetId));
+            const response = await deleteGoal(deleteTargetId);
+            console.log(response.data);
+        } catch (error) {
+            console.log("Delete failed ", error);
         } finally {
             setVisible(false);
             setDeleteTargetId(null);
         }
     }
-    return (
-        <View style={style.goalsTagContainer}>
-            <Text style={style.boardTitle}>GOALS</Text>
-            <View
-                style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    gap: 10,
-                    alignItems: "flex-start",
-                }}
-            >
-                {
 
-                    loading ? (
-                        <View
-                            style={{
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '100%',
-                                marginTop: 20,
-                            }}
-                        >
-                            <ActivityIndicator size={30} color={'orange'} />
-                        </View>
-                    ) : (
-                        goals.length <= 0 ? (
+    const handleOnModalCancel = () => {
+        setVisible(false);
+        setDeleteTargetId(null);
+        setGoal('');
+        if (isEditingGoal) setEditingGoal(null);
+    }
+
+    return (
+        <>
+            <View style={style.goalsTagContainer}>
+                <Text style={style.boardTitle}>GOALS</Text>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 10,
+                        alignItems: "flex-start",
+                    }}
+                >
+                    {
+
+                        loading ? (
                             <View
                                 style={{
                                     alignItems: 'center',
@@ -62,50 +77,71 @@ const GoalTag = ({ goals, setGoals, loading, setGoalId, onSelectGoal, selectedGo
                                     marginTop: 20,
                                 }}
                             >
-                                <EmptySvg
-                                    width={150}
-                                    height={150}
-                                />
+                                <ActivityIndicator size={30} color={'orange'} />
                             </View>
-                        ) :
+                        ) : (
+                            goals.length <= 0 ? (
+                                <View
+                                    style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '100%',
+                                        marginTop: 20,
+                                    }}
+                                >
+                                    <EmptySvg
+                                        width={150}
+                                        height={150}
+                                    />
+                                </View>
+                            ) :
 
-                            (
-                                goals.map((goal) => {
-                                    const isSelected = goal.id === selectedGoalId;
-                                    return (
-                                        <TouchableOpacity
-                                            activeOpacity={0.7}
-                                            key={goal.id}
-                                            style={[
-                                                style.goalsTag,
-                                                isSelected && {
-                                                    borderWidth: 1.5,
-                                                    borderColor: '#ffffff',
-                                                }
-                                            ]}
-                                            onPress={() => onSelectGoal(goal)}
-                                        >
-                                            <Text style={style.goalsTagTitle}>{goal.title}</Text>
+                                (
+                                    goals.map((goal) => {
+                                        const isSelected = goal.id === selectedGoalId;
+                                        return (
+                                            <TouchableOpacity
+                                                activeOpacity={0.7}
+                                                key={goal.id}
+                                                style={[
+                                                    style.goalsTag,
+                                                    isSelected && {
+                                                        borderWidth: 1.5,
+                                                        borderColor: '#ffffff',
+                                                    }
+                                                ]}
+                                                onPress={() => onSelectGoal(goal)}
+                                            >
+                                                <Text style={style.goalsTagTitle}>{goal.title}</Text>
+                                                <TouchableOpacity onPress={() => openDeleteModal(goal.id)}>
+                                                    {
+                                                        goal.isLoading ? (
+                                                            <ActivityIndicator size={18} color={'orange'} />
+                                                        ) : (
+                                                            <Entypo name='cross' style={style.goalsTagIcon} />
+                                                        )
+                                                    }
 
-                                            <TouchableOpacity onPress={() => openDeleteModal(goal.id)}>
-                                                <Entypo name='cross' style={style.goalsTagIcon} />
+                                                </TouchableOpacity>
                                             </TouchableOpacity>
-                                        </TouchableOpacity>
-                                    );
-                                })
-                            )
-                    )
-                }
-            </View>
+                                        );
+                                    })
+                                )
+                        )
+                    }
+                </View>
 
-            <ConfirmationModal
-                isVisible={visible}
-                onCancel={() => setVisible(false)}
-                onAction={handleDelete}
-                title={"Delete Item"}
-                message={"Are you sure you want to delete this item ? This action cannot be undone."}
-            />
-        </View>
+                <ConfirmationModal
+                    isVisible={visible}
+                    onCancel={handleOnModalCancel}
+                    onAction={handleDelete}
+                    title={"Delete Item"}
+                    message={"Are you sure you want to delete this item ? This action cannot be undone."}
+                />
+
+                
+            </View>
+        </>
     )
 }
 

@@ -179,11 +179,12 @@ const actionStyle = (theme) => StyleSheet.create({
         width: '80%',
         position: 'relative',
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     goalsTagContainer: {
         alignItems: 'flex-start',
-        marginTop: 10
+        marginTop: 10,
+        
     },
     goalsTag: {
         flexDirection: 'row',

@@ -13,6 +13,7 @@ const Settings = () => {
   const style = useSettingStyles();
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const[sheetVisible, setSheetVisible] = useState(true);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -64,6 +65,7 @@ const Settings = () => {
           <Logout />
         </View>
       </ScrollView>
+      
     </View>
   )
 }

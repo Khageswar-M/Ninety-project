@@ -228,6 +228,8 @@ const CellDetailsModal = ({
             avoidKeyboard
             useNativeDriver
             hideModalContentWhileAnimating={false}
+            animationInTiming={10}
+            animationOutTiming={10}
         >
             <View style={[localStyles.card, { backgroundColor: theme.background }]}>
                 <Text style={[localStyles.title, { color: theme.primary }]}>

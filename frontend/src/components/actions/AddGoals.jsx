@@ -13,7 +13,7 @@ import { Feather, Octicons } from '@expo/vector-icons';
 
 import { storage } from '../../utils/storage';
 import { router } from 'expo-router';
-import { getAllGoals, updateGoal } from '../../API/goals/goalsApi';
+import { createGoal, getAllGoals, updateGoal } from '../../API/goals/goalsApi';
 
 const AddGoals = ({ refreshTrigger }) => {
     const style = useActionStyles();
@@ -59,7 +59,7 @@ const AddGoals = ({ refreshTrigger }) => {
 
         try {
             const response = await updateGoal(goalId, goal.trim());
-            console.log(response);
+            // console.log(response.data.data);
 
             // sync local state with the updated title
             setGoals(prevGoals =>
@@ -76,18 +76,71 @@ const AddGoals = ({ refreshTrigger }) => {
         }
     };
 
-    const handleAddGoals = () => {
-        if (!goal.trim()) return;
+    const handleAddGoals = async () => {
+        const trimmedGoal = goal.trim();
 
-        // ADD MODE only now — update mode has its own handler
-        const newGoal = {
-            id: Date.now(),
-            title: goal.trim(),
+        // 1. don't submit empty goals
+        if(!trimmedGoal) return;
+
+        // 2. generate a temporary id for optimistic rendering
+        const tempId = `temp-${Date.now()}-${Math.random()}`;
+
+        // 3. create optimistic goal
+        const optimisticGoal = {
+            id: tempId,
+            title: trimmedGoal,
+            status: 'PENDING',
             createdAt: new Date().toISOString(),
-        };
+            updatedAt: new Date().toISOString(),
+            isLoading: true
+        }
 
-        setGoals(prevGoals => [...prevGoals, newGoal]);
+        // 4. immediately render the goal.
+        setGoals(prevGoals => [...prevGoals, optimisticGoal]);
+
+        // 5. clear input immediately
         setGoal("");
+
+        try{
+            // 6. call backend
+            const response = await createGoal(trimmedGoal);
+
+            // 7. validate response
+            if(!response?.data?.success || !response?.data?.data){
+                throw new Error(
+                    response?.data?.message || "Failed to create goal."
+                );
+            }
+
+            const createdGoal = response.data.data;
+
+            // 8. update only temporary goal
+            // with actual backend operation
+            setGoals(prevGoals => 
+                prevGoals.map(existingGoal => 
+                    existingGoal.id === tempId
+                        ? {
+                            ...createdGoal,
+                            isLoading: false
+                        }
+                        : existingGoal
+                )
+            );
+
+            console.log("Goal created successfully: ", createdGoal);
+        }catch(error){
+            console.error("Error creating goal ", error);
+
+            // 9. if api fails, remove the optimistic goal
+            setGoals(prevGoals => 
+                prevGoals.filter(existingGoal => existingGoal.id !== tempId)
+            );
+
+            // 10. restore the user input
+            setGoal(trimmedGoal);
+
+            // 11. show error to the user
+        }
     };
 
     // NEW: called when a goal tag is tapped
@@ -114,15 +167,25 @@ const AddGoals = ({ refreshTrigger }) => {
             {/* ADD INPUT */}
             <View style={style.goalsAddInputContainer}>
                 <View style={style.goalsInputParent}>
-                    <Octicons name='goal' style={[style.goalsInputIcon, {
-                        backgroundColor: focus ?
-                            style.goalsAddInputCursor :
-                            style.goalsAddInputNotFocus
-                    }]}
+
+                    <Octicons 
+                        name={editingGoal ? 'x' : 'goal'} 
+                        style={[
+                            style.goalsInputIcon, {
+                            backgroundColor: focus ?
+                                style.goalsAddInputCursor :
+                                style.goalsAddInputNotFocus
+                            }
+                        ]}
+
+                        onPress={() => editingGoal && handleCancelEdit()}
                     />
+
                     <TextInput
-                        style={[style.goalsAddInput,
-                        focus && style.goalsAddInputFocused]}
+                        style={[
+                            style.goalsAddInput,
+                            focus && style.goalsAddInputFocused
+                        ]}
                         placeholder={editingGoal ? 'Update your goal' : 'Enter your goal'}
                         placeholderTextColor={'#535353'}
                         onFocus={() => setFocus(true)}
@@ -132,6 +195,7 @@ const AddGoals = ({ refreshTrigger }) => {
                         onChangeText={(text) => setGoal(text)}
                         maxLength={30}
                     />
+
                     <Text style={[style.goalsLengthCount, {
                         color: focus ?
                             style.goalsAddInputCursor :
@@ -142,28 +206,22 @@ const AddGoals = ({ refreshTrigger }) => {
                     </Text>
                 </View>
 
-                {/* Cancel button, only visible while editing */}
-                {editingGoal && (
-                    <TouchableOpacity
-                        style={style.addBtn}
-                        activeOpacity={0.8}
-                        onPress={handleCancelEdit}
-                    >
-                        <Feather name='x' style={style.addBtnTitle} />
-                    </TouchableOpacity>
-                )}
-
                 {/* Add/Update Input Button */}
                 <TouchableOpacity
-                    style={[style.addBtn,
-                    {
-                        backgroundColor: goal.trim().length > 0 ?
-                            style.addBtnActive : style.addBtnInactive
-                    }]}
+                    style={[
+                        style.addBtn,
+                        {
+                            backgroundColor: goal.trim().length > 0 ?
+                                style.addBtnActive : style.addBtnInactive
+                        }
+                    ]}
                     activeOpacity={0.8}
                     onPress={() => editingGoal ? handleUpdateGoal() : handleAddGoals()}
                 >
-                    <Feather name={editingGoal ? 'check' : 'plus'} style={style.addBtnTitle} />
+                    <Feather 
+                        name={editingGoal ? 'check' : 'plus'} 
+                        style={style.addBtnTitle} 
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -175,6 +233,10 @@ const AddGoals = ({ refreshTrigger }) => {
                 setGoalId={setGoalId}
                 onSelectGoal={handleSelectGoal}
                 selectedGoalId={editingGoal?.id}
+                isEditingGoal={editingGoal}
+                setEditingGoal = {setEditingGoal}
+                isGoal = {goal}
+                setGoal = {setGoal}
             />
         </View>
     );
