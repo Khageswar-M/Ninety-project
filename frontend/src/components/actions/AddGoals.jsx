@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, Pressable } from 'react-native'
 // STATES
 import { useCallback, useEffect, useState } from 'react';
 
@@ -9,11 +9,27 @@ import GoalTag from '../common/GoalTag';
 import { useActionStyles } from '../../hook/useThemeStyles'
 
 // ICONS
-import { Feather, Octicons } from '@expo/vector-icons';
+import { Entypo, EvilIcons, Feather, Octicons } from '@expo/vector-icons';
 
 import { storage } from '../../utils/storage';
 import { router } from 'expo-router';
-import { createGoal, getAllGoals, updateGoal } from '../../API/goals/goalsApi';
+import { createGoal, getAllGoals, updateGoal, updateGoalStatus } from '../../API/goals/goalsApi';
+
+const PROGRESS = [
+    {
+        title: "PENDING",
+        color: "#c200c2",
+        iconName: "play"
+    }, {
+        title: "PROGRESS",
+        color: "#00a300",
+        iconName: "clock"
+    }, {
+        title: "COMPLETE",
+        color: "#d60000",
+        iconName: "check"
+    },
+]
 
 const AddGoals = ({ refreshTrigger }) => {
     const style = useActionStyles();
@@ -22,11 +38,14 @@ const AddGoals = ({ refreshTrigger }) => {
     const [goals, setGoals] = useState([]);
     const [goalId, setGoalId] = useState();
     const [userId, setUserId] = useState(null);
+    const [isProgress, setIsProgress] = useState(null);
+    const [editingGoal, setEditingGoal] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [updatingGoalId, setUpdatingGoalId] = useState(null);
 
     // NEW: track whether we're editing an existing goal
-    const [editingGoal, setEditingGoal] = useState(null); // will hold the full goal object or null
+    // will hold the full goal object or null
 
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchAllGoals();
@@ -34,6 +53,7 @@ const AddGoals = ({ refreshTrigger }) => {
 
     const fetchAllGoals = useCallback(async () => {
         setLoading(true);
+        setIsProgress(null);
 
         try {
             const user = await storage.get("@ninety_user");
@@ -56,6 +76,7 @@ const AddGoals = ({ refreshTrigger }) => {
 
     const handleUpdateGoal = async () => {
         if (!goal.trim() || !editingGoal) return;
+        setIsProgress(null);
 
         try {
             const response = await updateGoal(goalId, goal.trim());
@@ -78,9 +99,10 @@ const AddGoals = ({ refreshTrigger }) => {
 
     const handleAddGoals = async () => {
         const trimmedGoal = goal.trim();
+        setIsProgress(null);
 
         // 1. don't submit empty goals
-        if(!trimmedGoal) return;
+        if (!trimmedGoal) return;
 
         // 2. generate a temporary id for optimistic rendering
         const tempId = `temp-${Date.now()}-${Math.random()}`;
@@ -101,12 +123,12 @@ const AddGoals = ({ refreshTrigger }) => {
         // 5. clear input immediately
         setGoal("");
 
-        try{
+        try {
             // 6. call backend
             const response = await createGoal(trimmedGoal);
 
             // 7. validate response
-            if(!response?.data?.success || !response?.data?.data){
+            if (!response?.data?.success || !response?.data?.data) {
                 throw new Error(
                     response?.data?.message || "Failed to create goal."
                 );
@@ -116,8 +138,8 @@ const AddGoals = ({ refreshTrigger }) => {
 
             // 8. update only temporary goal
             // with actual backend operation
-            setGoals(prevGoals => 
-                prevGoals.map(existingGoal => 
+            setGoals(prevGoals =>
+                prevGoals.map(existingGoal =>
                     existingGoal.id === tempId
                         ? {
                             ...createdGoal,
@@ -128,11 +150,11 @@ const AddGoals = ({ refreshTrigger }) => {
             );
 
             console.log("Goal created successfully: ", createdGoal);
-        }catch(error){
+        } catch (error) {
             console.error("Error creating goal ", error);
 
             // 9. if api fails, remove the optimistic goal
-            setGoals(prevGoals => 
+            setGoals(prevGoals =>
                 prevGoals.filter(existingGoal => existingGoal.id !== tempId)
             );
 
@@ -140,6 +162,63 @@ const AddGoals = ({ refreshTrigger }) => {
             setGoal(trimmedGoal);
 
             // 11. show error to the user
+        }
+    };
+
+    const handleProgressToggle = async (title) => {
+        if (!isProgress) return;
+
+        const progressId = isProgress.id;
+
+        if(updatingGoalId === progressId) return;
+
+        const previousStatus = isProgress.status;
+
+        setUpdatingGoalId(progressId);
+
+        // Optimistically update selected goal
+        setIsProgress(prev => ({
+            ...prev,
+            status: title,
+        }));
+
+        // Optimistically update goals list
+        setGoals(prevGoals =>
+            prevGoals.map(goal =>
+                goal.id === progressId
+                    ? {
+                        ...goal,
+                        status: title,
+                    }
+                    : goal
+            )
+        );
+
+        try {
+            await updateGoalStatus(progressId, title);
+
+        } catch (error) {
+            console.error("Failed to update goal status:", error);
+
+            // Rollback selected goal
+            setIsProgress(prev => ({
+                ...prev,
+                status: previousStatus,
+            }));
+
+            // Rollback goals list
+            setGoals(prevGoals =>
+                prevGoals.map(goal =>
+                    goal.id === progressId
+                        ? {
+                            ...goal,
+                            status: previousStatus,
+                        }
+                        : goal
+                )
+            );
+        }finally{
+            setUpdatingGoalId(null);
         }
     };
 
@@ -153,6 +232,7 @@ const AddGoals = ({ refreshTrigger }) => {
     const handleCancelEdit = () => {
         setEditingGoal(null);
         setGoal("");
+        setIsProgress(null);
     };
 
     return (
@@ -168,13 +248,13 @@ const AddGoals = ({ refreshTrigger }) => {
             <View style={style.goalsAddInputContainer}>
                 <View style={style.goalsInputParent}>
 
-                    <Octicons 
-                        name={editingGoal ? 'x' : 'goal'} 
+                    <Octicons
+                        name={editingGoal ? 'x' : 'goal'}
                         style={[
                             style.goalsInputIcon, {
-                            backgroundColor: focus ?
-                                style.goalsAddInputCursor :
-                                style.goalsAddInputNotFocus
+                                backgroundColor: focus ?
+                                    style.goalsAddInputCursor :
+                                    style.goalsAddInputNotFocus
                             }
                         ]}
 
@@ -218,12 +298,63 @@ const AddGoals = ({ refreshTrigger }) => {
                     activeOpacity={0.8}
                     onPress={() => editingGoal ? handleUpdateGoal() : handleAddGoals()}
                 >
-                    <Feather 
-                        name={editingGoal ? 'check' : 'plus'} 
-                        style={style.addBtnTitle} 
+                    <Feather
+                        name={editingGoal ? 'check' : 'plus'}
+                        style={style.addBtnTitle}
                     />
                 </TouchableOpacity>
             </View>
+
+            {/* PROGRESS */}
+            {isProgress && (
+                <View style={style.progressContainer}>
+
+                    <View style={style.progressTypeContainer}>
+
+                        {PROGRESS.map(p => {
+                            return (
+                                <Pressable
+                                    key={p.title}
+                                    style={[
+                                        style.progressIcon,
+                                        {
+                                            backgroundColor:
+                                                isProgress.status === p.title
+                                                    ? p.color
+                                                    : '#c3c2c2',
+                                        },
+                                    ]}
+                                    onPress={() => handleProgressToggle(p.title)}
+                                >
+                                    <EvilIcons
+                                        name={p.iconName}
+                                        size={30}
+                                        color="#fff"
+                                    />
+                                </Pressable>
+                            );
+                        })}
+
+                        <Text style={style.goalsTagTitle}>
+                            {isProgress.title}
+                        </Text>
+
+                    </View>
+
+                    <Pressable
+                        style={style.progressCancelContainer}
+                        onPress={() => setIsProgress(null)}
+                    >
+                        <Entypo
+                            name="cross"
+                            size={20}
+                            style={style.progressCancelIcon}
+                        />
+                    </Pressable>
+
+                </View>
+            )}
+
 
             {/* GOALS */}
             <GoalTag
@@ -234,9 +365,12 @@ const AddGoals = ({ refreshTrigger }) => {
                 onSelectGoal={handleSelectGoal}
                 selectedGoalId={editingGoal?.id}
                 isEditingGoal={editingGoal}
-                setEditingGoal = {setEditingGoal}
-                isGoal = {goal}
-                setGoal = {setGoal}
+                setEditingGoal={setEditingGoal}
+                isGoal={goal}
+                setGoal={setGoal}
+                isProgress={isProgress}
+                setIsProgress={setIsProgress}
+                progress={PROGRESS}
             />
         </View>
     );

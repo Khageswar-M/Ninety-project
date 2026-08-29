@@ -299,6 +299,32 @@ const actionStyle = (theme) => StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
     },
+    progressContainer:{
+        backgroundColor: theme.primary,
+        alignItems: 'center',
+        paddingVertical: 5,
+        marginTop: 10,
+        borderRadius: 5,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10
+    },
+    progressCancelContainer:{
+        backgroundColor: '#ffffff5a',
+        borderRadius: 5,
+        padding: 5
+    },
+    progressCancelIcon:{
+        color: theme.text
+    },
+    progressTypeContainer:{
+        flexDirection: 'row',
+        gap: 20,
+        alignItems: 'center'
+    },
+    progressIcon:{
+        borderRadius: 5
+    }
 
 })
 
