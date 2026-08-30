@@ -5,7 +5,9 @@ import Results from '../../src/components/screens/Results.jsx'
 import Settings from '../../src/components/screens/Settings.jsx'
 import { useSelector } from 'react-redux'
 import { Fonts } from '../../src/constants/Fonts.js'
-import { Ionicons, Feather } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -13,71 +15,75 @@ const _layout = () => {
     const inset = useSafeAreaInsets();
     const currTheme = useSelector((state) => state.theme.theme);
     return (
-        <Tab.Navigator
-            initialRouteName='Actions' 
-            screenOptions={{
-                
-                tabBarShowIcon: true,
-                tabBarStyle: {
-                    backgroundColor: currTheme.background,
-                    paddingTop: inset.top,
-                },
-                tabBarActiveTintColor: currTheme.text,
-                tabBarInactiveTintColor: currTheme.textMuted,
-                tabBarIndicatorStyle: {
-                    backgroundColor: currTheme.primary,
-                    width: "70%",
-                    margin: 'auto'
-                },
-                tabBarLabelStyle: {
-                    fontFamily: Fonts.poppins,
-                    fontWeight: 'bold',
-                    fontSize: 12
-                },
-            }}
-        >
-            <Tab.Screen
-                name='Actions'
-                component={Actions}
-                options={{
-                    tabBarIcon: ({color, focused}) => (
-                        <Feather
-                            name={"check-square"}
-                            size={20}
-                            color={color}
-                        />
-                    )
-                }}
-            />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
+                <Tab.Navigator
+                    initialRouteName='Actions'
+                    screenOptions={{
 
-            <Tab.Screen
-                name='Results'
-                component={Results}
-                options={{
-                    tabBarIcon: ({color, focused}) => (
-                        <Feather
-                            name={"bar-chart-2"}
-                            size={20}
-                            color={color}
-                        />
-                    )
-                }}
-            />
+                        tabBarShowIcon: true,
+                        tabBarStyle: {
+                            backgroundColor: currTheme.background,
+                            paddingTop: inset.top,
+                        },
+                        tabBarActiveTintColor: currTheme.text,
+                        tabBarInactiveTintColor: currTheme.textMuted,
+                        tabBarIndicatorStyle: {
+                            backgroundColor: currTheme.primary,
+                            width: "70%",
+                            margin: 'auto'
+                        },
+                        tabBarLabelStyle: {
+                            fontFamily: Fonts.poppins,
+                            fontWeight: 'bold',
+                            fontSize: 12
+                        },
+                    }}
+                >
+                    <Tab.Screen
+                        name='Actions'
+                        component={Actions}
+                        options={{
+                            tabBarIcon: ({ color, focused }) => (
+                                <Feather
+                                    name={"check-square"}
+                                    size={20}
+                                    color={color}
+                                />
+                            )
+                        }}
+                    />
 
-            <Tab.Screen
-                name='Settings'
-                component={Settings}
-                options={{
-                    tabBarIcon: ({color, focused}) => (
-                        <Feather
-                            name={"settings"}
-                            size={20}
-                            color={color}
-                        />
-                    )
-                }}
-            />
-        </Tab.Navigator >
+                    <Tab.Screen
+                        name='Results'
+                        component={Results}
+                        options={{
+                            tabBarIcon: ({ color, focused }) => (
+                                <Feather
+                                    name={"bar-chart-2"}
+                                    size={20}
+                                    color={color}
+                                />
+                            )
+                        }}
+                    />
+
+                    <Tab.Screen
+                        name='Settings'
+                        component={Settings}
+                        options={{
+                            tabBarIcon: ({ color, focused }) => (
+                                <Feather
+                                    name={"settings"}
+                                    size={20}
+                                    color={color}
+                                />
+                            )
+                        }}
+                    />
+                </Tab.Navigator >
+            </BottomSheetModalProvider>
+        </GestureHandlerRootView>
     )
 }
 

@@ -143,5 +143,19 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Password updated successfully.", null));
     }
 
+    @PutMapping("/update/{newName}")
+    public ResponseEntity<ApiResponse> updateName(
+            @PathVariable String newName
+    ){
+        authService.updateFullName(newName);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Name updated successfully.",
+                        null
+                )
+        );
+    }
+
 
 }

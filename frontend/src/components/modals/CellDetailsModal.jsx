@@ -25,6 +25,9 @@ const CellDetailsModal = ({
     dayNumber,
     title,
     initialActions = [],
+    currentDay,
+    actionBoard,
+    setActionBoard
 }) => {
     const localStyles = useActionStyles();
     const theme = useSelector((state) => state.theme.theme);
@@ -34,6 +37,8 @@ const CellDetailsModal = ({
     const [editingId, setEditingId] = useState(null);
     const [loading, setLoading] = useState(false);
     const gridId = useSelector((state) => state.app.gridId);
+
+    const isSameCurrentDayAndDayNumber = (currentDay === dayNumber);
 
     // Reset to a clean slate every time the modal is opened, seeding with
     // whatever was already saved for this cell (if anything).
@@ -96,6 +101,24 @@ const CellDetailsModal = ({
         onCancel?.();
     };
 
+    // const handleUpdateCellLocally = () => {
+    //     const index = dayNumber;
+
+    //     const row = Math.floor(index / 10);
+    //     const col = index % 10;
+    //     console.log("local cell updated")
+
+    //     setActionBoard(prevBoard => {
+    //         const updatedBoard = prevBoard.map(row => [...row]);
+
+    //         if (updatedBoard[row]?.[col] === false) {
+    //             updatedBoard[row][col] = true;
+    //         }
+
+    //         return updatedBoard;
+    //     });
+    // };
+
     const handleSubmit = async () => {
         const trimmed = inputText.trim();
         if (!trimmed) return;
@@ -114,6 +137,7 @@ const CellDetailsModal = ({
             // 1. Capture snapshot for rollback
             const previousEntries = [...entries];
             const targetId = editingId;
+            console.log("Target update id: ", targetId);
             setEditingId(null);
 
             // 2. Optimistic update
@@ -178,6 +202,8 @@ const CellDetailsModal = ({
         }
     };
 
+
+
     const handleEditPress = (entry) => {
         // 4. Never allow a temp/pending entry to become the thing being edited.
         if (entry.pending || isTempId(entry.id)) return;
@@ -227,9 +253,11 @@ const CellDetailsModal = ({
             avoidKeyboard
             useNativeDriver
             hideModalContentWhileAnimating={false}
+            animationInTiming={10}
+            animationOutTiming={10}
         >
-            <View style={[localStyles.card, { backgroundColor: theme.background }]}>
-                <Text style={[localStyles.title, { color: theme.primary }]}>
+            <View style={[localStyles.card, { backgroundColor: theme.cellModalBackground }]}>
+                <Text style={[localStyles.title, { color: theme.light }]}>
                     {title}
                 </Text>
 
@@ -246,7 +274,7 @@ const CellDetailsModal = ({
                         }}>
                             <ActivityIndicator size={20} color={theme.text} />
                             <Text style={[localStyles.sectionLabel, { color: theme.text }]}>
-                                 Loading...
+                                Loading...
                             </Text>
                         </View>
                     ) : (
@@ -259,7 +287,7 @@ const CellDetailsModal = ({
                                 entries.map((entry) => (
                                     <Pressable
                                         key={entry.id}
-                                        onPress={() => handleEditPress(entry)}
+                                        onPress={() => isSameCurrentDayAndDayNumber && handleEditPress(entry)}
                                         disabled={entry.pending}
                                         style={[
                                             localStyles.chip,
@@ -274,7 +302,7 @@ const CellDetailsModal = ({
                                         >
                                             {entry.text}
                                         </Text>
-                                        {entry.pending ? (
+                                        {isSameCurrentDayAndDayNumber && (entry.pending ? (
                                             <ActivityIndicator
                                                 size="small"
                                                 color="#fff"
@@ -288,7 +316,7 @@ const CellDetailsModal = ({
                                             >
                                                 <Ionicons name="close" size={14} color="#fff" />
                                             </Pressable>
-                                        )}
+                                        ))}
                                     </Pressable>
                                 ))
                             )}
@@ -296,28 +324,34 @@ const CellDetailsModal = ({
                     )
                 }
 
-                <View style={localStyles.inputRow}>
-                    <TextInput
-                        value={inputText}
-                        onChangeText={setInputText}
-                        placeholder="Add what you did today..."
-                        placeholderTextColor="#999"
-                        style={localStyles.input}
-                        onSubmitEditing={handleSubmit}
-                        returnKeyType="done"
-                        blurOnSubmit={false}
-                    />
-                    <Pressable
-                        onPress={handleSubmit}
-                        style={[localStyles.addBtn, { backgroundColor: theme.primary }]}
-                    >
-                        <Ionicons
-                            name={editingId ? 'checkmark' : 'add'}
-                            size={20}
-                            color="#fff"
-                        />
-                    </Pressable>
-                </View>
+                {
+                    isSameCurrentDayAndDayNumber && (
+                        <View style={localStyles.inputRow}>
+                            <TextInput
+                                value={inputText}
+                                onChangeText={setInputText}
+                                placeholder="Add your productivity"
+                                placeholderTextColor="#999"
+                                style={localStyles.input}
+                                onSubmitEditing={handleSubmit}
+                                selectionColor={theme.light}
+                                returnKeyType="done"
+                                blurOnSubmit={false}
+                            />
+                            <Pressable
+                                onPress={handleSubmit}
+                                style={[localStyles.addBtn, { backgroundColor: theme.primary }]}
+                            >
+                                <Ionicons
+                                    name={editingId ? 'checkmark' : 'add'}
+                                    size={20}
+                                    color="#fff"
+                                />
+                            </Pressable>
+                        </View>
+
+                    )
+                }
 
                 <View style={localStyles.actionsRow}>
                     <Pressable onPress={resetAndCancel} style={localStyles.cancelBtn}>

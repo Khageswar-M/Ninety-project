@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
         Date expiration = jwtUtil.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) * 1000;
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis());
 
         return LoginResponse.builder()
                 .id(user.getId())
@@ -176,6 +176,35 @@ public class AuthServiceImpl implements AuthService {
         existingUser.setPassword(
                 passwordEncoder.encode(request.password())
         );
+
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    public void updateFullName(String newName) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            throw new RuntimeException("User is not authenticated.");
+        }
+
+        String email = authentication.getName();
+
+        User existingUser = userRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found."
+                        )
+                );
+
+        existingUser.setFullName(newName.trim());
 
         userRepository.save(existingUser);
     }

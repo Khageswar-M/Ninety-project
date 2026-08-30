@@ -179,11 +179,12 @@ const actionStyle = (theme) => StyleSheet.create({
         width: '80%',
         position: 'relative',
         alignItems: 'center',
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     goalsTagContainer: {
         alignItems: 'flex-start',
-        marginTop: 10
+        marginTop: 10,
+        
     },
     goalsTag: {
         flexDirection: 'row',
@@ -202,8 +203,10 @@ const actionStyle = (theme) => StyleSheet.create({
     },
     goalsTagIcon: {
         fontSize: 18,
-        transform: 'rotate(45deg)',
-        color: theme.text
+        color: theme.text,
+        backgroundColor: '#ffffff47',
+        borderRadius: 5,
+        padding: 2
     },
     card: {
         borderRadius: 16,
@@ -266,10 +269,11 @@ const actionStyle = (theme) => StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.border,
         borderRadius: 10,
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         paddingVertical: 8,
         fontSize: 14,
         color: theme.text,
+        backgroundColor: '#522e92'
     },
     addBtn: {
         width: 40,
@@ -296,6 +300,32 @@ const actionStyle = (theme) => StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
     },
+    progressContainer:{
+        backgroundColor: theme.primary,
+        alignItems: 'center',
+        paddingVertical: 5,
+        marginTop: 10,
+        borderRadius: 5,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10
+    },
+    progressCancelContainer:{
+        backgroundColor: '#ffffff5a',
+        borderRadius: 5,
+        padding: 5
+    },
+    progressCancelIcon:{
+        color: theme.text
+    },
+    progressTypeContainer:{
+        flexDirection: 'row',
+        gap: 20,
+        alignItems: 'center'
+    },
+    progressIcon:{
+        borderRadius: 5
+    }
 
 })
 
