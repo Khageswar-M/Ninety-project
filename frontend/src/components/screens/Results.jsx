@@ -27,6 +27,7 @@ const Results = () => {
     <ScrollView
       style={style.container}
       contentContainerStyle={style.containerContentStyle}
+      showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}

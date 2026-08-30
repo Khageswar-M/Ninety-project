@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text } from 'react-native';
-import { useResultStyles } from '../../hook/useThemeStyles';
 import { useSelector } from 'react-redux';
+import { useResultStyles } from '../../hook/useThemeStyles';
 
 const TOTAL_DAYS = 90;
 const ANIMATION_DURATION_MS = 1000;
 
 const Streak = ({ refreshKey }) => {
     const style = useResultStyles();
-    const rawGrid = useSelector((state) => state.app.dayGrid);
-    const currentDay = useSelector((state) => state.app.currentDay) || 0;
 
+    const rawGrid = useSelector((state) => state.app.dayGrid);
+    const rawCurrentDay = useSelector((state) => state.app.currentDay);
 
     const [counts, setCounts] = useState({ current: 0, best: 0, daysLeft: 0 });
     const rafId = useRef(null);
@@ -18,50 +18,57 @@ const Streak = ({ refreshKey }) => {
     // 1. Calculate actual streak metrics
     const { currentStreak, bestStreak, daysLeft } = useMemo(() => {
         const safeGrid = Array.isArray(rawGrid) ? rawGrid.flat() : [];
+
+        // Treat missing/invalid currentDay as "no days elapsed yet" rather than
+        // silently coercing it with `|| 0`, which would also mask a real 0.
+        const currentDay = Number.isFinite(rawCurrentDay) ? rawCurrentDay : 0;
         const safeCurrentDay = Math.max(0, Math.min(currentDay, safeGrid.length));
+
+        // Only consider days that have already occurred
         const grid = safeGrid.slice(0, safeCurrentDay);
 
-        let runningStreak = 0;
-        let maxStreak = 0;
+        // Best streak: longest consecutive run of completed days
+        let best = 0;
+        let running = 0;
 
         for (const cell of grid) {
-            if (cell) {
-                runningStreak++;
-                if (runningStreak > maxStreak) {
-                    maxStreak = runningStreak;
-                }
+            if (Boolean(cell)) {
+                running++;
+                best = Math.max(best, running);
             } else {
-                runningStreak = 0;
+                running = 0;
             }
         }
 
-        let trailingStreak = 0;
-        
-        for (let i = currentDay - 1; i >= 0; i--) {
-            if (grid[i]) {
-                trailingStreak++;
+        // Current streak: consecutive completed days counting back from today
+        let current = 0;
+
+        for (let i = grid.length - 1; i >= 0; i--) {
+            if (Boolean(grid[i])) {
+                current++;
             } else {
                 break;
             }
         }
 
         return {
-            currentStreak: trailingStreak,
-            bestStreak: maxStreak,
+            currentStreak: current,
+            bestStreak: best,
             daysLeft: Math.max(0, TOTAL_DAYS - safeCurrentDay),
         };
-    }, [rawGrid, currentDay]);
+    }, [rawGrid, rawCurrentDay]);
 
     // 2. Debug log — only fires when the underlying data actually changes,
     //    not on every animation tick/render.
     useEffect(() => {
         console.log('Raw Grid in streak: ', rawGrid);
-    }, [rawGrid]);
+        console.log('Current Day in streak: ', rawCurrentDay);
+    }, [rawGrid, rawCurrentDay]);
 
     // 3. Single rAF loop drives all three counters together — one render
     //    per frame instead of three independent interval-driven render storms.
     useEffect(() => {
-        const targets = { current: currentStreak, best: bestStreak, daysLeft: daysLeft };
+        const targets = { current: currentStreak, best: bestStreak, daysLeft };
         const startValues = { current: 0, best: 0, daysLeft: 0 };
         const startTime = performance.now();
 

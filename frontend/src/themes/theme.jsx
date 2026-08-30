@@ -14,6 +14,7 @@ export const darkTheme = {
     streak: "#534ab7",
     border: "#8a8a85",
     btnDisable: "#3f3f3f",
+    cellModalBackground: "#3d8c40"
 }
 
 export const lightTheme = {
@@ -32,4 +33,5 @@ export const lightTheme = {
     border: "#ffb35d",
     successLight: "#1eff00",
     btnDisable: "#3f3f3f",
+    cellModalBackground: "#3d8c40"
 }

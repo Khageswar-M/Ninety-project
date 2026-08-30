@@ -6,6 +6,8 @@ import { useActionStyles } from '../../hook/useThemeStyles'
 import ConfirmationModal from '../modals/ConfirmationModal.jsx'
 import EmptySvg from '../../../assets/icons/opps.svg';
 import { deleteGoal } from '../../API/goals/goalsApi.js'
+import LottieView from 'lottie-react-native'
+import Fetching from '../../../assets/icons/seeking-development.json'
 console.log("EmptySvg:", EmptySvg);
 console.log("EmptySvg type:", typeof EmptySvg);
 
@@ -33,7 +35,6 @@ const GoalTag = ({
     const style = useActionStyles();
     const [visible, setVisible] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState(null);
-    const [sheetVisible, setSheetVisible] = useState(true);
 
     const openDeleteModal = (goalId) => {
         setDeleteTargetId(goalId);
@@ -85,7 +86,9 @@ const GoalTag = ({
                     {
                         progress.map(p => {
                             return (
-                                <View style={{
+                                <View
+                                key={p.title}
+                                style={{
                                     flexDirection: 'row',
                                     alignItems: 'center'
                                 }}>
@@ -118,7 +121,13 @@ const GoalTag = ({
                                 marginTop: 20,
                             }}
                         >
-                            <ActivityIndicator size={30} color={'orange'} />
+                            {/* <ActivityIndicator size={30} color={'orange'} /> */}
+                            <LottieView
+                                source={Fetching}
+                                autoPlay
+                                loop={true}
+                                style={{height: 150, width: 150}}
+                            />
                         </View>
                     ) : (
                         goals.length <= 0 ? (

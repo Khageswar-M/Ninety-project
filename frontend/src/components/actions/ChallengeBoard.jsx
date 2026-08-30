@@ -8,11 +8,9 @@ import { storage } from '../../utils/storage';
 import { getChallenges } from '../../API/challenge/challengesApi';
 import { router } from 'expo-router';
 import { setDayGrid, setCurrentDay, setGridId } from '../../redux/slices/appSlice';
+import LottieView from 'lottie-react-native';
+import Fetching from '../../../assets/icons/seeking-development.json';
 
-// Grid is 9 rows x 10 columns = 90 cells. Every index computed anywhere in
-// this file uses the SAME 0-indexed formula: rowIndex * COLS + collIndex.
-// currentDay / dayNumber stay 1-indexed ("Day 1" .. "Day 90") — convert with
-// +1 / -1 at the boundary, never mix bases.
 const COLS = 10;
 const toCellIndex = (rowIndex, collIndex) => (rowIndex * COLS) + collIndex; // 0-indexed
 const toDayNumber = (rowIndex, collIndex) => toCellIndex(rowIndex, collIndex) + 1; // 1-indexed
@@ -31,10 +29,6 @@ const ChallengeBoard = ({ refreshTrigger }) => {
     const [currentDay, setLocalCurrentDay] = useState(0);
     const [cellActions, setCellActions] = useState({});
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        loadChallenge();
-    }, [])
 
     useEffect(() => {
         loadChallenge();
@@ -135,6 +129,8 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         }
     };
 
+    
+
     const animatedValues = useRef(
         Array.from({ length: 90 }).map(() => new Animated.Value(0))
     ).current;
@@ -216,10 +212,18 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                 {
 
                     loading ? (
-                        <Text style={{
-                            color: theme.text,
-                            textAlign: 'center'
-                        }}>Loading...</Text>
+
+                        <View style={{
+                            alignItems: 'center',
+                            flexDirection: 'column'
+                        }}>
+                            <LottieView
+                                source={Fetching}
+                                autoPlay
+                                loop={true}
+                                style={{ height: 200, width: 200 }}
+                            />
+                        </View>
                     ) : (
                         cellChecked.map((row, rowIndex) => (
                             <View key={`row-${rowIndex}`} style={style.row}>
@@ -287,6 +291,8 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                 </Text>
             </View> */}
 
+
+
             <CellDetailsModal
                 isVisible={isModalVisible}
                 onCancel={closeModal}
@@ -306,6 +312,9 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                         ] || []
                         : []
                 }
+                currentDay={currentDay}
+                actionBoard={cellChecked}
+                setActionBoard={setCellChecked}
             />
         </View >
     )

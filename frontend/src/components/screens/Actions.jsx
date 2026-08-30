@@ -33,11 +33,12 @@ const Actions = () => {
     <KeyboardAwareScrollView
       style={style.container}
       contentContainerStyle={style.scrollContent}
+      showsVerticalScrollIndicator={false}
       enableOnAndroid
       keyboardShouldPersistTaps="handled"
       extraScrollHeight={100}
       refreshControl={
-        <RefreshControl
+        <RefreshControl 
           refreshing={refreshing}
           onRefresh={onRefresh}
         />

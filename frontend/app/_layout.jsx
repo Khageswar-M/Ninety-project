@@ -19,12 +19,15 @@ function AppNavigation() {
 
   const dispatch = useDispatch();
 
-  const [isReady, setIsRead] = useState(false);
+  // const [isReady, setIsRead] = useState(false);
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const isLoggedIn = useSelector((state) => state.app.isLogin);
-  const theme = useSelector((state) => state.theme.theme);
-  const inset = useSafeAreaInsets();
+  // const theme = useSelector((state) => state.theme.theme);
+  // const inset = useSafeAreaInsets();
   const colorScheme = useColorScheme();
+
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  // const [isSplashReady, setIsSplashReady] = useState(false);
 
   // storage.clear();
 
@@ -34,7 +37,7 @@ function AppNavigation() {
       try {
         const storedUser = await storage.get("@ninety_user");
 
-        console.log(storedUser)
+        console.log("Stored user:", storedUser);
 
         if (!storedUser?.jwtToken || !storedUser?.tokenExpiresAt) {
           await storage.remove("@ninety_user");
@@ -50,6 +53,21 @@ function AppNavigation() {
 
         const isTokenExpired =
           Date.now() >= storedUser.tokenExpiresAt;
+
+        console.log(
+          "Current time:",
+          Date.now()
+        );
+
+        console.log(
+          "Token expires at:",
+          storedUser.tokenExpiresAt
+        );
+
+        console.log(
+          "Token expired:",
+          isTokenExpired
+        );
 
         if (isTokenExpired) {
           console.log("JWT token has expired.");
@@ -73,17 +91,24 @@ function AppNavigation() {
         );
 
       } catch (error) {
-        console.error("Failed to hydrate app:", error);
+        console.error(
+          "Failed to hydrate app:",
+          error
+        );
 
         dispatch(
           hydrateApp({
             isLogin: false,
           })
         );
+
+      } finally {
+        setIsAuthReady(true);
       }
     };
 
     initializeApp();
+
   }, [dispatch]);
 
   // Theme
@@ -140,19 +165,21 @@ function AppNavigation() {
   });
 
   useEffect(() => {
-    async function prepare() {
-      if (!loaded) return;
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      setIsRead(true);
-      await SplashScreen.hideAsync();
+    if (!loaded || !isAuthReady) {
+      return;
     }
 
-    prepare();
-  }, [loaded]);
+    const hideSplash = async () => {
+      await SplashScreen.hideAsync();
+    };
 
-  if (!isReady) return (<SplashScreenPage />);
+    hideSplash();
+
+  }, [loaded, isAuthReady]);
+
+  if (!loaded || !isAuthReady) {
+    return <SplashScreenPage />;
+  }
 
   return (
     <>
@@ -178,7 +205,7 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       {/* <NetworkProvider> */}
-        <AppNavigation />
+      <AppNavigation />
       {/* </NetworkProvider> */}
     </Provider>
   );

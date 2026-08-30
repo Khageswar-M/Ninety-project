@@ -81,7 +81,7 @@ const Login = () => {
         } = response.data.data;
 
 
-        const tokenExpiresAt = Date.now() + (expiresIn * 1000);
+        const tokenExpiresAt = Date.now() + (expiresIn);
 
         const user = {
           id,

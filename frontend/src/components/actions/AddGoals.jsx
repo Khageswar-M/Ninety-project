@@ -67,8 +67,7 @@ const AddGoals = ({ refreshTrigger }) => {
             const response = await getAllGoals(userId);
             setGoals(response?.data.data);
         } catch (e) {
-            console.error(e);
-            Alert.alert("Failed to fetch all goals.");
+            console.log(e);
         } finally {
             setLoading(false);
         }

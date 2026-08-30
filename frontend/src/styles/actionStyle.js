@@ -269,10 +269,11 @@ const actionStyle = (theme) => StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.border,
         borderRadius: 10,
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         paddingVertical: 8,
         fontSize: 14,
         color: theme.text,
+        backgroundColor: '#522e92'
     },
     addBtn: {
         width: 40,
