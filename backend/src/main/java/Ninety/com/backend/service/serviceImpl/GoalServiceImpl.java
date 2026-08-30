@@ -52,6 +52,11 @@ public class GoalServiceImpl implements GoalService {
         Goal existingGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new GoalNotFoundException("Goal not found."));
 
+        String oldTitle = existingGoal.getTitle();
+        if(oldTitle.equals(newTitle)){
+            return mappedToResponse(existingGoal);
+        }
+
         existingGoal.setTitle(newTitle);
 
         Goal updatedGoal = goalRepository.save(existingGoal);

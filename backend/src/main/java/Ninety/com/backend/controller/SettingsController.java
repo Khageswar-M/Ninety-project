@@ -1,0 +1,63 @@
+package Ninety.com.backend.controller;
+
+import Ninety.com.backend.dto.response.ApiResponse;
+import Ninety.com.backend.dto.response.SettingsResponse;
+import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.service.SettingsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/settings")
+@RequiredArgsConstructor
+@Tag(name = "Settings controller", description = "Use to control user settings data.")
+public class SettingsController {
+
+
+    private final SettingsService settingsService;
+
+    @GetMapping()
+    public ResponseEntity<ApiResponse> getSettings(){
+        SettingsResponse response = settingsService.getSettings();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "User settings.",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/daily-reminder")
+    public ResponseEntity<ApiResponse> toggleDailyRemainder(){
+        SettingsSingleResponse response = settingsService.toggleDailyRemainder();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Daily Reminder toggled successfully.",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/daily-reminder/{newTime}")
+    public ResponseEntity<ApiResponse> updateReminderTime(
+            @PathVariable String newTime
+    ){
+        SettingsSingleResponse response =
+                settingsService.updateReminderTime(newTime);
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Updated reminder time.",
+                                response
+                        )
+                );
+    }
+
+}

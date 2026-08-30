@@ -44,7 +44,7 @@ class UserTest {
         challenge.setCompleted(false);
         challenge.setActivities(new ArrayList<>());
         challenge.setCreatedAt(LocalDate.now());
-        challenge.setUpdatedAt(LocalDate.now());
+        challenge.setUpdatedAt(LocalDateTime.now());
         boolean[][] dayGrid = challenge.getDayGrid();
         dayGrid[0][0] = true;
 
