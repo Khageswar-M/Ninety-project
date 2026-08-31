@@ -1,11 +1,12 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingStyles } from '../../hook/useThemeStyles'
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setDarkTheme, setLightTheme, toggleTheme } from '../../redux/slices/themeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useColorScheme } from 'react-native';
 import { storage } from '../../utils/storage';
+import { updateTheme } from '../../API/settings/settingsApi';
 
 const Appearance = () => {
     const style = useSettingStyles();
@@ -81,16 +82,35 @@ const Appearance = () => {
 
     };
 
+    const themeChangeQueue = useRef(Promise.resolve());
+    const enqueueRequest = (queue, apiCall) => {
+        queue.current = queue.current
+            .catch(() => {})
+            .then(() => apiCall());
+
+        return queue.current;
+    }
+
     async function handleDarkTheme() {
         setMyTheme(2);
         await storage.set("darkTheme", "dark");
         dispatch(setDarkTheme());
+
+        enqueueRequest(
+            themeChangeQueue,
+            () => updateTheme("DARK")
+        );
     }
 
     async function handleLightTheme() {
         setMyTheme(1);
         await storage.set("darkTheme", "light");
         dispatch(setLightTheme());
+
+        enqueueRequest(
+            themeChangeQueue,
+            () => updateTheme("LIGHT")
+        );
     }
 
     async function handleSystemTheme(colorScheme) {
@@ -103,6 +123,10 @@ const Appearance = () => {
         }
         await storage.set("darkTheme", "system");
 
+        enqueueRequest(
+            themeChangeQueue,
+            () => updateTheme("AUTO")
+        );
     }
 
     return (
@@ -172,10 +196,11 @@ const Appearance = () => {
                                     }
 
 
-                                    <Text style={[style.themeButtonTittleText],
+                                    <Text style={[style.themeButtonTittleText,
                                         theme.id === myTheme ?
                                             style.themeBtnActive :
-                                            style.themeBtnInactive}
+                                            style.themeBtnInactive
+                                        ]}
                                     >
                                         {theme.title}
                                     </Text>

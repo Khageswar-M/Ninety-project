@@ -1,4 +1,3 @@
-import axios from "axios";
 import api from "../api";
 
 const SETTING_URL = '/api/v1/settings'
