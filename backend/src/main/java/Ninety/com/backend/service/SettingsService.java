@@ -2,6 +2,7 @@ package Ninety.com.backend.service;
 
 import Ninety.com.backend.dto.response.SettingsResponse;
 import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.entity.Theme;
 
 public interface SettingsService {
 
@@ -15,5 +16,5 @@ public interface SettingsService {
 
     SettingsSingleResponse toggleMileStoneAlerts();
 
-    SettingsSingleResponse updateTheme();
+    SettingsSingleResponse updateTheme(Theme theme);
 }

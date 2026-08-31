@@ -14,4 +14,5 @@ public interface ChallengeService {
     int getMyCurrentStreakDay(Long challengeId);
 
     void computeStreakCounts(Long challengeId);
+
 }

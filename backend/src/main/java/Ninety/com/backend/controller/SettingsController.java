@@ -3,9 +3,12 @@ package Ninety.com.backend.controller;
 import Ninety.com.backend.dto.response.ApiResponse;
 import Ninety.com.backend.dto.response.SettingsResponse;
 import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.entity.Theme;
 import Ninety.com.backend.service.SettingsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +34,7 @@ public class SettingsController {
                 );
     }
 
-    @PutMapping("/daily-reminder")
+    @PutMapping("/toggle-daily-reminder")
     public ResponseEntity<ApiResponse> toggleDailyRemainder(){
         SettingsSingleResponse response = settingsService.toggleDailyRemainder();
 
@@ -55,6 +58,50 @@ public class SettingsController {
                 .body(
                         ApiResponse.success(
                                 "Updated reminder time.",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/toggle-ai-coach")
+    public ResponseEntity<ApiResponse> toggleAiCoach(){
+        SettingsSingleResponse response =
+                settingsService.toggleAiCoachDigest();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Ai digest toggled successfully.",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/toggle-mile-stone")
+    public ResponseEntity<ApiResponse> toggleMileStone(){
+        SettingsSingleResponse response =
+                settingsService.toggleMileStoneAlerts();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Mile stone alert toggled",
+                                        response
+                        )
+                );
+    }
+
+    @PutMapping("/theme/{themeName}")
+    public ResponseEntity<ApiResponse> updateTheme(
+             @PathVariable Theme themeName
+            ){
+
+        SettingsSingleResponse response = settingsService.updateTheme(themeName);
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Theme updated",
                                 response
                         )
                 );

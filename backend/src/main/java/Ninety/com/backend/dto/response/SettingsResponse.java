@@ -9,8 +9,6 @@ public record SettingsResponse(
         String reminderTime,
         boolean aiCoachDigest,
         boolean mileStoneAlert,
-        String theme,
-        String createdAt,
-        String updated
+        String theme
 ) {
 }

@@ -33,7 +33,7 @@ public class Settings {
 
     @Builder.Default
     @Column(nullable = false)
-    private LocalTime reminderTime = LocalTime.of(12, 0);
+    private String reminderTime = "2026-08-31T15:30:00.000Z";
 
     @Builder.Default
     @Column(nullable = false)
