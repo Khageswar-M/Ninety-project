@@ -1,7 +1,7 @@
 package Ninety.com.backend.service;
 
-import Ninety.com.backend.dto.response.SettingsResponse;
-import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.io.response.SettingsResponse;
+import Ninety.com.backend.io.response.SettingsSingleResponse;
 import Ninety.com.backend.entity.Theme;
 
 public interface SettingsService {

@@ -1,9 +1,9 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.request.LoginRequest;
-import Ninety.com.backend.dto.request.RegisterRequest;
-import Ninety.com.backend.dto.request.UpdatePasswordRequest;
-import Ninety.com.backend.dto.response.LoginResponse;
+import Ninety.com.backend.io.request.LoginRequest;
+import Ninety.com.backend.io.request.RegisterRequest;
+import Ninety.com.backend.io.request.UpdatePasswordRequest;
+import Ninety.com.backend.io.response.LoginResponse;
 import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.Role;
 import Ninety.com.backend.entity.User;

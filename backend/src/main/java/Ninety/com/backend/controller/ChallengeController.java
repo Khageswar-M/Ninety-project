@@ -1,7 +1,7 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.response.ApiResponse;
-import Ninety.com.backend.dto.response.ChallengeResponse;
+import Ninety.com.backend.io.response.ApiResponse;
+import Ninety.com.backend.io.response.ChallengeResponse;
 import Ninety.com.backend.service.ChallengeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.response.SettingsResponse;
-import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.io.response.SettingsResponse;
+import Ninety.com.backend.io.response.SettingsSingleResponse;
 import Ninety.com.backend.entity.Settings;
 import Ninety.com.backend.entity.Theme;
 import Ninety.com.backend.entity.User;
@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 

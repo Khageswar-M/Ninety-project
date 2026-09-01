@@ -1,14 +1,12 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.response.ApiResponse;
-import Ninety.com.backend.dto.response.SettingsResponse;
-import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.io.response.ApiResponse;
+import Ninety.com.backend.io.response.SettingsResponse;
+import Ninety.com.backend.io.response.SettingsSingleResponse;
 import Ninety.com.backend.entity.Theme;
 import Ninety.com.backend.service.SettingsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

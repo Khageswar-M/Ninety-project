@@ -1,4 +1,4 @@
-package Ninety.com.backend.dto.response;
+package Ninety.com.backend.io.response;
 
 import lombok.Builder;
 

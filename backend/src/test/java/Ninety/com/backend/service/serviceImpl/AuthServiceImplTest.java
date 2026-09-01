@@ -1,15 +1,14 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.request.LoginRequest;
-import Ninety.com.backend.dto.request.RegisterRequest;
-import Ninety.com.backend.dto.response.LoginResponse;
+import Ninety.com.backend.io.request.LoginRequest;
+import Ninety.com.backend.io.request.RegisterRequest;
+import Ninety.com.backend.io.response.LoginResponse;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.EmailAlreadyExistsException;
 import Ninety.com.backend.exception.InvalidCredentialsException;
 import Ninety.com.backend.repository.UserRepository;
 import Ninety.com.backend.service.EmailService;
 import Ninety.com.backend.utils.JwtUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

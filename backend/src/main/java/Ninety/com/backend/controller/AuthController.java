@@ -1,8 +1,8 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.request.*;
-import Ninety.com.backend.dto.response.ApiResponse;
-import Ninety.com.backend.dto.response.LoginResponse;
+import Ninety.com.backend.io.request.*;
+import Ninety.com.backend.io.response.ApiResponse;
+import Ninety.com.backend.io.response.LoginResponse;
 import Ninety.com.backend.service.AuthService;
 import Ninety.com.backend.service.EmailService;
 import Ninety.com.backend.service.OtpService;

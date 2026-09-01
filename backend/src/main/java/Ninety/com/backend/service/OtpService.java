@@ -1,6 +1,6 @@
 package Ninety.com.backend.service;
 
-import Ninety.com.backend.dto.request.VerifyOtpRequest;
+import Ninety.com.backend.io.request.VerifyOtpRequest;
 
 public interface OtpService {
     String generateAndStoreOtp(String toEmail);

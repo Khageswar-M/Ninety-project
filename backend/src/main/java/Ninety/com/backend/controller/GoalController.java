@@ -1,7 +1,7 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.response.ApiResponse;
-import Ninety.com.backend.dto.response.GoalResponse;
+import Ninety.com.backend.io.response.ApiResponse;
+import Ninety.com.backend.io.response.GoalResponse;
 import Ninety.com.backend.entity.GoalStatus;
 import Ninety.com.backend.service.GoalService;
 import io.swagger.v3.oas.annotations.tags.Tag;

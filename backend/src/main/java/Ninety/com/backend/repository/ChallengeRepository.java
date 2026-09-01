@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     Optional<Challenge> findByUser(User user);
+
+    Optional<Challenge> findByUserAndCompletedFalse(User user);
 }

@@ -1,8 +1,8 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.request.ActivityUpdateRequest;
-import Ninety.com.backend.dto.request.CreateActivityRequest;
-import Ninety.com.backend.dto.response.ActivityResponse;
+import Ninety.com.backend.io.request.ActivityUpdateRequest;
+import Ninety.com.backend.io.request.CreateActivityRequest;
+import Ninety.com.backend.io.response.ActivityResponse;
 import Ninety.com.backend.entity.Activity;
 import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.exception.ActivityNotFoundException;

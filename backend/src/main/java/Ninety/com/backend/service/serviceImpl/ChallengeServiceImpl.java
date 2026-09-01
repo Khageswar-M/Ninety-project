@@ -1,7 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.response.ActivityResponse;
-import Ninety.com.backend.dto.response.ChallengeResponse;
+import Ninety.com.backend.io.response.ChallengeResponse;
 import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.ChallengeNotFoundException;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

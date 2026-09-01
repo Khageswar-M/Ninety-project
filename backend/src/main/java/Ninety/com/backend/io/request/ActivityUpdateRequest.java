@@ -1,4 +1,4 @@
-package Ninety.com.backend.dto.request;
+package Ninety.com.backend.io.request;
 
 import jakarta.validation.constraints.NotNull;
 
