@@ -16,6 +16,5 @@ public interface AuthService {
 
     void updatePassword(UpdatePasswordRequest request);
 
-    void updateFullName(String newName);
 
 }

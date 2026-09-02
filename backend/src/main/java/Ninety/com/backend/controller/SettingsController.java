@@ -1,12 +1,15 @@
 package Ninety.com.backend.controller;
 
+import Ninety.com.backend.io.request.UpdateUserNameRequest;
 import Ninety.com.backend.io.response.ApiResponse;
 import Ninety.com.backend.io.response.SettingsResponse;
 import Ninety.com.backend.io.response.SettingsSingleResponse;
 import Ninety.com.backend.entity.Theme;
 import Ninety.com.backend.service.SettingsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,6 +106,30 @@ public class SettingsController {
                                 response
                         )
                 );
+    }
+
+    @PutMapping("/user-name")
+    public ResponseEntity<ApiResponse> updateUserName(
+            @Valid @RequestBody UpdateUserNameRequest request
+            ){
+        SettingsSingleResponse response = settingsService.updateUserName(request);
+
+        if(response == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ApiResponse.failure(
+                                    "Trying to update same name",
+                                    null
+                            )
+                    );
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "User name updated successfully",
+                        response
+                )
+        );
     }
 
 }

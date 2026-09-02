@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.io.request.UpdateUserNameRequest;
 import Ninety.com.backend.io.response.SettingsResponse;
 import Ninety.com.backend.io.response.SettingsSingleResponse;
 import Ninety.com.backend.entity.Settings;
@@ -72,6 +73,26 @@ public class SettingsServiceImpl implements SettingsService {
         if(theme == null) throw new IllegalArgumentException("Theme must not be null");
 
         return updateSetting(theme, Settings::setTheme, Settings::getTheme, "Theme");
+    }
+
+    @Override
+    public SettingsSingleResponse updateUserName(UpdateUserNameRequest request) {
+
+        User loggedinUser = getLoggedInUser();
+
+        String userOldName = loggedinUser.getFullName();
+
+        if(userOldName.equals(request.newName())) return null;
+
+        loggedinUser.setFullName(request.newName());
+
+        User updatedUser = userRepository.save(loggedinUser);
+
+        return SettingsSingleResponse.builder()
+                .settingsId(updatedUser.getId())
+                .settingName("User full name")
+                .value(updatedUser.getFullName())
+                .build();
     }
 
     @Override

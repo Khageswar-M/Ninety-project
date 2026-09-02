@@ -170,21 +170,4 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(existingUser);
     }
-
-    @Override
-    public void updateFullName(String newName) {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        String email = authentication.getName();
-        log.info("User email: ", email);
-
-        User existingUser = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        existingUser.setFullName(newName.trim());
-
-        userRepository.save(existingUser);
-    }
 }
