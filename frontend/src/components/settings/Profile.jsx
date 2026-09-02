@@ -8,6 +8,12 @@ import { useSelector } from 'react-redux';
 const Profile = () => {
     const style = useSettingStyles();
     const currentDay = useSelector((state) => state.app.currentDay);
+    const userFullName = useSelector((state) => state.app.userName);
+    const userEmail = useSelector((state) => state.app.userEmail)
+
+    console.log(userFullName); 
+    console.log(userEmail);
+
     return (
         <View>
             <Text style={style.componentTitle}>Profile</Text>
@@ -20,19 +26,19 @@ const Profile = () => {
                     </View>
 
                     <View style={style.userContainer}>
-                        <Text 
+                        <Text
                             style={style.userName}
                             numberOfLines={1}
                             ellipsizeMode="tail"
                         >
-                            Khageswar Maharana
+                            {userFullName}
                         </Text>
                         <Text
                             style={style.userEmail}
                             numberOfLines={1}
                             ellipsizeMode="tail"
                         >
-                            khageswarmaharana462@gmail.com
+                            {userEmail}
                         </Text>
                         <View style={style.userAchievement}>
                             <EvilIcons name='trophy' style={style.trophy} />

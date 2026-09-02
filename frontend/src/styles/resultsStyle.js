@@ -184,6 +184,7 @@ const resultStyles = (theme) => StyleSheet.create({
         borderRadius: 5,
         borderWidth: 1, 
         borderColor: theme.border,
+        paddingHorizontal: 5
     },
     titleIcon:{
         fontSize: 20,

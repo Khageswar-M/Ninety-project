@@ -1,23 +1,55 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useSettingStyles } from '../../hook/useThemeStyles';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Feather, Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { Feather } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import SubPages from '../common/SubPages';
+import { storage } from '../../utils/storage';
+import { updateUserName } from '../../API/settings/settingsApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserName } from '../../redux/slices/appSlice';
 
 const EditProfile = () => {
   const style = useSettingStyles();
+  const dispatch = useDispatch();
 
   const [editName, setEditName] = useState(false);
-  const [userName, setUserName] = useState("Khageswar Maharana");
-  const [userEmail, setUserEmail] = useState("khageswarmaharana462@gmail.com");
+  const userName = useSelector((state) => state.app.userName);
+  const userEmail = useSelector((state) => state.app.userEmail)
+
+  const [newUserName, setNewUserName] = useState(userName);
+  const [loading, setLoading] = useState(false);
+
+
+  const handleUpdate = async () => {
+
+    if(loading) return;
+
+    setLoading(true);
+
+    try{
+      const response = await updateUserName(newUserName);
+
+      if(response?.data?.success){
+
+        const responseData = response.data.data;
+        const updatedName = responseData.value;
+        console.log("updatedName", updatedName);
+        dispatch(setUserName(updatedName));
+
+        const cachedUser = await storage.get("@ninety_user");
+        cachedUser.fullName = userName;
+
+        await storage.set("@ninety_user", cachedUser);
+      }
+    }catch(e){
+      console.log(e);
+    }finally{
+      setLoading(false);
+    }
+  }
 
   const handleCancel = () => {
     setEditName(false);
-  }
-
-  const handleUpdate = () => {
-    setUserName(userName);
   }
 
   const buttons = [
@@ -27,7 +59,7 @@ const EditProfile = () => {
       bg: '#a41616'
     },
     {
-      title: "Update",
+      title: loading ? "Updating..." : "Update",
       handleFunction: handleUpdate,
       bg: '#16a418'
     },
@@ -44,8 +76,8 @@ const EditProfile = () => {
 
             <TextInput
               editable={editName}
-              value={userName}
-              onChangeText={(text) => setUserName(text)}
+              value={newUserName}
+              onChangeText={(text) => setNewUserName(text)}
               style={editName ? style.editNameInputActive : style.editNameInputInactive}
             />
 

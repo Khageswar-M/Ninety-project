@@ -31,3 +31,10 @@ export const updateTheme = async (newTheme) => {
     const response = await api.put(SETTING_URL + `/theme/${newTheme}`);
     return response;
 }
+
+export const updateUserName = async (newName) => {
+    const response = await api.put(SETTING_URL + `/user-name`,{
+        newName
+    });
+    return response;
+}
