@@ -1,15 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 
 import { aiCoachSuggestion } from '../../API/AiCoach/aiCoachApi';
 import { useResultStyles } from '../../hook/useThemeStyles';
 import { storage } from '../../utils/storage';
+import { mockCoachData } from '../../utils/MockCoachData';
+import LottieView from 'lottie-react-native';
+import GeminiGif from '../../../assets/icons/gemini-looping.json';
+import GeminiIcon from '../../../assets/icons/google-gemini.png'
 
 const STATUS_CONFIG = {
-    COMPLETE: { label: 'Complete', bg: '#E6F7EC', text: '#1E8E4E', dot: '#2ECC71' },
-    PROGRESS: { label: 'In Progress', bg: '#FFF4E5', text: '#B7791F', dot: '#F5A623' },
-    PENDING: { label: 'Pending', bg: '#FDECEC', text: '#C0392B', dot: '#E74C3C' },
+    COMPLETE: { label: 'Complete', bg: '#ff8000', text: '#fff', dot: '#2ECC71' },
+    PROGRESS: { label: 'In Progress', bg: '#c36100', text: '#fff', dot: '#F5A623' },
+    PENDING: { label: 'Pending', bg: "#753a00", text: '#fff', dot: '#E74C3C' },
 };
 
 const getStatusConfig = (status) =>
@@ -61,13 +65,13 @@ const AICoach = ({ refreshKey }) => {
     const fetchCoachData = useCallback(async () => {
         setLoading(true);
         setError(null);
-        try {
 
-            // Check cached data
+        try {
+            // 1. Check cached data
             const cachedData = await storage.get(COACH_DATA_KEY);
 
             if (cachedData) {
-                const isValid = Date.now() >= cachedData.expiredAt;
+                const isValid = Date.now() < cachedData.expiredAt;
 
                 if (isValid) {
                     console.log("Using AI coach data from storage");
@@ -82,32 +86,20 @@ const AICoach = ({ refreshKey }) => {
                 await storage.remove(COACH_DATA_KEY);
             }
 
+            // 2. Use mock data
+            const newCoachData = mockCoachData;
 
-            const response = await aiCoachSuggestion();
-            console.log(response);
-            const payload = response?.data?.data;
+            console.log("Using mock AI coach data:", newCoachData);
 
-            if (!payload) {
-                throw new Error('Empty response from AI coach');
-            }
+            // 3. Update UI
+            setCoachData(newCoachData);
 
-            const { activities = [], goals = [], user } = payload.data || {};
-            const { message, quote, author } = parseAiMessage(payload.aiMessage);
-
-            setCoachData({
-                userName: user?.name || '',
-                activities,
-                goals,
-                message,
-                quote,
-                author,
+            // 4. Cache response for 12 hours
+            await storage.set(COACH_DATA_KEY, {
+                data: newCoachData,
+                expiredAt: Date.now() + CACHE_DURATION,
             });
 
-            //3. Store response + time stamp
-            await storage.set(COACH_DATA_KEY, {
-                data: coachData,
-                expiredAt: Date.now() + CACHE_DURATION
-            })
         } catch (err) {
             setError(
                 err?.response?.data?.message ||
@@ -127,35 +119,50 @@ const AICoach = ({ refreshKey }) => {
         <View>
             <Text style={style.componentTitle}>AICoach</Text>
 
-            <View style={[style.aiCoachContainer, localStyles.container]}>
+            <View style={[style.aiCoachContainer, style.aiContainer]}>
                 {/* Header */}
                 <View style={style.aiCoachHeader}>
+                    <Image
+                        source={GeminiIcon}
+                        style={{
+                            height: 30,
+                            width: 30
+                        }}
+                        resizeMode='contain'
+                    />
                     <Text style={style.aiCoachHeaderTitle}>
-                        <Ionicons name="sparkles-sharp" style={style.titleIcon} />{' '}
+                        {/* <Ionicons name="sparkles-sharp" style={style.titleIcon} />{' '} */}
                         Today's Insights
                     </Text>
                 </View>
 
                 {/* Loading state */}
                 {loading && (
-                    <View style={localStyles.centerBox}>
-                        <ActivityIndicator size="small" color="#F5A623" />
-                        <Text style={localStyles.loadingText}>Fetching your insights...</Text>
+                    <View style={style.centerBox}>
+                        <LottieView
+                            source={GeminiGif}
+                            autoPlay
+                            loop={true}
+                            style={{height: 150, width: 150}}
+                        />
+                        <Text style={style.loadingText}>
+                            Generating your insights.....
+                        </Text>
                     </View>
                 )}
 
                 {/* Error state */}
                 {!loading && error && (
-                    <View style={localStyles.centerBox}>
+                    <View style={style.centerBox}>
                         <Ionicons name="alert-circle-outline" size={22} color="#C0392B" />
-                        <Text style={localStyles.errorText}>{error}</Text>
+                        <Text style={style.errorText}>{error}</Text>
                         <TouchableOpacity
-                            style={localStyles.retryBtn}
+                            style={style.retryBtn}
                             activeOpacity={0.7}
                             onPress={fetchCoachData}
                         >
                             <Ionicons name="refresh" size={16} color="#fff" />
-                            <Text style={localStyles.retryText}>Retry</Text>
+                            <Text style={style.retryText}>Retry</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -165,20 +172,20 @@ const AICoach = ({ refreshKey }) => {
                     <View>
                         {/* Activities */}
                         {coachData.activities.length > 0 && (
-                            <View style={localStyles.section}>
-                                <Text style={localStyles.sectionTitle}>Recent Activities</Text>
+                            <View style={style.section}>
+                                <Text style={style.sectionTitle}>Recent Activities</Text>
                                 {coachData.activities.map((dayEntry) => (
-                                    <View key={`day-${dayEntry.day}`} style={localStyles.dayBlock}>
-                                        <Text style={localStyles.dayLabel}>
+                                    <View key={`day-${dayEntry.day}`} style={style.dayBlock}>
+                                        <Text style={style.dayLabel}>
                                             {formatDayLabel(dayEntry.day)}
                                         </Text>
-                                        <View style={localStyles.chipWrap}>
+                                        <View style={style.chipWrap}>
                                             {(dayEntry.activities || []).map((activity, idx) => (
                                                 <View
                                                     key={`activity-${dayEntry.day}-${idx}`}
-                                                    style={localStyles.activityChip}
+                                                    style={style.activityChip}
                                                 >
-                                                    <Text style={localStyles.activityChipText}>
+                                                    <Text style={style.activityChipText}>
                                                         {activity}
                                                     </Text>
                                                 </View>
@@ -191,56 +198,65 @@ const AICoach = ({ refreshKey }) => {
 
                         {/* Goals */}
                         {coachData.goals.length > 0 && (
-                            <View style={localStyles.section}>
-                                <Text style={localStyles.sectionTitle}>Goals</Text>
-                                <View style={localStyles.chipWrap}>
-                                    {coachData.goals.map((goal, idx) => {
-                                        const cfg = getStatusConfig(goal.status);
-                                        return (
-                                            <View
-                                                key={`goal-${idx}`}
-                                                style={[
-                                                    localStyles.goalChip,
-                                                    { backgroundColor: cfg.bg },
-                                                ]}
-                                            >
+                            <View style={style.section}>
+                                <Text style={style.sectionTitle}>Goals</Text>
+                                <View style={style.chipWrap}>
+                                    {[...coachData.goals]
+                                        .sort((a, b) => {
+                                            const priority = {
+                                                PENDING: 1,
+                                                PROGRESS: 2,
+                                                COMPLETE: 3,
+                                            };
+
+                                            return priority[a.status] - priority[b.status];
+                                        })
+                                        .map((goal, idx) => {
+                                            const cfg = getStatusConfig(goal.status);
+                                            console.log("CFG", cfg)
+                                            return (
                                                 <View
+                                                    key={`goal-${idx}`}
                                                     style={[
-                                                        localStyles.goalDot,
-                                                        { backgroundColor: cfg.dot },
-                                                    ]}
-                                                />
-                                                <Text
-                                                    style={[
-                                                        localStyles.goalChipText,
-                                                        { color: cfg.text },
+                                                        style.goalChip,
+                                                        { backgroundColor: cfg.bg },
                                                     ]}
                                                 >
-                                                    {goal.name}
-                                                </Text>
-                                            </View>
-                                        );
-                                    })}
+                                                    <Text
+                                                        style={[
+                                                            style.goalChipText,
+                                                            { color: cfg.text },
+                                                            cfg.label === 'Complete' && {
+                                                                textDecorationLine: "line-through"
+                                                            }
+                                                        ]}
+                                                    >
+                                                        {goal.name}
+                                                    </Text>
+                                                </View>
+                                            );
+                                        })}
                                 </View>
                             </View>
                         )}
 
                         {/* Motivational message */}
                         {coachData.message ? (
-                            <View style={localStyles.section}>
-                                <Text style={localStyles.messageText}>{coachData.message}</Text>
+                            <View style={style.section}>
+                                <Text style={style.messageText}>{coachData.message}</Text>
                             </View>
                         ) : null}
 
                         {/* Quote box */}
                         {coachData.quote ? (
-                            <View style={localStyles.quoteBox}>
-                                <Text style={localStyles.quoteText}>"{coachData.quote}"</Text>
+                            <View style={style.quoteBox}>
+                                <Text style={style.quoteText}>"{coachData.quote}"</Text>
                                 {coachData.author ? (
-                                    <Text style={localStyles.quoteAuthor}>— {coachData.author}</Text>
+                                    <Text style={style.quoteAuthor}>— {coachData.author}</Text>
                                 ) : null}
                             </View>
                         ) : null}
+
                     </View>
                 )}
 
@@ -251,8 +267,8 @@ const AICoach = ({ refreshKey }) => {
                     coachData.activities.length === 0 &&
                     coachData.goals.length === 0 &&
                     !coachData.message && (
-                        <View style={localStyles.centerBox}>
-                            <Text style={localStyles.emptyText}>
+                        <View style={style.centerBox}>
+                            <Text style={style.emptyText}>
                                 No insights yet — check in on your challenge to get started.
                             </Text>
                         </View>
@@ -261,124 +277,5 @@ const AICoach = ({ refreshKey }) => {
         </View>
     );
 };
-
-const localStyles = StyleSheet.create({
-    container: {
-        paddingBottom: 4,
-    },
-    centerBox: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 24,
-        gap: 8,
-    },
-    loadingText: {
-        fontSize: 13,
-        color: '#888',
-    },
-    errorText: {
-        fontSize: 13,
-        color: '#C0392B',
-        textAlign: 'center',
-        paddingHorizontal: 16,
-    },
-    retryBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        backgroundColor: '#F5A623',
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginTop: 4,
-    },
-    retryText: {
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    section: {
-        marginTop: 16,
-    },
-    sectionTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#333',
-        marginBottom: 8,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    dayBlock: {
-        marginBottom: 10,
-    },
-    dayLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#B7791F',
-        marginBottom: 4,
-    },
-    chipWrap: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    activityChip: {
-        backgroundColor: '#FFF1DE',
-        borderWidth: 1,
-        borderColor: '#ff9d00',
-        borderRadius: 16,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-    },
-    activityChipText: {
-        fontSize: 12,
-        color: '#8A4B08',
-        fontWeight: '500',
-    },
-    goalChip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 16,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        gap: 6,
-    },
-    goalDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-    },
-    goalChipText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    messageText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: '#333',
-    },
-    quoteBox: {
-        marginTop: 12,
-        backgroundColor: '#FFF8EF',
-        borderLeftWidth: 4,
-        borderLeftColor: '#F5A623',
-        borderRadius: 8,
-        paddingVertical: 10,
-        paddingHorizontal: 14,
-    },
-    quoteText: {
-        fontSize: 13,
-        fontStyle: 'italic',
-        color: '#5A4632',
-        lineHeight: 19,
-    },
-    quoteAuthor: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#B7791F',
-        marginTop: 6,
-        textAlign: 'right',
-    },
-});
 
 export default AICoach;

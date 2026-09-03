@@ -18,7 +18,7 @@ import { createGoal, getAllGoals, updateGoal, updateGoalStatus } from '../../API
 const PROGRESS = [
     {
         title: "PENDING",
-        color: "#753a00",
+        color: "#753a00", 
         iconName: "play"
     }, {
         title: "PROGRESS",
