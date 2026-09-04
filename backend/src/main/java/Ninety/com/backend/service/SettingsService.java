@@ -1,5 +1,6 @@
 package Ninety.com.backend.service;
 
+import Ninety.com.backend.io.request.ExpoNotificationTokenRequest;
 import Ninety.com.backend.io.request.UpdateUserNameRequest;
 import Ninety.com.backend.io.response.SettingsResponse;
 import Ninety.com.backend.io.response.SettingsSingleResponse;
@@ -20,4 +21,6 @@ public interface SettingsService {
     SettingsSingleResponse updateTheme(Theme theme);
 
     SettingsSingleResponse updateUserName(UpdateUserNameRequest request);
+
+    void addExpoPushNotificationToken(ExpoNotificationTokenRequest request);
 }

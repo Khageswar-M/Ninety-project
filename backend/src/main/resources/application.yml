@@ -82,6 +82,8 @@ app:
     grid-rows: 9
     grid-cols: 10
 
+  firebase-configuration-file: firebase/firebase-service-account.json
+
 resend:
   api-key: ${RESEND_API_KEY}
   from-email: ${RESEND_FROM_EMAIL}

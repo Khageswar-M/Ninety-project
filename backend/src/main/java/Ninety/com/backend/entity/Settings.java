@@ -43,6 +43,15 @@ public class Settings {
     @Column(nullable = false)
     private Boolean milestoneAlert = true;
 
+    @Column(name = "expo_push_token" )
+    private String expoPushToken;
+
+    @Column(name = "platform")
+    private String platform;
+
+    @Builder.Default
+    private String timezone = "Asia/Kolkata";
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

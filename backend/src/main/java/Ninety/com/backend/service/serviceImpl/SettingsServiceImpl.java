@@ -1,5 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
+import Ninety.com.backend.io.request.ExpoNotificationTokenRequest;
 import Ninety.com.backend.io.request.UpdateUserNameRequest;
 import Ninety.com.backend.io.response.SettingsResponse;
 import Ninety.com.backend.io.response.SettingsSingleResponse;
@@ -93,6 +94,18 @@ public class SettingsServiceImpl implements SettingsService {
                 .settingName("User full name")
                 .value(updatedUser.getFullName())
                 .build();
+    }
+
+    @Override
+    public void addExpoPushNotificationToken(ExpoNotificationTokenRequest request) {
+        User loggedUser = getLoggedInUser();
+
+        Settings settings = loggedUser.getSettings();
+
+        settings.setExpoPushToken(request.pushNotificationToken());
+        settings.setPlatform(request.devicePlatform());
+
+        settingsRepository.save(settings);
     }
 
     @Override

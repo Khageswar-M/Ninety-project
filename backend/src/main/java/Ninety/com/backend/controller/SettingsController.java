@@ -1,5 +1,6 @@
 package Ninety.com.backend.controller;
 
+import Ninety.com.backend.io.request.ExpoNotificationTokenRequest;
 import Ninety.com.backend.io.request.UpdateUserNameRequest;
 import Ninety.com.backend.io.response.ApiResponse;
 import Ninety.com.backend.io.response.SettingsResponse;
@@ -128,6 +129,21 @@ public class SettingsController {
                 ApiResponse.success(
                         "User name updated successfully",
                         response
+                )
+        );
+    }
+
+    @PutMapping("/expo-notification-token")
+    public ResponseEntity<ApiResponse> addExpoPushNotificationToken(
+            @Valid @RequestBody ExpoNotificationTokenRequest request
+            ){
+
+        settingsService.addExpoPushNotificationToken(request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Token added successfully.",
+                        null
                 )
         );
     }
