@@ -15,12 +15,15 @@ import { storage } from '../../utils/storage';
 import { getSettings, toggleAiCoachDigest, toggleDailyReminder, toggleMileStone, updateReminderTime } from '../../API/settings/settingsApi';
 import { setDarkTheme, setLightTheme } from '../../redux/slices/themeSlice';
 import { useColorScheme } from 'react-native';
+import { usePushNotifications } from '../../hook/usePushNotifications';
+import * as ExpoNotifications from "expo-notifications";
 
 
 const Notifications = () => {
     const style = useSettingStyles();
     const theme = useSelector((state) => state.theme.theme);
     const colorScheme = useColorScheme();
+    const { expoPushToken } = usePushNotifications();
 
     const STORAGE_KEY = {
         DAILY_REMAINDER: "dailyRemainder",
@@ -128,15 +131,28 @@ const Notifications = () => {
 
     const handleDailyRemainder = async () => {
         const value = !dailyRemainder;
-        dispatch(setDailyRemainder(value));
 
+
+        dispatch(setDailyRemainder(value));
         await storage.set(STORAGE_KEY.DAILY_REMAINDER, value);
 
-        enqueueRequest(
-            dailyReminderQueue,
-            () => toggleDailyReminder()
+        enqueueRequest(dailyReminderQueue, () =>
+            toggleDailyReminder()
         );
-    }
+
+        console.log("Expo push token: ", expoPushToken)
+
+        // if (value) {
+        //     await ExpoNotifications.scheduleNotificationAsync({
+        //         content: {
+        //             title: "Daily Reminder Set 🔥",
+        //             body: "This is a test — tap me to check navigation.",
+        //             data: { screen: "/(subScreens)/RattingPage", params: { source: "daily-reminder-test" } },
+        //         },
+        //         trigger: null,
+        //     });
+        // }
+    };
 
     const handleTimeChange = async (event, time) => {
         setShowTimePicker(false);
