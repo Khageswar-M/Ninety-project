@@ -1,6 +1,6 @@
 package Ninety.com.backend.service;
 
-import Ninety.com.backend.dto.response.ChallengeResponse;
+import Ninety.com.backend.io.response.ChallengeResponse;
 
 import java.util.List;
 
@@ -14,4 +14,5 @@ public interface ChallengeService {
     int getMyCurrentStreakDay(Long challengeId);
 
     void computeStreakCounts(Long challengeId);
+
 }

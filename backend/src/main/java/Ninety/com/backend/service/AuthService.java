@@ -1,10 +1,9 @@
 package Ninety.com.backend.service;
 
-import Ninety.com.backend.dto.request.LoginRequest;
-import Ninety.com.backend.dto.request.RegisterRequest;
-import Ninety.com.backend.dto.request.UpdatePasswordRequest;
-import Ninety.com.backend.dto.request.UserExistsRequest;
-import Ninety.com.backend.dto.response.LoginResponse;
+import Ninety.com.backend.io.request.LoginRequest;
+import Ninety.com.backend.io.request.RegisterRequest;
+import Ninety.com.backend.io.request.UpdatePasswordRequest;
+import Ninety.com.backend.io.response.LoginResponse;
 
 public interface AuthService {
     void register(RegisterRequest request);
@@ -17,6 +16,5 @@ public interface AuthService {
 
     void updatePassword(UpdatePasswordRequest request);
 
-    void updateFullName(String newName);
 
 }

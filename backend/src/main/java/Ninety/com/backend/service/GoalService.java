@@ -1,7 +1,7 @@
 package Ninety.com.backend.service;
 
 
-import Ninety.com.backend.dto.response.GoalResponse;
+import Ninety.com.backend.io.response.GoalResponse;
 import Ninety.com.backend.entity.GoalStatus;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package Ninety.com.backend.dto.response;
+package Ninety.com.backend.io.response;
 
 import lombok.Builder;
 
@@ -9,8 +9,6 @@ public record SettingsResponse(
         String reminderTime,
         boolean aiCoachDigest,
         boolean mileStoneAlert,
-        String theme,
-        String createdAt,
-        String updated
+        String theme
 ) {
 }

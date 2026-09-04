@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import { EvilIcons, Feather, Ionicons, Octicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Switch } from 'react-native-switch';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -12,11 +12,18 @@ import {
 } from '../../redux/slices/notificationSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { storage } from '../../utils/storage';
+import { getSettings, toggleAiCoachDigest, toggleDailyReminder, toggleMileStone, updateReminderTime } from '../../API/settings/settingsApi';
+import { setDarkTheme, setLightTheme } from '../../redux/slices/themeSlice';
+import { useColorScheme } from 'react-native';
+import { usePushNotifications } from '../../hook/usePushNotifications';
+import * as ExpoNotifications from "expo-notifications";
 
 
 const Notifications = () => {
     const style = useSettingStyles();
     const theme = useSelector((state) => state.theme.theme);
+    const colorScheme = useColorScheme();
+    const { expoPushToken } = usePushNotifications();
 
     const STORAGE_KEY = {
         DAILY_REMAINDER: "dailyRemainder",
@@ -44,6 +51,7 @@ const Notifications = () => {
                 const date = new Date(remainderTime);
                 dispatch(setRemainderTime(remainderTime));
                 setSelectedTime(date);
+                console.log(remainderTime)
             }
 
             if (aiCoach != null) {
@@ -52,6 +60,43 @@ const Notifications = () => {
 
             if (mileStone != null) {
                 dispatch(setMilestoneAlerts(mileStone));
+            }
+
+            const response = await getSettings();
+            const responseData = response?.data?.data;
+            console.log(responseData)
+            if (responseData) {
+
+                // check for Daily Reminder
+                if (dailyRemainder !== responseData.dailyRemainder) {
+                    dispatch(setDailyRemainder(responseData.dailyRemainder))
+                }
+
+                // check for Reminder time
+                if (remainderTime !== responseData.reminderTime) {
+                    dispatch(setRemainderTime(responseData.reminderTime));
+                }
+
+                // check for AI Coach Digest
+                if (aiCoach !== responseData.aiCoachDigest) {
+                    dispatch(setAiCoachDigest(responseData.aiCoachDigest))
+                }
+
+                // check for Mile stone alerts
+                if (mileStone !== responseData.mileStoneAlert) {
+                    dispatch(setMilestoneAlerts(responseData.mileStoneAlert));
+                }
+
+                // check for theme
+                if (responseData.theme === 'DARK') {
+                    dispatch(setDarkTheme());
+                } else if (responseData.theme === 'LIGHT') {
+                    dispatch(setLightTheme())
+                } else {
+                    colorScheme === "dark"
+                        ? dispatch(setDarkTheme())
+                        : dispatch(setLightTheme());
+                }
             }
         } catch (error) {
             console.error(error);
@@ -69,15 +114,45 @@ const Notifications = () => {
 
 
     const [showTimePicker, setShowTimePicker] = useState(false);
-
     const [selectedTime, setSelectedTime] = useState(new Date());
+
+    const dailyReminderQueue = useRef(Promise.resolve());
+    const reminderTimeQueue = useRef(Promise.resolve());
+    const aiCoachQueue = useRef(Promise.resolve());
+    const milestoneQueue = useRef(Promise.resolve());
+
+    const enqueueRequest = (queue, apiCall) => {
+        queue.current = queue.current
+            .catch(() => { })
+            .then(() => apiCall());
+
+        return queue.current;
+    }
 
     const handleDailyRemainder = async () => {
         const value = !dailyRemainder;
-        dispatch(setDailyRemainder(value));
 
+
+        dispatch(setDailyRemainder(value));
         await storage.set(STORAGE_KEY.DAILY_REMAINDER, value);
-    }
+
+        enqueueRequest(dailyReminderQueue, () =>
+            toggleDailyReminder()
+        );
+
+        console.log("Expo push token: ", expoPushToken)
+
+        // if (value) {
+        //     await ExpoNotifications.scheduleNotificationAsync({
+        //         content: {
+        //             title: "Daily Reminder Set 🔥",
+        //             body: "This is a test — tap me to check navigation.",
+        //             data: { screen: "/(subScreens)/RattingPage", params: { source: "daily-reminder-test" } },
+        //         },
+        //         trigger: null,
+        //     });
+        // }
+    };
 
     const handleTimeChange = async (event, time) => {
         setShowTimePicker(false);
@@ -87,10 +162,16 @@ const Notifications = () => {
         setSelectedTime(time);
 
         dispatch(setRemainderTime(time.toISOString()));
+        console.log(time.toISOString());
 
         await storage.set(
             STORAGE_KEY.REMAINDER_TIME,
             time.toISOString()
+        );
+
+        enqueueRequest(
+            reminderTimeQueue,
+            () => updateReminderTime(time.toISOString())
         );
     };
 
@@ -99,6 +180,11 @@ const Notifications = () => {
         dispatch(setAiCoachDigest(value));
 
         await storage.set(STORAGE_KEY.AI_COACH, value);
+
+        enqueueRequest(
+            aiCoachQueue,
+            () => toggleAiCoachDigest()
+        );
     }
 
     const handleMileStone = async () => {
@@ -106,12 +192,17 @@ const Notifications = () => {
         dispatch(setMilestoneAlerts(value));
 
         await storage.set(STORAGE_KEY.MILESTONE, value);
+
+        enqueueRequest(
+            milestoneQueue,
+            () => toggleMileStone()
+        );
     }
 
     const tabItems = [
         {
             id: 'daily-remainder',
-            title: "Daily remainder",
+            title: "Daily reminder",
             desc: "Check in everyday",
             toggleBtn: true,
             Icon: Ionicons,
@@ -121,7 +212,7 @@ const Notifications = () => {
         },
         {
             id: 'remainder-time',
-            title: "Remainder time",
+            title: "Reminder time",
             desc: "When to notify you",
             toggleBtn: false,
             Icon: Octicons,

@@ -1,11 +1,16 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.response.ApiResponse;
-import Ninety.com.backend.dto.response.SettingsResponse;
-import Ninety.com.backend.dto.response.SettingsSingleResponse;
+import Ninety.com.backend.io.request.ExpoNotificationTokenRequest;
+import Ninety.com.backend.io.request.UpdateUserNameRequest;
+import Ninety.com.backend.io.response.ApiResponse;
+import Ninety.com.backend.io.response.SettingsResponse;
+import Ninety.com.backend.io.response.SettingsSingleResponse;
+import Ninety.com.backend.entity.Theme;
 import Ninety.com.backend.service.SettingsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +36,7 @@ public class SettingsController {
                 );
     }
 
-    @PutMapping("/daily-reminder")
+    @PutMapping("/toggle-daily-reminder")
     public ResponseEntity<ApiResponse> toggleDailyRemainder(){
         SettingsSingleResponse response = settingsService.toggleDailyRemainder();
 
@@ -58,6 +63,89 @@ public class SettingsController {
                                 response
                         )
                 );
+    }
+
+    @PutMapping("/toggle-ai-coach")
+    public ResponseEntity<ApiResponse> toggleAiCoach(){
+        SettingsSingleResponse response =
+                settingsService.toggleAiCoachDigest();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Ai digest toggled successfully.",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/toggle-mile-stone")
+    public ResponseEntity<ApiResponse> toggleMileStone(){
+        SettingsSingleResponse response =
+                settingsService.toggleMileStoneAlerts();
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Mile stone alert toggled",
+                                        response
+                        )
+                );
+    }
+
+    @PutMapping("/theme/{themeName}")
+    public ResponseEntity<ApiResponse> updateTheme(
+             @PathVariable Theme themeName
+            ){
+
+        SettingsSingleResponse response = settingsService.updateTheme(themeName);
+
+        return ResponseEntity.ok()
+                .body(
+                        ApiResponse.success(
+                                "Theme updated",
+                                response
+                        )
+                );
+    }
+
+    @PutMapping("/user-name")
+    public ResponseEntity<ApiResponse> updateUserName(
+            @Valid @RequestBody UpdateUserNameRequest request
+            ){
+        SettingsSingleResponse response = settingsService.updateUserName(request);
+
+        if(response == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ApiResponse.failure(
+                                    "Trying to update same name",
+                                    null
+                            )
+                    );
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "User name updated successfully",
+                        response
+                )
+        );
+    }
+
+    @PutMapping("/expo-notification-token")
+    public ResponseEntity<ApiResponse> addExpoPushNotificationToken(
+            @Valid @RequestBody ExpoNotificationTokenRequest request
+            ){
+
+        settingsService.addExpoPushNotificationToken(request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Token added successfully.",
+                        null
+                )
+        );
     }
 
 }

@@ -33,7 +33,7 @@ public class Settings {
 
     @Builder.Default
     @Column(nullable = false)
-    private LocalTime reminderTime = LocalTime.of(12, 0);
+    private String reminderTime = "2026-08-31T15:30:00.000Z";
 
     @Builder.Default
     @Column(nullable = false)
@@ -42,6 +42,15 @@ public class Settings {
     @Builder.Default
     @Column(nullable = false)
     private Boolean milestoneAlert = true;
+
+    @Column(name = "expo_push_token" )
+    private String expoPushToken;
+
+    @Column(name = "platform")
+    private String platform;
+
+    @Builder.Default
+    private String timezone = "Asia/Kolkata";
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

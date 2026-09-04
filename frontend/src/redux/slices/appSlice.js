@@ -5,11 +5,9 @@ const initialState = {
     dayGrid: [],
     gridId: 0,
     currentDay: 0,
-    // completedCount: 0,
-    // missedDaysCount: 0, 
-    // currentStreak: 0,
-    // successRate: 0,
-    // bestStreak: 0
+    userName: "",
+    userEmail: "",
+    userId: ""
 }
 
 const appSlice = createSlice({
@@ -33,20 +31,14 @@ const appSlice = createSlice({
             state.currentDay =
                 action.payload.currentDay ?? 0;
 
-            // state.completedCount =
-            //     action.payload.completedCount ?? 0;
+            state.userName = 
+                action.payload.userName;
 
-            // state.missedDaysCount = 
-            //     action.payload.missedDaysCount ?? 0;
+            state.userEmail =
+                action.payload.userEmail;
 
-            // state.currentStreak = 
-            //     action.payload.currentStreak ?? 0;
-
-            // state.successRate = 
-            //     action.payload.successRate ?? 0;
-
-            // state.bestStreak =
-            //     action.payload.bestStreak ?? 0;
+            state.userId = 
+                action.payload.userId;
 
         },
 
@@ -66,25 +58,17 @@ const appSlice = createSlice({
             state.currentDay = action.payload;
         },
 
-        // setCompletedCount(state, action){
-        //     state.completedCount = action.payload;
-        // },
+        setUserName(state, action){
+            state.userName = action.payload;
+        },
 
-        // setMissedDaysCount(state, action){
-        //     state.missedDaysCount = action.payload;
-        // },
+        setUserEmail(state, action){
+            state.userEmail = action.payload;
+        },
 
-        // setCurrentStreak(state, action){
-        //     state.currentStreak = action.payload;
-        // },
-
-        // setSuccessRate(state, action){
-        //     state.successRate = action.payload;
-        // },
-
-        // setBestStreak(state, action){
-        //     this.setBestStreak = action.payload;
-        // },
+        setUserId(state, action){
+            state.userId = action.payload;
+        }
 
     },
 });
@@ -95,11 +79,9 @@ export const {
     setDayGrid,
     setGridId,
     setCurrentDay,
-    // setCompletedCount,
-    // setMissedDaysCount,
-    // setCurrentStreak,
-    // setSuccessRate,
-    // setBestStreak
+    setUserName,
+    setUserEmail,
+    setUserId
 } = appSlice.actions;
 
 export default appSlice.reducer;

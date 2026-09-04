@@ -301,7 +301,7 @@ const actionStyle = (theme) => StyleSheet.create({
         fontWeight: '600',
     },
     progressContainer:{
-        backgroundColor: theme.primary,
+        // backgroundColor: '#ff66009f',
         alignItems: 'center',
         paddingVertical: 5,
         marginTop: 10,

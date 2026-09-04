@@ -180,24 +180,25 @@ const resultStyles = (theme) => StyleSheet.create({
     },
     aiCoachContainer: {
         marginTop: 5,
-        backgroundColor: theme.backgroundMuted,
+        // backgroundColor: theme.backgroundMuted,
         borderRadius: 5,
-        borderWidth: 1, 
-        borderColor: theme.border,
+        // borderWidth: 1, 
+        // borderColor: theme.border,
+        paddingHorizontal: 5
     },
     titleIcon:{
         fontSize: 20,
         color: theme.primary
     },
     aiCoachHeader:{
-        gap: 5,
+        gap: 0,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderBottomColor: theme.border,
-        borderBottomWidth: 1,
+        // borderBottomColor: theme.border,
+        // borderBottomWidth: 1,
         paddingBottom: 5
     },
     aiCoachHeaderTitle:{
@@ -259,6 +260,120 @@ const resultStyles = (theme) => StyleSheet.create({
     quoteWriter:{
         color: theme.text,
         fontSize: 14
+    },
+
+    // AI COACH SECTION
+    sectionTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: theme.text,
+        marginBottom: 8,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    dayBlock: {
+        marginBottom: 10,
+    }, 
+    dayLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.textMuted,
+        marginBottom: 4,
+    },
+    activityChip: {
+        backgroundColor: theme.primary,
+        borderRadius: 16,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+    },
+    activityChipText: {
+        fontSize: 12,
+        color: theme.light,
+        fontWeight: '500',
+    },
+    chipWrap: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    goalChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 16,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        gap: 6,
+    },
+    goalChipText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    section: {
+        marginTop: 16,
+    },
+    messageText: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.text,
+    },
+    quoteBox: {
+        marginTop: 12,
+        backgroundColor: '#FFF8EF',
+        borderLeftWidth: 4,
+        borderLeftColor: '#F5A623',
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+    },
+    quoteText: {
+        fontSize: 13,
+        fontStyle: 'italic',
+        color: '#5A4632',
+        lineHeight: 19,
+    },
+    quoteAuthor: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#B7791F',
+        marginTop: 6,
+        textAlign: 'right',
+    },
+    centerBox: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 24,
+        gap: 8,
+    },
+    aiContainer: {
+        paddingBottom: 4,
+    },
+    loadingText: {
+        fontSize: 13,
+        color: '#888',
+    },
+    errorText: {
+        fontSize: 13,
+        color: '#C0392B',
+        textAlign: 'center',
+        paddingHorizontal: 16,
+    },
+    retryBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#F5A623',
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginTop: 4,
+    },
+    retryText: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    emptyText:{
+        
     }
 
 })

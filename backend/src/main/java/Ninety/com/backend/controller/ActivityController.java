@@ -1,9 +1,9 @@
 package Ninety.com.backend.controller;
 
-import Ninety.com.backend.dto.request.ActivityUpdateRequest;
-import Ninety.com.backend.dto.request.CreateActivityRequest;
-import Ninety.com.backend.dto.response.ActivityResponse;
-import Ninety.com.backend.dto.response.ApiResponse;
+import Ninety.com.backend.io.request.ActivityUpdateRequest;
+import Ninety.com.backend.io.request.CreateActivityRequest;
+import Ninety.com.backend.io.response.ActivityResponse;
+import Ninety.com.backend.io.response.ApiResponse;
 import Ninety.com.backend.service.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

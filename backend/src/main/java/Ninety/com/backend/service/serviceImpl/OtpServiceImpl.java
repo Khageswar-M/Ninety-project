@@ -1,6 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.request.VerifyOtpRequest;
+import Ninety.com.backend.io.request.VerifyOtpRequest;
 import Ninety.com.backend.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

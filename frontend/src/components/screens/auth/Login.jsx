@@ -15,7 +15,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { storage } from "../../../utils/storage";
 import { useDispatch } from "react-redux";
 import { login } from "../../../API/auth/authApi";
-import { setLogin } from "../../../redux/slices/appSlice";
+import { setLogin, setUserName, setUserEmail, setUserId } from "../../../redux/slices/appSlice";
 
 const Login = () => {
   const styles = useAuthStyles();
@@ -95,6 +95,12 @@ const Login = () => {
           expiresIn,
           tokenExpiresAt
         };
+
+        dispatch(setUserId(user.id));
+        dispatch(setUserName(user.fullName));
+        dispatch(setUserEmail(user.email));
+
+
 
         await storage.set("@ninety_user", user);
 

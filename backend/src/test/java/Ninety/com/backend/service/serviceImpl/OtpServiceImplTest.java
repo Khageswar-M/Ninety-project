@@ -1,7 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.request.SendOtpRequest;
-import Ninety.com.backend.dto.request.VerifyOtpRequest;
+import Ninety.com.backend.io.request.VerifyOtpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class OtpServiceImplTest {

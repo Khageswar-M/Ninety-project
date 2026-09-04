@@ -1,5 +1,4 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native'
-import { useCallback, useState } from 'react'
+import { View, ScrollView } from 'react-native'
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import Header from '../settings/Header'
 import Profile from '../settings/Profile'
@@ -11,31 +10,13 @@ import Logout from '../settings/Logout'
 
 const Settings = () => {
   const style = useSettingStyles();
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const[sheetVisible, setSheetVisible] = useState(true);
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-
-    try {
-      console.log('refreshing...');
-      setRefreshKey((prev) => prev + 1);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [])
+  
   return (
     <View style={style.container}>
       <ScrollView
         contentContainerStyle={style.containerContentStyle}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
       >
         {/* Header */}
         <View style={style.headerContainer}>

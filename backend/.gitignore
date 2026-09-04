@@ -53,3 +53,9 @@ Thumbs.db
 ### Temporary Files ###
 *.tmp
 *.swp
+
+### Firebase key ###
+firebase/
+*.json
+
+src/main/resources/firebase/service-account.json

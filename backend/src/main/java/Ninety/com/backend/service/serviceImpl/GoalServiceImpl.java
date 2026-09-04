@@ -1,6 +1,6 @@
 package Ninety.com.backend.service.serviceImpl;
 
-import Ninety.com.backend.dto.response.GoalResponse;
+import Ninety.com.backend.io.response.GoalResponse;
 import Ninety.com.backend.entity.Goal;
 import Ninety.com.backend.entity.GoalStatus;
 import Ninety.com.backend.entity.User;
