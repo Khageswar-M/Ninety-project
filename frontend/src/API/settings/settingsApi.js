@@ -38,3 +38,12 @@ export const updateUserName = async (newName) => {
     });
     return response;
 }
+
+export const addExpoPushNotificationToken = async (pushNotificationToken, devicePlatform) => {
+  const response = await api.put(SETTING_URL + "/expo-notification-token", {
+    pushNotificationToken,
+    devicePlatform,
+  });
+
+  return response;
+};

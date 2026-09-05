@@ -15,11 +15,11 @@ import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
 import { ThemeProvider, DefaultTheme, DarkTheme } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
-// import '../src/local_notifications/NotificationHandler'
 
 function AppNavigation() {
 
   const dispatch = useDispatch();
+
 
   const isDarkMode = useSelector((state) => state.theme.isDark);
   const isLoggedIn = useSelector((state) => state.app.isLogin);

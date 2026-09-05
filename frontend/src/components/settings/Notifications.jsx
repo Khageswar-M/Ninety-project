@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Platform, AppState } from 'react-native'
 import { useSettingStyles } from '../../hook/useThemeStyles'
 import { EvilIcons, Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
@@ -12,18 +12,21 @@ import {
 } from '../../redux/slices/notificationSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { storage } from '../../utils/storage';
-import { getSettings, toggleAiCoachDigest, toggleDailyReminder, toggleMileStone, updateReminderTime } from '../../API/settings/settingsApi';
+import { addExpoPushNotificationToken, getSettings, toggleAiCoachDigest, toggleDailyReminder, toggleMileStone, updateReminderTime } from '../../API/settings/settingsApi';
 import { setDarkTheme, setLightTheme } from '../../redux/slices/themeSlice';
 import { useColorScheme } from 'react-native';
+// import { usePushNotifications } from '../../hook/usePushNotifications';
 import { usePushNotifications } from '../../hook/usePushNotifications';
-import * as ExpoNotifications from "expo-notifications";
+// import * as ExpoNotifications from "expo-notifications";
+
+
 
 
 const Notifications = () => {
     const style = useSettingStyles();
     const theme = useSelector((state) => state.theme.theme);
     const colorScheme = useColorScheme();
-    const { expoPushToken } = usePushNotifications();
+    // const { expoPushToken } = usePushNotifications();
 
     const STORAGE_KEY = {
         DAILY_REMAINDER: "dailyRemainder",
@@ -113,6 +116,8 @@ const Notifications = () => {
     } = useSelector((state) => state.notification);
 
 
+
+
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [selectedTime, setSelectedTime] = useState(new Date());
 
@@ -129,30 +134,99 @@ const Notifications = () => {
         return queue.current;
     }
 
+
+    const {
+        expoPushToken,
+        permissionStatus,
+        checkPermissionStatus,
+        requestPermissionAndRegister,
+        openNotificationSettings,
+    } = usePushNotifications();
+
+    const pendingEnableRef = useRef(false);
+
+    const syncTokenToBackend = async (token) => {
+        if (!token) return;
+        try {
+            await addExpoPushNotificationToken(token, Platform.OS);
+        } catch (err) {
+            console.error("Failed to sync push token with backend:", err);
+        }
+    };
+
+    const completeEnable = async () => {
+        dispatch(setDailyRemainder(true));
+        await storage.set(STORAGE_KEY.DAILY_REMAINDER, true);
+        enqueueRequest(dailyReminderQueue, () => toggleDailyReminder());
+    };
+
     const handleDailyRemainder = async () => {
         const value = !dailyRemainder;
 
+        if (!value) {
+            // Turning OFF — no permission check needed
+            dispatch(setDailyRemainder(false));
+            await storage.set(STORAGE_KEY.DAILY_REMAINDER, false);
+            enqueueRequest(dailyReminderQueue, () => toggleDailyReminder());
+            return;
+        }
 
-        dispatch(setDailyRemainder(value));
-        await storage.set(STORAGE_KEY.DAILY_REMAINDER, value);
+        // Turning ON — verify real OS permission first
+        const status = await checkPermissionStatus();
 
-        enqueueRequest(dailyReminderQueue, () =>
-            toggleDailyReminder()
+        if (status === "granted") {
+            await syncTokenToBackend(expoPushToken);
+            await completeEnable();
+            return;
+        }
+
+        if (status === "undetermined") {
+            const { status: newStatus, token } = await requestPermissionAndRegister();
+
+            if (newStatus === "granted") {
+                await syncTokenToBackend(token);
+                await completeEnable();
+            } else {
+                Alert.alert(
+                    "Notifications not enabled",
+                    "You need to allow notifications to turn on daily reminders."
+                );
+            }
+            return; // toggle stays off
+        }
+
+        // status === "denied" — OS won't show a prompt again, must go to Settings
+        pendingEnableRef.current = true;
+        Alert.alert(
+            "Notifications are disabled",
+            "Please enable notifications for this app in your phone settings, then come back here.",
+            [
+                { text: "Cancel", style: "cancel", onPress: () => (pendingEnableRef.current = false) },
+                { text: "Open Settings", onPress: openNotificationSettings },
+            ]
         );
-
-        console.log("Expo push token: ", expoPushToken)
-
-        // if (value) {
-        //     await ExpoNotifications.scheduleNotificationAsync({
-        //         content: {
-        //             title: "Daily Reminder Set 🔥",
-        //             body: "This is a test — tap me to check navigation.",
-        //             data: { screen: "/(subScreens)/RattingPage", params: { source: "daily-reminder-test" } },
-        //         },
-        //         trigger: null,
-        //     });
-        // }
+        // toggle stays off until the user actually enables it and returns
     };
+
+    // Re-check permission when the app regains focus (i.e. user comes back from Settings)
+    useEffect(() => {
+        const subscription = AppState.addEventListener("change", async (nextState) => {
+            if (nextState !== "active" || !pendingEnableRef.current) return;
+
+            const status = await checkPermissionStatus();
+
+            if (status === "granted") {
+                pendingEnableRef.current = false;
+                const { token } = await requestPermissionAndRegister();
+                await syncTokenToBackend(token);
+                await completeEnable();
+            }
+            // if still denied, leave toggle off and pendingEnableRef stays true —
+            // user can try again next time they background/foreground the app
+        });
+
+        return () => subscription.remove();
+    }, []);
 
     const handleTimeChange = async (event, time) => {
         setShowTimePicker(false);
