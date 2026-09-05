@@ -1,8 +1,10 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Actions from '../../src/components/screens/Actions.jsx'
-import Results from '../../src/components/screens/Results.jsx'
-import Settings from '../../src/components/screens/Settings.jsx'
+
+import ActionsScreen from './ActionsScreen.jsx'
+import ResultsScreen from './ResultsScreen.jsx'
+import SettingsScreen from './SettingsScreen.jsx'
+
 import { useSelector } from 'react-redux'
 import { Fonts } from '../../src/constants/Fonts.js'
 import { Feather } from '@expo/vector-icons'
@@ -42,7 +44,7 @@ const _layout = () => {
                 >
                     <Tab.Screen
                         name='Actions'
-                        component={Actions}
+                        component={ActionsScreen}
                         options={{
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather
@@ -56,7 +58,7 @@ const _layout = () => {
 
                     <Tab.Screen
                         name='Results'
-                        component={Results}
+                        component={ResultsScreen}
                         options={{
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather
@@ -70,7 +72,7 @@ const _layout = () => {
 
                     <Tab.Screen
                         name='Settings'
-                        component={Settings}
+                        component={SettingsScreen}
                         options={{
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather

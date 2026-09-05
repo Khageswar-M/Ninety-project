@@ -24,8 +24,9 @@ const getStatusConfig = (status) =>
         dot: '#999',
     };
 
-// aiMessage looks like:
+// Parses just the aiMessage STRING, e.g.:
 // 'Khageswar, you built ...momentum...\n"Success is the sum..." - Robert Collier'
+// Returns { message, quote, author }
 const parseAiMessage = (aiMessage) => {
     if (!aiMessage || typeof aiMessage !== 'string') {
         return { message: '', quote: '', author: '' };
@@ -48,9 +49,31 @@ const parseAiMessage = (aiMessage) => {
     return { message, quote: quoteLine, author: '' };
 };
 
+// Normalizes the FULL API envelope into the flat shape the UI expects.
+// raw looks like:
+// { success, message, data: { data: { challenge, activities, goals, user }, aiMessage }, timestamp }
+const normalizeCoachData = (raw) => {
+    const inner = raw?.data?.data || {};
+    const aiMessage = raw?.data?.aiMessage;
+
+    const { message, quote, author } = parseAiMessage(aiMessage);
+
+    return {
+        challenge: inner.challenge || [],
+        activities: inner.activities || [],
+        goals: inner.goals || [],
+        user: inner.user || null,
+        message,
+        quote,
+        author,
+    };
+};
+
+// Guards against a stale/bad cache entry (e.g. one written before this shape existed)
+const isValidCoachData = (d) =>
+    !!d && Array.isArray(d.activities) && Array.isArray(d.goals);
+
 const formatDayLabel = (day) => `Day ${day}`;
-
-
 
 const AICoach = ({ refreshKey }) => {
     const style = useResultStyles();
@@ -59,7 +82,7 @@ const AICoach = ({ refreshKey }) => {
     const [error, setError] = useState(null);
     const [coachData, setCoachData] = useState(null);
 
-    const COACH_DATA_KEY = 'AI_COACH_DATA';
+    const COACH_DATA_KEY = 'AI_COACH_DATA_V2'; // bumped: old key held the pre-normalized shape
     const CACHE_DURATION = 12 * 60 * 60 * 1000;
 
     const fetchCoachData = useCallback(async () => {
@@ -67,36 +90,32 @@ const AICoach = ({ refreshKey }) => {
         setError(null);
 
         try {
-            // 1. Check cached data
             const cachedData = await storage.get(COACH_DATA_KEY);
 
             if (cachedData) {
-                const isValid = Date.now() < cachedData.expiredAt;
+                const isFresh = Date.now() < cachedData.expiredAt;
 
-                if (isValid) {
+                if (isFresh && isValidCoachData(cachedData.data)) {
                     console.log("Using AI coach data from storage");
-
                     setCoachData(cachedData.data);
                     return;
                 }
 
-                // Cache expired
-                console.log("AI coach cache expired");
-
+                console.log("AI coach cache expired or invalid, refetching");
                 await storage.remove(COACH_DATA_KEY);
             }
 
-            // 2. Use mock data
-            const newCoachData = mockCoachData;
+            const rawResponse = await aiCoachSuggestion();
+            // aiCoachSuggestion() returns the axios response object —
+            // the actual API body (success/message/data/timestamp) is on .data
+            const newCoachData = normalizeCoachData(rawResponse.data);
 
-            console.log("Using mock AI coach data:", newCoachData);
+            console.log("Normalized AI coach data:", newCoachData);
 
-            // 3. Update UI
             setCoachData(newCoachData);
 
-            // 4. Cache response for 12 hours
             await storage.set(COACH_DATA_KEY, {
-                data: newCoachData,
+                data: newCoachData, // cache the normalized shape, not the raw envelope
                 expiredAt: Date.now() + CACHE_DURATION,
             });
 
@@ -131,7 +150,6 @@ const AICoach = ({ refreshKey }) => {
                         resizeMode='contain'
                     />
                     <Text style={style.aiCoachHeaderTitle}>
-                        {/* <Ionicons name="sparkles-sharp" style={style.titleIcon} />{' '} */}
                         Today's Insights
                     </Text>
                 </View>
@@ -143,7 +161,7 @@ const AICoach = ({ refreshKey }) => {
                             source={GeminiGif}
                             autoPlay
                             loop={true}
-                            style={{height: 150, width: 150}}
+                            style={{ height: 150, width: 150 }}
                         />
                         <Text style={style.loadingText}>
                             Generating your insights.....
@@ -171,7 +189,7 @@ const AICoach = ({ refreshKey }) => {
                 {!loading && !error && coachData && (
                     <View>
                         {/* Activities */}
-                        {coachData.activities.length > 0 && (
+                        {(coachData.activities || []).length > 0 && (
                             <View style={style.section}>
                                 <Text style={style.sectionTitle}>Recent Activities</Text>
                                 {coachData.activities.map((dayEntry) => (
@@ -197,7 +215,7 @@ const AICoach = ({ refreshKey }) => {
                         )}
 
                         {/* Goals */}
-                        {coachData.goals.length > 0 && (
+                        {(coachData.goals || []).length > 0 && (
                             <View style={style.section}>
                                 <Text style={style.sectionTitle}>Goals</Text>
                                 <View style={style.chipWrap}>
@@ -213,7 +231,6 @@ const AICoach = ({ refreshKey }) => {
                                         })
                                         .map((goal, idx) => {
                                             const cfg = getStatusConfig(goal.status);
-                                            console.log("CFG", cfg)
                                             return (
                                                 <View
                                                     key={`goal-${idx}`}
@@ -264,8 +281,8 @@ const AICoach = ({ refreshKey }) => {
                 {!loading &&
                     !error &&
                     coachData &&
-                    coachData.activities.length === 0 &&
-                    coachData.goals.length === 0 &&
+                    (coachData.activities || []).length === 0 &&
+                    (coachData.goals || []).length === 0 &&
                     !coachData.message && (
                         <View style={style.centerBox}>
                             <Text style={style.emptyText}>
