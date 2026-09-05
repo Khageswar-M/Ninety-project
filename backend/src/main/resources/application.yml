@@ -82,7 +82,11 @@ app:
     grid-rows: 9
     grid-cols: 10
 
-  firebase-configuration-file: firebase/firebase-service-account.json
+expo:
+  push:
+    send-url: "https://exp.host/--/api/v2/push/send"
+    receipt-url: "https://exp.host/--/api/v2/push/getReceipts"
+
 
 resend:
   api-key: ${RESEND_API_KEY}

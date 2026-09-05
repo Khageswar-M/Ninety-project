@@ -106,6 +106,7 @@ public class SettingsServiceImpl implements SettingsService {
         settings.setPlatform(request.devicePlatform());
 
         settingsRepository.save(settings);
+
     }
 
     @Override
