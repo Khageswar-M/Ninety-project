@@ -92,7 +92,7 @@ const AICoach = ({ refreshKey }) => {
         try {
             const cachedData = await storage.get(COACH_DATA_KEY);
 
-            if (cachedData) {
+            if (cachedData) { 
                 const isFresh = Date.now() < cachedData.expiredAt;
 
                 if (isFresh && isValidCoachData(cachedData.data)) {

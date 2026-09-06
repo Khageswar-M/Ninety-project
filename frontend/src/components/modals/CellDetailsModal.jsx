@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
-import { useActionStyles } from '../../hook/useThemeStyles';
 import {
     addActivity,
+    deleteActivity,
     getActivities,
     updateActivity,
-    deleteActivity,
 } from '../../API/challenge/activitiesApi';
-import { ActivityIndicator } from 'react-native';
+import { useActionStyles } from '../../hook/useThemeStyles';
 
 // Temp IDs are always prefixed so we can reliably tell "not yet persisted"
 // entries apart from real database IDs anywhere in the component.
@@ -101,23 +100,38 @@ const CellDetailsModal = ({
         onCancel?.();
     };
 
-    // const handleUpdateCellLocally = () => {
-    //     const index = dayNumber;
+    const markCurrentDayCompleted = useCallback(() => {
+        if (!Number.isInteger(currentDay) || currentDay < 1) {
+            return;
+        }
 
-    //     const row = Math.floor(index / 10);
-    //     const col = index % 10;
-    //     console.log("local cell updated")
+        // currentDay is 1-indexed,
+        // but the board row/column calculation is 0-indexed.
+        const cellIndex = currentDay - 1;
 
-    //     setActionBoard(prevBoard => {
-    //         const updatedBoard = prevBoard.map(row => [...row]);
+        const rowIndex = Math.floor(cellIndex / 10);
+        const colIndex = cellIndex % 10;
 
-    //         if (updatedBoard[row]?.[col] === false) {
-    //             updatedBoard[row][col] = true;
-    //         }
+        setActionBoard(prevBoard => {
+            if (
+                !Array.isArray(prevBoard) ||
+                !Array.isArray(prevBoard[rowIndex])
+            ) {
+                return prevBoard;
+            }
 
-    //         return updatedBoard;
-    //     });
-    // };
+            // Already completed — no state update needed.
+            if (prevBoard[rowIndex][colIndex] === true) {
+                return prevBoard;
+            }
+
+            const updatedBoard = prevBoard.map(row => [...row]);
+
+            updatedBoard[rowIndex][colIndex] = true;
+
+            return updatedBoard;
+        });
+    }, [currentDay, setActionBoard]);
 
     const handleSubmit = async () => {
         const trimmed = inputText.trim();
@@ -162,6 +176,10 @@ const CellDetailsModal = ({
                         )
                     );
                 }
+
+                // then update the grid locally
+                markCurrentDayCompleted();
+
             } catch (err) {
                 console.error('Failed to update activity:', err);
                 setEntries(previousEntries); // Rollback on failure

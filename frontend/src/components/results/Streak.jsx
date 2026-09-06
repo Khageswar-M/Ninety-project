@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useResultStyles } from '../../hook/useThemeStyles';
 
@@ -42,13 +42,13 @@ const Streak = ({ refreshKey }) => {
 
         // Current streak: consecutive completed days counting back from today
         let current = 0;
-
+        console.log(grid)
         for (let i = grid.length - 1; i >= 0; i--) {
-            if (Boolean(grid[i])) {
-                current++;
-            } else {
-                break;
-            }
+
+            if ((i === grid.length - 1) && !Boolean(grid[i])) continue;
+
+            if (Boolean(grid[i])) current++;
+            else break;
         }
 
         return {

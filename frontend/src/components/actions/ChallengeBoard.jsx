@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, Text, Animated, Pressable } from 'react-native';
-import { useActionStyles } from '../../hook/useThemeStyles';
-import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import CellDetailsModal from '../modals/CellDetailsModal';
-import { storage } from '../../utils/storage';
-import { getChallenges } from '../../API/challenge/challengesApi';
-import { router } from 'expo-router';
-import { setDayGrid, setCurrentDay, setGridId } from '../../redux/slices/appSlice';
 import LottieView from 'lottie-react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, Text, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Fetching from '../../../assets/icons/seeking-development.json';
+import { getChallenges } from '../../API/challenge/challengesApi';
+import { useActionStyles } from '../../hook/useThemeStyles';
+import { setCurrentDay, setDayGrid, setGridId } from '../../redux/slices/appSlice';
+import { storage } from '../../utils/storage';
+import CellDetailsModal from '../modals/CellDetailsModal';
 
 const COLS = 10;
 const toCellIndex = (rowIndex, collIndex) => (rowIndex * COLS) + collIndex; // 0-indexed
@@ -41,16 +40,17 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         try {
             const storedChallenge = await storage.get("@ninety_board");
 
+            // -----------------------------------------
+            // 1. Try today's cached challenge first
+            // -----------------------------------------
             if (storedChallenge) {
                 const now = new Date();
                 const expiredAt = new Date(storedChallenge.expired);
 
                 if (now < expiredAt) {
-                    // Local state
                     setCellChecked(storedChallenge.challengeBoard);
                     setLocalCurrentDay(storedChallenge.currentDay);
 
-                    // Redux
                     dispatch(
                         setGridId(storedChallenge.challengeId)
                     );
@@ -67,25 +67,64 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                 }
             }
 
+            // -----------------------------------------
+            // 2. Get logged-in user
+            // -----------------------------------------
             const user = await storage.get("@ninety_user");
 
-            if (!user) {
+
+            if (!user?.id) {
                 router.replace("(auth)/LoginPage");
                 return;
             }
 
-            const response = await getChallenges(user.id);
-            const challenge = response.data[0];
+            const id = user.id;
 
+            // -----------------------------------------
+            // 3. Fetch challenges from backend
+            // -----------------------------------------
+            const response = await getChallenges(id);
+
+            if (!response?.success) {
+                throw new Error(
+                    response?.message || "Failed to load challenges"
+                );
+            }
+
+            const challenges = response?.data || [];
+
+            // -----------------------------------------
+            // 4. Select the first incomplete challenge
+            // -----------------------------------------
+            const challenge = challenges.find(
+                challenge => !challenge.completed
+            );
+
+            // No incomplete challenge exists
             if (!challenge) {
+                console.log("No incomplete challenge found.");
+
+                setCellChecked(null);
+                setLocalCurrentDay(null);
+
+                dispatch(setGridId(null));
+                dispatch(setDayGrid(null));
+                dispatch(setCurrentDay(null));
+
                 return;
             }
 
-            // Local state
+            console.log("Still execute")
+
+            // -----------------------------------------
+            // 5. Local state
+            // -----------------------------------------
             setCellChecked(challenge.dayGrid);
             setLocalCurrentDay(challenge.currentDay);
 
-            // Redux
+            // -----------------------------------------
+            // 6. Redux state
+            // -----------------------------------------
             dispatch(
                 setGridId(challenge.id)
             );
@@ -98,8 +137,13 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                 setCurrentDay(challenge.currentDay)
             );
 
+            // -----------------------------------------
+            // 7. Cache today's challenge
+            // -----------------------------------------
             const expiresAt = new Date();
 
+
+            // Every day expired at 12:00 AM
             expiresAt.setHours(
                 23,
                 59,
@@ -129,7 +173,7 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         }
     };
 
-    
+
 
     const animatedValues = useRef(
         Array.from({ length: 90 }).map(() => new Animated.Value(0))
@@ -184,20 +228,25 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         if (!selectedCell) return;
 
         const key = `${selectedCell.row}-${selectedCell.col}`;
-        const cellIndex = toCellIndex(selectedCell.row, selectedCell.col); // 0-indexed
-        const dayNumber = cellIndex + 1; // 1-indexed, same base as currentDay
 
-        setCellActions((prev) => ({
+        const cellIndex = toCellIndex(
+            selectedCell.row,
+            selectedCell.col
+        );
+
+        // 1-indexed
+        const dayNumber = cellIndex + 1;
+
+        // Save actions for this cell
+        setCellActions(prev => ({
             ...prev,
             [key]: actions,
         }));
 
+        // If the selected cell is today's cell,
+        // mark today's cell as completed.
         if (dayNumber === currentDay) {
-            setCellChecked((prev) => {
-                const next = prev.map((r) => [...r]);
-                next[selectedCell.row][selectedCell.col] = true;
-                return next;
-            });
+            markCurrentDayCompleted();
         }
 
         closeModal();

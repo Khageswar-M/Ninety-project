@@ -1,14 +1,15 @@
-import { View, Text } from 'react-native';
-import { useResultStyles } from '../../hook/useThemeStyles';
 import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import { getChallenges } from '../../API/challenge/challengesApi';
+import { useResultStyles } from '../../hook/useThemeStyles';
 import { storage } from '../../utils/storage';
 
-const ResultsMap = ({refreshKey}) => {
+const ResultsMap = ({ refreshKey }) => {
     const style = useResultStyles();
 
     const [challenges, setChallenges] = useState([]);
     const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         fetchAllChallenges();
@@ -97,4 +98,4 @@ const ResultsMap = ({refreshKey}) => {
     );
 };
 
-export default ResultsMap;4
+export default ResultsMap; 4
