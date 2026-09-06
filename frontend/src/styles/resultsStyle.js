@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-import { Fonts } from "../constants/Fonts";
 
 const resultStyles = (theme) => StyleSheet.create({
     container: {
@@ -17,7 +16,8 @@ const resultStyles = (theme) => StyleSheet.create({
     },
     componentTitle: {
         color: theme.textMuted,
-        fontSize: 12
+        fontSize: 12,
+        paddingBottom: 10
     },
     headerContainer: {
         paddingHorizontal: 10
@@ -162,7 +162,9 @@ const resultStyles = (theme) => StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 5,
-        marginTop: 5
+        marginTop: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     colMap: {
         width: 18,
@@ -172,10 +174,10 @@ const resultStyles = (theme) => StyleSheet.create({
         backgroundColor: theme.backgroundMuted,
         borderRadius: 3
     },
-    completeCell:{
+    completeCell: {
         backgroundColor: theme.primary
     },
-    notCompleteCell:{
+    notCompleteCell: {
         backgroundColor: theme.danger
     },
     aiCoachContainer: {
@@ -186,11 +188,11 @@ const resultStyles = (theme) => StyleSheet.create({
         // borderColor: theme.border,
         paddingHorizontal: 5
     },
-    titleIcon:{
+    titleIcon: {
         fontSize: 20,
         color: theme.primary
     },
-    aiCoachHeader:{
+    aiCoachHeader: {
         gap: 0,
         flexDirection: 'row',
         alignItems: 'center',
@@ -201,24 +203,24 @@ const resultStyles = (theme) => StyleSheet.create({
         // borderBottomWidth: 1,
         paddingBottom: 5
     },
-    aiCoachHeaderTitle:{
+    aiCoachHeaderTitle: {
         color: theme.text,
         fontSize: 14,
         fontWeight: 'bold'
     },
-    refreshContainer:{
+    refreshContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 5,
         paddingVertical: 5
     },
-    refreshTitle:{
+    refreshTitle: {
         fontSize: 12,
         color: theme.textMuted,
         fontWeight: 'bold'
     },
-    refreshBtn:{
+    refreshBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
@@ -228,21 +230,21 @@ const resultStyles = (theme) => StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.border,
     },
-    refreshIcon:{
+    refreshIcon: {
         fontSize: 16,
         color: theme.text,
         borderRadius: 20,
     },
-    aiCoachResponseContainer:{
+    aiCoachResponseContainer: {
         paddingHorizontal: 10,
         paddingVertical: 5
     },
-    aiCoachResponseText:{
+    aiCoachResponseText: {
         fontSize: 16,
         textAlign: 'justify',
         color: theme.text
     },
-    quoteContainer:{
+    quoteContainer: {
         backgroundColor: theme.backgroundMutedExtra,
         marginTop: 10,
         paddingHorizontal: 5,
@@ -253,11 +255,11 @@ const resultStyles = (theme) => StyleSheet.create({
         gap: 5,
         paddingVertical: 5
     },
-    quoteText:{
+    quoteText: {
         color: theme.text,
         fontSize: 14
     },
-    quoteWriter:{
+    quoteWriter: {
         color: theme.text,
         fontSize: 14
     },
@@ -273,7 +275,7 @@ const resultStyles = (theme) => StyleSheet.create({
     },
     dayBlock: {
         marginBottom: 10,
-    }, 
+    },
     dayLabel: {
         fontSize: 12,
         fontWeight: '600',
@@ -372,8 +374,8 @@ const resultStyles = (theme) => StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
     },
-    emptyText:{
-        
+    emptyText: {
+
     }
 
 })
