@@ -5,7 +5,7 @@ import Ninety.com.backend.io.response.ChallengeResponse;
 import java.util.List;
 
 public interface ChallengeService {
-    ChallengeResponse createChallenge(Long userId);
+    ChallengeResponse createChallenge();
 
     List<ChallengeResponse> getChallengesByUserId(Long userId);
 

@@ -19,12 +19,9 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    @PostMapping("/create-challenge/{userId}")
-    public ResponseEntity<ApiResponse> createChallenge(
-            @PathVariable
-            Long userId
-    ){
-        ChallengeResponse response = challengeService.createChallenge(userId);
+    @PostMapping("/create-challenge")
+    public ResponseEntity<ApiResponse> createChallenge(){
+        ChallengeResponse response = challengeService.createChallenge();
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("A new challenge board was created successfully.", response));

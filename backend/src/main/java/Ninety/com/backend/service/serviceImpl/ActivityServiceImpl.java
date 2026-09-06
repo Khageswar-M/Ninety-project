@@ -56,6 +56,9 @@ public class ActivityServiceImpl implements ActivityService {
                 existingChallenge.getCurrentDay();
 
         if (currentDay < 1 || currentDay > 90) {
+
+            existingChallenge.setCompleted(true);
+
             throw new IllegalStateException(
                     "Challenge current day must be between 1 and 90"
             );
@@ -96,41 +99,10 @@ public class ActivityServiceImpl implements ActivityService {
                         currentDay
                 );
 
-        Object cachedData =
-                redisTemplate.opsForValue()
-                        .get(redisKey);
+        redisTemplate.delete(redisKey);
 
-        if (cachedData != null) {
+        log.info( "Redis cache invalidated after activity creation" );
 
-            log.info(
-                    "Redis cache found while creating activity."
-            );
-
-            List<ActivityResponse> cachedActivities =
-                    convertToActivityList(cachedData);
-
-            cachedActivities =
-                    new ArrayList<>(cachedActivities);
-
-            cachedActivities.add(response);
-
-            redisTemplate.opsForValue()
-                    .set(
-                            redisKey,
-                            cachedActivities,
-                            Duration.ofMinutes(5)
-                    );
-
-            log.info(
-                    "New activity added to Redis cache. ID: {}",
-                    response.id()
-            );
-        } else {
-
-            log.info(
-                    "Redis cache not found. Activity created only in database."
-            );
-        }
 
         return response;
     }
@@ -148,6 +120,8 @@ public class ActivityServiceImpl implements ActivityService {
         Activity activity =
                 findActivity(activityId);
 
+        Challenge challenge = activity.getChallenge();
+
         Long challengeId =
                 activity.getChallenge().getId();
 
@@ -157,6 +131,28 @@ public class ActivityServiceImpl implements ActivityService {
 
         activityRepository.delete(activity);
 
+        boolean activityExists =
+                activityRepository.existsByChallengeIdAndDayNumber(challengeId, dayNumber);
+
+        if(!activityExists){
+
+            int cellIndex = dayNumber - 1;
+
+            int row = cellIndex / 10;
+            int col = cellIndex % 10;
+
+            boolean[][] dayGrid = challenge.getDayGrid();
+
+            if(dayGrid[row][col]){
+                dayGrid[row][col] = false;
+
+                challenge.setDayGrid(dayGrid);
+
+
+            }
+
+        }
+
 
         String redisKey =
                 buildRedisKey(
@@ -164,55 +160,7 @@ public class ActivityServiceImpl implements ActivityService {
                         dayNumber
                 );
 
-        Object cachedData =
-                redisTemplate.opsForValue()
-                        .get(redisKey);
-
-        if (cachedData != null) {
-
-            log.info(
-                    "Redis cache found while deleting activity."
-            );
-
-            List<ActivityResponse> cachedActivities =
-                    convertToActivityList(cachedData);
-
-            cachedActivities =
-                    new ArrayList<>(cachedActivities);
-
-            boolean removed =
-                    cachedActivities.removeIf(
-                            cachedActivity ->
-                                    cachedActivity.id()
-                                            .equals(activityId)
-                    );
-
-            if (removed) {
-
-                redisTemplate.opsForValue()
-                        .set(
-                                redisKey,
-                                cachedActivities,
-                                Duration.ofMinutes(5)
-                        );
-
-                log.info(
-                        "Activity ID {} removed from Redis.",
-                        activityId
-                );
-            } else {
-
-                log.info(
-                        "Activity ID {} was not found in Redis.",
-                        activityId
-                );
-            }
-        } else {
-
-            log.info(
-                    "Redis cache not found while deleting activity."
-            );
-        }
+        redisTemplate.delete(redisKey);
     }
 
 

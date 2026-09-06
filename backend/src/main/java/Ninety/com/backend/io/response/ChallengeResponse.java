@@ -12,6 +12,7 @@ public record ChallengeResponse(
         boolean[][] dayGrid,
         int currentDay,
         LocalDate createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean completed
 ) {
 }
