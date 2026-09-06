@@ -40,6 +40,16 @@ const Profile = () => {
         fetchUserNameEmail();
     }, [])
 
+    const getInitials = (fullName) => {
+        if (!fullName) return '';
+
+        return fullName
+            .trim()
+            .split(/\s+/)
+            .map((word) => word[0].toUpperCase())
+            .join('');
+    };
+
     return (
         <View>
             <Text style={style.componentTitle}>PROFILE</Text>
@@ -48,7 +58,9 @@ const Profile = () => {
                 <View style={style.profileLeft}>
 
                     <View style={style.profileDp}>
-                        <Text style={style.profileDpLetters}>KM</Text>
+                        <Text style={style.profileDpLetters}>
+                            {getInitials(userFullName)}
+                        </Text>
                     </View>
 
                     <View style={style.userContainer}>

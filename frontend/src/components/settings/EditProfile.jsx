@@ -1,12 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useSettingStyles } from '../../hook/useThemeStyles';
 import { Feather } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import SubPages from '../common/SubPages';
-import { storage } from '../../utils/storage';
-import { updateUserName } from '../../API/settings/settingsApi';
+import { useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { updateUserName } from '../../API/settings/settingsApi';
+import { useSettingStyles } from '../../hook/useThemeStyles';
 import { setUserName } from '../../redux/slices/appSlice';
+import { storage } from '../../utils/storage';
+import SubPages from '../common/SubPages';
 
 const EditProfile = () => {
   const style = useSettingStyles();
@@ -22,14 +22,14 @@ const EditProfile = () => {
 
   const handleUpdate = async () => {
 
-    if(loading) return;
+    if (loading) return;
 
     setLoading(true);
 
-    try{
+    try {
       const response = await updateUserName(newUserName);
 
-      if(response?.data?.success){
+      if (response?.data?.success) {
 
         const responseData = response.data.data;
         const updatedName = responseData.value;
@@ -41,9 +41,9 @@ const EditProfile = () => {
 
         await storage.set("@ninety_user", cachedUser);
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
-    }finally{
+    } finally {
       setLoading(false);
     }
   }
@@ -78,6 +78,7 @@ const EditProfile = () => {
               editable={editName}
               value={newUserName}
               onChangeText={(text) => setNewUserName(text)}
+              maxLength={20}
               style={editName ? style.editNameInputActive : style.editNameInputInactive}
             />
 

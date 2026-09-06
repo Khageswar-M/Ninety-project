@@ -21,7 +21,7 @@ const Challenge = () => {
     }
     return (
         <View>
-            <Text style={style.componentTitle}>CHALLENGE</Text>
+            <Text style={style.componentTitle}>SPRINT PROGRESS</Text>
 
             {/* Challenge container */}
             <View style={style.challengeContainer}>
@@ -67,7 +67,7 @@ const Challenge = () => {
                     {/* Remaining Days */}
                     <View style={style.progressBarRemainingTitles}>
                         <Text style={style.progressBarRemainingTitleLeft}>
-                            Started Jun 5, 2026
+                            Time is running...
                         </Text>
 
                         <Text style={[style.progressBarRemainingTitleLeft, style.progressBarRemainingTitleRight]}>

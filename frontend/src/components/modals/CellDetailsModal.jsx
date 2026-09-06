@@ -355,6 +355,7 @@ const CellDetailsModal = ({
                                 selectionColor={theme.light}
                                 returnKeyType="done"
                                 blurOnSubmit={false}
+                                maxLength={50}
                             />
                             <Pressable
                                 onPress={handleSubmit}
