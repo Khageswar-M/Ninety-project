@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native'
-import { Ionicons, Octicons, EvilIcons, MaterialIcons } from '@expo/vector-icons';
-import { useSettingStyles } from '../../hook/useThemeStyles'
-import ConfirmationModal from '../modals/ConfirmationModal';
+import { EvilIcons, Ionicons, Octicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useSettingStyles } from '../../hook/useThemeStyles';
+import ConfirmationModal from '../modals/ConfirmationModal';
 
 const Challenge = () => {
     const style = useSettingStyles();
@@ -13,15 +13,15 @@ const Challenge = () => {
     const [deleteConformationModal, setDeleteConfirmationModal] = useState(false);
 
     const handleReset = () => {
-        try{
+        try {
             console.log("Data Deleted!");
-        }finally{
+        } finally {
             setDeleteConfirmationModal(false);
         }
     }
     return (
         <View>
-            <Text style={style.componentTitle}>Challenge</Text>
+            <Text style={style.componentTitle}>CHALLENGE</Text>
 
             {/* Challenge container */}
             <View style={style.challengeContainer}>

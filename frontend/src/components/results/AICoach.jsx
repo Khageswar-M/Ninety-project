@@ -1,14 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
+import LottieView from 'lottie-react-native';
+import GeminiGif from '../../../assets/icons/gemini-looping.json';
+import GeminiIcon from '../../../assets/icons/google-gemini.png';
 import { aiCoachSuggestion } from '../../API/AiCoach/aiCoachApi';
 import { useResultStyles } from '../../hook/useThemeStyles';
 import { storage } from '../../utils/storage';
-import { mockCoachData } from '../../utils/MockCoachData';
-import LottieView from 'lottie-react-native';
-import GeminiGif from '../../../assets/icons/gemini-looping.json';
-import GeminiIcon from '../../../assets/icons/google-gemini.png'
 
 const STATUS_CONFIG = {
     COMPLETE: { label: 'Complete', bg: '#ff8000', text: '#fff', dot: '#2ECC71' },
@@ -92,7 +91,7 @@ const AICoach = ({ refreshKey }) => {
         try {
             const cachedData = await storage.get(COACH_DATA_KEY);
 
-            if (cachedData) { 
+            if (cachedData) {
                 const isFresh = Date.now() < cachedData.expiredAt;
 
                 if (isFresh && isValidCoachData(cachedData.data)) {
@@ -136,7 +135,7 @@ const AICoach = ({ refreshKey }) => {
 
     return (
         <View>
-            <Text style={style.componentTitle}>AICoach</Text>
+            <Text style={style.componentTitle}>AI-COACH</Text>
 
             <View style={[style.aiCoachContainer, style.aiContainer]}>
                 {/* Header */}

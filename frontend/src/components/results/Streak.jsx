@@ -112,7 +112,7 @@ const Streak = ({ refreshKey }) => {
 
     return (
         <View>
-            <Text style={style.componentTitle}>Streak</Text>
+            <Text style={style.componentTitle}>STREAK</Text>
 
             <View style={style.streakContainer}>
                 <View style={style.streakType}>

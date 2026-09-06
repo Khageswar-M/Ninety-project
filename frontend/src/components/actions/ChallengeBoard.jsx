@@ -252,9 +252,13 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         closeModal();
     };
 
+    const handleCreateChallenge = () => {
+
+    }
+
     return (
         <View>
-            <Text style={style.boardTitle}>BOARD</Text>
+            <Text style={style.boardTitle}>SPRINT</Text>
 
 
             <View style={style.boardContainer}>
@@ -272,6 +276,34 @@ const ChallengeBoard = ({ refreshTrigger }) => {
                                 loop={true}
                                 style={{ height: 200, width: 200 }}
                             />
+                        </View>
+                    ) : cellChecked === null ? (
+                        <View style={{
+                            alignItems: 'center',
+                            paddingVertical: 30,
+                            gap: 12
+                        }}>
+                            <Ionicons name="add-circle-outline" size={48} color={theme.primary} />
+
+                            <Text style={{ color: theme.light, fontSize: 14, textAlign: 'center' }}>
+                                No active sprint right now.
+                            </Text>
+
+                            <Pressable
+                                onPress={handleCreateChallenge}
+                                disabled={loading}
+                                style={{
+                                    backgroundColor: theme.primary,
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 10,
+                                    borderRadius: 8,
+                                    opacity: loading ? 0.6 : 1
+                                }}
+                            >
+                                <Text style={{ color: theme.light, fontWeight: '600' }}>
+                                    {loading ? 'Creating...' : 'Start New Sprint'}
+                                </Text>
+                            </Pressable>
                         </View>
                     ) : (
                         cellChecked.map((row, rowIndex) => (

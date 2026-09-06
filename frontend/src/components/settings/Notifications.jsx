@@ -1,20 +1,19 @@
-import { View, Text, TouchableOpacity, Platform, AppState } from 'react-native'
-import { useSettingStyles } from '../../hook/useThemeStyles'
-import { EvilIcons, Feather, Ionicons, Octicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
-import { Switch } from 'react-native-switch';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-    setDailyRemainder,
-    setRemainderTime,
-    setAiCoachDigest,
-    setMilestoneAlerts
-} from '../../redux/slices/notificationSlice';
+import { Feather, Ionicons, Octicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { storage } from '../../utils/storage';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Platform, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Switch } from 'react-native-switch';
+import { useDispatch, useSelector } from 'react-redux';
 import { addExpoPushNotificationToken, getSettings, toggleAiCoachDigest, toggleDailyReminder, toggleMileStone, updateReminderTime } from '../../API/settings/settingsApi';
+import { useSettingStyles } from '../../hook/useThemeStyles';
+import {
+    setAiCoachDigest,
+    setDailyRemainder,
+    setMilestoneAlerts,
+    setRemainderTime
+} from '../../redux/slices/notificationSlice';
 import { setDarkTheme, setLightTheme } from '../../redux/slices/themeSlice';
-import { useColorScheme } from 'react-native';
+import { storage } from '../../utils/storage';
 // import { usePushNotifications } from '../../hook/usePushNotifications';
 import { usePushNotifications } from '../../hook/usePushNotifications';
 // import * as ExpoNotifications from "expo-notifications";
@@ -318,7 +317,7 @@ const Notifications = () => {
 
     return (
         <View>
-            <Text style={style.componentTitle}>Notifications</Text>
+            <Text style={style.componentTitle}>NOTIFICATIONS</Text>
 
             {/* Notifications Container */}
             <View style={style.notificationContainer}>

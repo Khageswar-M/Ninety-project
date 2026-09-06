@@ -1,5 +1,5 @@
-import { View, Text, Animated } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { Animated, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 // HOOKS
@@ -47,12 +47,12 @@ const Header = () => {
 
             {/* Header Title */}
             <Text style={style.headerTitle}>
-                90 Days Challenge
+                Sprint Board - 90 Days
             </Text>
 
             {/* Header Description */}
             <Text style={style.headerDesc}>
-                Tap the box to make the day productive.
+                Check in your daily deliverable.
             </Text>
 
             {/* Progress Bar */}

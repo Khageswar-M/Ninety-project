@@ -59,7 +59,7 @@ const ResultsMap = ({ refreshKey }) => {
     return (
         <View>
             <Text style={style.componentTitle}>
-                Challenge History
+                SPRINT HISTORY
             </Text>
 
             {loading ? (
