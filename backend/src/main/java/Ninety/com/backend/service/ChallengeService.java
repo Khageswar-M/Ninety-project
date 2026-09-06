@@ -1,13 +1,14 @@
 package Ninety.com.backend.service;
 
 import Ninety.com.backend.io.response.ChallengeResponse;
+import Ninety.com.backend.io.response.ChallengesResponse;
 
 import java.util.List;
 
 public interface ChallengeService {
     ChallengeResponse createChallenge();
 
-    List<ChallengeResponse> getChallengesByUserId(Long userId);
+    List<ChallengesResponse> getChallengesByUserId(Long userId);
 
     void deleteChallenge(Long challengeId);
 

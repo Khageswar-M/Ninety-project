@@ -5,6 +5,7 @@ import Ninety.com.backend.entity.Challenge;
 import Ninety.com.backend.entity.User;
 import Ninety.com.backend.exception.ChallengeNotFoundException;
 import Ninety.com.backend.exception.UserNotFoundException;
+import Ninety.com.backend.io.response.ChallengesResponse;
 import Ninety.com.backend.repository.ChallengeRepository;
 import Ninety.com.backend.repository.UserRepository;
 import Ninety.com.backend.service.ChallengeService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -33,9 +35,18 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         User loggedUser = getLoggedUser();
 
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(90);
+
+        DateTimeFormatter titleFormatter = DateTimeFormatter.ofPattern("d MMM");
+        String title = String.format("Sprint (%s - %s)",
+                startDate.format(titleFormatter),
+                endDate.format(titleFormatter));
+
+
         Challenge newChallenge = Challenge.builder()
                 .user(loggedUser)
-                .title("Your new 90 Day's challenge.")
+                .title(title)
                 .startedAt(LocalDate.now())
                 .createdAt(LocalDate.now())
                 .updatedAt(LocalDateTime.now())
@@ -55,7 +66,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public List<ChallengeResponse> getChallengesByUserId(Long userId) {
+    public List<ChallengesResponse> getChallengesByUserId(Long userId) {
 
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -88,11 +99,14 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
         return userChallenges.stream()
-                .map(challenge -> ChallengeResponse.builder()
+                .map(challenge -> ChallengesResponse.builder()
                         .id(challenge.getId())
                         .title(challenge.getTitle())
                         .dayGrid(challenge.getDayGrid())
                         .currentDay(challenge.getCurrentDay())
+                        .longestStreak(challenge.getLongestStreak())
+                        .completedCount(challenge.getCompletedCount())
+                        .missedCount(challenge.getMissedCount())
                         .createdAt(challenge.getCreatedAt())
                         .updatedAt(challenge.getUpdatedAt())
                         .completed(challenge.isCompleted())
@@ -157,7 +171,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
 
         challenge.setLongestStreak(maxStreak);
-        challenge.setCurrentStreak(currentStreak);
+        challenge.setStreakCount(currentStreak);
         challenge.setMissedCount(missedDayCount);
 
         challengeRepository.save(challenge);

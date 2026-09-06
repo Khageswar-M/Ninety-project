@@ -48,7 +48,7 @@ public class ChallengeScheduler {
                     ) + 1;
 
             if(daysPassed > 90){
-                challenge.setCurrentDay(91);
+                challenge.setCurrentDay(90);
                 challenge.setCompleted(true);
 
                 log.info(
