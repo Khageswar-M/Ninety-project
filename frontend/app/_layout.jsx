@@ -2,17 +2,15 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Provider, useDispatch, useSelector } from "react-redux";
+import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
 import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
 import { hydrateApp } from "../src/redux/slices/appSlice.js";
 import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
 import { store } from "../src/redux/store";
 import { storage } from "../src/utils/storage.js";
-import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
-import { ThemeProvider, DefaultTheme, DarkTheme } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +24,8 @@ function AppNavigation() {
   const colorScheme = useColorScheme();
 
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [minDelayDone, setMinDelayDone] = useState(false);
+
 
   // App initialization
   useEffect(() => {
@@ -140,6 +140,16 @@ function AppNavigation() {
     "GoogleSans-regular": require("../assets/fonts/GoogleSans-Regular.ttf")
   });
 
+
+  // Minimum splash display time
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinDelayDone(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (!loaded || !isAuthReady) {
       return;
@@ -153,44 +163,41 @@ function AppNavigation() {
 
   }, [loaded, isAuthReady]);
 
-  // Single source of truth for the nav background — reused by ThemeProvider
-  // and by every nested Stack's contentStyle to kill the white flicker.
-  const navTheme = useMemo(() => {
-    const base = isDarkMode ? DarkTheme : DefaultTheme;
-    return {
-      ...base,
-      colors: {
-        ...base.colors,
-        background: isDarkMode ? "#000000" : "#FFFFFF",
-      },
-    };
-  }, [isDarkMode]);
-
-  if (!loaded || !isAuthReady) {
+  if (!loaded || !isAuthReady || !minDelayDone) {
+    // if (true) {
     return <SplashScreenPage />;
   }
 
+
   return (
-    <ThemeProvider value={navTheme}>
+    <>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: navTheme.colors.background },
         }}
       >
         <Stack.Protected guard={isLoggedIn}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="(subScreens)"
-            options={{ animation: "slide_from_right", animationDuration: 300 }}
+            options={{
+              animation: 'fade',
+              presentation: "transparentModal"
+            }}
           />
         </Stack.Protected>
         <Stack.Protected guard={!isLoggedIn}>
-          <Stack.Screen name="(auth)" />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              animation: 'fade',
+              presentation: "transparentModal"
+            }}
+          />
         </Stack.Protected>
       </Stack>
-    </ThemeProvider>
+    </>
   )
 };
 

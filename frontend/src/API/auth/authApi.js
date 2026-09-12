@@ -42,6 +42,7 @@ export const signUp = async (email, fullName, password) => {
 }
 
 export const login = async (email, password) => {
+    console.log("Executes");
     const response = await api.post("/api/v1/auth/login",{
         email,
         password

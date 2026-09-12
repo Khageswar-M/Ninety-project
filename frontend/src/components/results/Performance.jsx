@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 const Performance = ({ refreshKey }) => {
     const style = useResultStyles();
-    
+
     // 1. Keep selector raw so reference remains stable
     const rawGrid = useSelector((state) => state.app.dayGrid);
     const currentDay = useSelector((state) => state.app.currentDay) || 0;
@@ -47,8 +47,10 @@ const Performance = ({ refreshKey }) => {
                         activeStrokeColor={style.progressColor}
                         progressValueColor={style.progressValueColor}
                         maxValue={100}
-                        title={`Success Rate`}
-                        titleStyle={style.progressTitle}
+                        title={"Success Rate"}
+                        titleStyle={
+                            style.progressTitle
+                        }
                         valueSuffix="%"
                     />
                 </View>

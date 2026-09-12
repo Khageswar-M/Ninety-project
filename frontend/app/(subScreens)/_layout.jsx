@@ -1,17 +1,17 @@
-import { Stack } from "expo-router"
+import { Stack } from "expo-router";
 
-const _layout = () => {
+export default function _layout() {
   return (
-    <Stack 
+    <Stack
       screenOptions={{
         headerShown: false,
-      }} 
+      }}
     >
-        <Stack.Screen name="EditProfilePage" />
-        <Stack.Screen name="PrivacyPolicyPage"/>
-        <Stack.Screen name="RattingPage"/>
-    </Stack>
-  )
-}
+      <Stack.Screen name="EditProfilePage" />
 
-export default _layout;
+      <Stack.Screen name="PrivacyPolicyPage" />
+
+      <Stack.Screen name="RattingPage" />
+    </Stack>
+  );
+}

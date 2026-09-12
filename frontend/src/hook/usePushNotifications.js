@@ -1,30 +1,68 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Linking, Platform } from "react-native";
 
-// IMPORTANT: Configure notification presentation globally.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// ---------------------------------------------------------
+// IMPORTANT
+// Android remote push notifications are NOT supported in
+// Expo Go. They require a development build.
+//
+// We dynamically load expo-notifications only when it is
+// actually needed, so Expo Go can still run the application.
+// ---------------------------------------------------------
+
+const isExpoGo = Constants.appOwnership === "expo";
+
+let Notifications = null;
+
+const loadNotifications = async () => {
+  if (Notifications) {
+    return Notifications;
+  }
+
+  // Android Expo Go does not support remote push notifications.
+  if (Platform.OS === "android" && isExpoGo) {
+    return null;
+  }
+
+  const module = await import("expo-notifications");
+  Notifications = module;
+
+  // Configure notification presentation globally.
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+
+  return Notifications;
+};
+
+// ---------------------------------------------------------
+// Get Expo Push Token
+// ---------------------------------------------------------
 
 const getExpoToken = async () => {
   try {
-    const token = await Notifications.getExpoPushTokenAsync({
+    const NotificationsModule = await loadNotifications();
+
+    if (!NotificationsModule) {
+      return null;
+    }
+
+    const token = await NotificationsModule.getExpoPushTokenAsync({
       projectId: Constants.expoConfig?.extra?.eas?.projectId,
     });
 
     if (Platform.OS === "android") {
-      await Notifications.setNotificationChannelAsync("default", {
+      await NotificationsModule.setNotificationChannelAsync("default", {
         name: "default",
-        importance: Notifications.AndroidImportance.MAX,
+        importance: NotificationsModule.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: "#FF231F7C",
       });
@@ -37,46 +75,121 @@ const getExpoToken = async () => {
   }
 };
 
+// ---------------------------------------------------------
+// Hook
+// ---------------------------------------------------------
+
 export const usePushNotifications = () => {
   const [expoPushToken, setExpoPushToken] = useState(null);
-  const [permissionStatus, setPermissionStatus] = useState(null); // "granted" | "denied" | "undetermined"
+  const [permissionStatus, setPermissionStatus] = useState(null);
 
   const router = useRouter();
+
   const isNavigatingRef = useRef(false);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
 
-  // Read current OS permission WITHOUT prompting
+  // -------------------------------------------------------
+  // Check permission
+  // -------------------------------------------------------
+
   const checkPermissionStatus = useCallback(async () => {
-    if (!Device.isDevice) return "denied";
-    const { status } = await Notifications.getPermissionsAsync();
+    // Android Expo Go cannot use remote notifications.
+    if (Platform.OS === "android" && isExpoGo) {
+      setPermissionStatus("unavailable");
+      return "unavailable";
+    }
+
+    if (!Device.isDevice) {
+      setPermissionStatus("denied");
+      return "denied";
+    }
+
+    const NotificationsModule = await loadNotifications();
+
+    if (!NotificationsModule) {
+      setPermissionStatus("unavailable");
+      return "unavailable";
+    }
+
+    const { status } =
+      await NotificationsModule.getPermissionsAsync();
+
     setPermissionStatus(status);
+
     return status;
   }, []);
 
-  // Only shows an OS prompt if status is "undetermined" (first time ever asked).
-  // If already "denied", this silently returns "denied" again — OS restriction, not a bug.
-  const requestPermissionAndRegister = useCallback(async () => {
-    if (!Device.isDevice) return { status: "denied", token: null };
+  // -------------------------------------------------------
+  // Request permission + register
+  // -------------------------------------------------------
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  const requestPermissionAndRegister = useCallback(async () => {
+    // Android Expo Go cannot register remote push notifications.
+    if (Platform.OS === "android" && isExpoGo) {
+      setPermissionStatus("unavailable");
+
+      return {
+        status: "unavailable",
+        token: null,
+      };
+    }
+
+    if (!Device.isDevice) {
+      setPermissionStatus("denied");
+
+      return {
+        status: "denied",
+        token: null,
+      };
+    }
+
+    const NotificationsModule = await loadNotifications();
+
+    if (!NotificationsModule) {
+      setPermissionStatus("unavailable");
+
+      return {
+        status: "unavailable",
+        token: null,
+      };
+    }
+
+    const { status: existingStatus } =
+      await NotificationsModule.getPermissionsAsync();
+
     let finalStatus = existingStatus;
 
     if (existingStatus === "undetermined") {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } =
+        await NotificationsModule.requestPermissionsAsync();
+
       finalStatus = status;
     }
 
     setPermissionStatus(finalStatus);
 
-    if (finalStatus !== "granted") return { status: finalStatus, token: null };
+    if (finalStatus !== "granted") {
+      return {
+        status: finalStatus,
+        token: null,
+      };
+    }
 
     const token = await getExpoToken();
+
     setExpoPushToken(token);
-    return { status: finalStatus, token };
+
+    return {
+      status: finalStatus,
+      token,
+    };
   }, []);
 
-  // Deep-link straight to this app's notification settings page
+  // -------------------------------------------------------
+  // Open notification settings
+  // -------------------------------------------------------
+
   const openNotificationSettings = useCallback(() => {
     if (Platform.OS === "ios") {
       Linking.openURL("app-settings:");
@@ -85,15 +198,22 @@ export const usePushNotifications = () => {
     }
   }, []);
 
-  // ---------------- HANDLE TAP ----------------
-  // Backend sends: Map.of("screen", "/(tabs)/ActionsScreen") as the `data` payload
+  // -------------------------------------------------------
+  // Handle notification tap
+  // -------------------------------------------------------
+
   const handleNotificationResponse = useCallback(
     async (response) => {
-      if (isNavigatingRef.current) return;
+      if (isNavigatingRef.current) {
+        return;
+      }
 
-      const data = response?.notification?.request?.content?.data;
+      const data =
+        response?.notification?.request?.content?.data;
 
-      if (!data?.screen) return;
+      if (!data?.screen) {
+        return;
+      }
 
       isNavigatingRef.current = true;
 
@@ -103,7 +223,10 @@ export const usePushNotifications = () => {
           params: data.params ? { ...data.params } : {},
         });
       } catch (error) {
-        console.error("Error handling notification tap:", error);
+        console.error(
+          "Error handling notification tap:",
+          error
+        );
       } finally {
         setTimeout(() => {
           isNavigatingRef.current = false;
@@ -113,48 +236,103 @@ export const usePushNotifications = () => {
     [router]
   );
 
-  // ---------------- APP OPENED FROM KILLED STATE VIA NOTIFICATION TAP ----------------
+  // -------------------------------------------------------
+  // App opened from killed state
+  // -------------------------------------------------------
+
   const checkForInitialNotification = useCallback(async () => {
     try {
-      const response = await Notifications.getLastNotificationResponseAsync();
+      const NotificationsModule = await loadNotifications();
 
-      if (!response) return;
+      if (!NotificationsModule) {
+        return;
+      }
+
+      const response =
+        await NotificationsModule.getLastNotificationResponseAsync();
+
+      if (!response) {
+        return;
+      }
 
       await handleNotificationResponse(response);
 
-      // Don't process the same notification again on next mount
-      await Notifications.clearLastNotificationResponseAsync();
+      await NotificationsModule.clearLastNotificationResponseAsync();
     } catch (error) {
-      console.error("Error checking initial notification:", error);
+      console.error(
+        "Error checking initial notification:",
+        error
+      );
     }
   }, [handleNotificationResponse]);
 
-  // On mount, just READ permission status (no prompt) — if already granted, fetch the token
+  // -------------------------------------------------------
+  // Read permission on mount
+  // -------------------------------------------------------
+
   useEffect(() => {
     checkPermissionStatus().then((status) => {
-      if (status === "granted") getExpoToken().then(setExpoPushToken);
+      if (status === "granted") {
+        getExpoToken().then(setExpoPushToken);
+      }
     });
   }, [checkPermissionStatus]);
 
-  // Register listeners: foreground receive + tap response + killed-state initial tap
+  // -------------------------------------------------------
+  // Register notification listeners
+  // -------------------------------------------------------
+
   useEffect(() => {
-    checkForInitialNotification();
+    // Nothing to do in Android Expo Go.
+    if (Platform.OS === "android" && isExpoGo) {
+      return;
+    }
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        // Optional: react to a notification arriving while app is open (e.g. refresh a badge)
+    let mounted = true;
+
+    const setupListeners = async () => {
+      const NotificationsModule = await loadNotifications();
+
+      if (!NotificationsModule || !mounted) {
+        return;
       }
-    );
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    );
+      await checkForInitialNotification();
+
+      notificationListener.current =
+        NotificationsModule.addNotificationReceivedListener(
+          (notification) => {
+            // Optional:
+            // React to notifications received while app
+            // is in the foreground.
+          }
+        );
+
+      responseListener.current =
+        NotificationsModule.addNotificationResponseReceivedListener(
+          handleNotificationResponse
+        );
+    };
+
+    setupListeners();
 
     return () => {
+      mounted = false;
+
       notificationListener.current?.remove();
       responseListener.current?.remove();
+
+      notificationListener.current = null;
+      responseListener.current = null;
     };
-  }, [handleNotificationResponse, checkForInitialNotification]);
+  }, [
+    handleNotificationResponse,
+    checkForInitialNotification,
+  ]);
+
+  // -------------------------------------------------------
+  // Return API
+  // -------------------------------------------------------
 
   return {
     expoPushToken,

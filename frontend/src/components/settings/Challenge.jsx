@@ -1,9 +1,35 @@
 import { EvilIcons, Ionicons, Octicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSettingStyles } from '../../hook/useThemeStyles';
 import ConfirmationModal from '../modals/ConfirmationModal';
+
+const motivationalLines = [
+    "Time is running, don't stop now.",
+    "Clock's ticking, keep pushing.",
+    "Another day, another win.",
+    "You are so close, don't quit.",
+    "Small steps, big results.",
+    "Discipline beats motivation.",
+    "Grind now, shine later.",
+    "Consistency is your superpower.",
+    "One more day, one step ahead.",
+    "Your future self is watching.",
+    "Progress over perfection.",
+    "Stay hard, stay focused.",
+    "Every rep counts.",
+    "Momentum is building, don't break it.",
+    "You showed up, that's half the battle.",
+    "Push a little more today.",
+    "Streak alive, keep it going.",
+    "Winners finish what they start.",
+    "Hard days build strong habits.",
+    "Almost there, don't slow down.",
+];
+
+const getRandomLine = () => motivationalLines[Math.floor(Math.random() * motivationalLines.length)];
+
 
 const Challenge = () => {
     const style = useSettingStyles();
@@ -12,6 +38,8 @@ const Challenge = () => {
 
     const [deleteConformationModal, setDeleteConfirmationModal] = useState(false);
 
+    const [motivationalLine, setMotivationalLine] = useState(getRandomLine());
+
     const handleReset = () => {
         try {
             console.log("Data Deleted!");
@@ -19,6 +47,10 @@ const Challenge = () => {
             setDeleteConfirmationModal(false);
         }
     }
+
+    useEffect(() => {
+        setMotivationalLine(getRandomLine());
+    }, [])
     return (
         <View>
             <Text style={style.componentTitle}>SPRINT PROGRESS</Text>
@@ -67,7 +99,7 @@ const Challenge = () => {
                     {/* Remaining Days */}
                     <View style={style.progressBarRemainingTitles}>
                         <Text style={style.progressBarRemainingTitleLeft}>
-                            Time is running...
+                            {motivationalLine}
                         </Text>
 
                         <Text style={[style.progressBarRemainingTitleLeft, style.progressBarRemainingTitleRight]}>

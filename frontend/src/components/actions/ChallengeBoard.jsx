@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Fetching from '../../../assets/icons/seeking-development.json';
-import { getChallenges } from '../../API/challenge/challengesApi';
+import { createNewChallenge, getChallenges } from '../../API/challenge/challengesApi';
 import { useActionStyles } from '../../hook/useThemeStyles';
 import { setCurrentDay, setDayGrid, setGridId } from '../../redux/slices/appSlice';
 import { storage } from '../../utils/storage';
@@ -252,8 +252,24 @@ const ChallengeBoard = ({ refreshTrigger }) => {
         closeModal();
     };
 
-    const handleCreateChallenge = () => {
+    const handleCreateChallenge = async () => {
+        if (loading) return;
+        setLoading(true);
 
+        try {
+            const response = await createNewChallenge();
+
+            if (response?.data?.success) {
+                await loadChallenge();
+            } else {
+                console.log("Failed to create new challenge: unexpected response", response?.data);
+            }
+
+        } catch (e) {
+            console.log("Filed to create new challenge: ", e);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (

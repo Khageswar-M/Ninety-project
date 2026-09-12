@@ -64,7 +64,7 @@ const Login = () => {
     console.log("Email: ", trimmedEmail, " and Password: ", trimmedPassword);
 
     try {
-      console.log("log enter")
+      console.log("log login")
       const response = await login(trimmedEmail, trimmedPassword);
       console.log("Login response: " + response);
       if (response.data.success) {

@@ -1,4 +1,4 @@
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { createMaterialTopTabNavigator } from 'expo-router/js-top-tabs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import ActionsScreen from './ActionsScreen.jsx'
