@@ -267,12 +267,10 @@ const CellDetailsModal = ({
             onBackButtonPress={resetAndCancel}
             animationIn="fadeIn"
             animationOut="fadeOut"
-            backdropOpacity={0}
+            backdropOpacity={0.5}
             avoidKeyboard
-            useNativeDriver
+            useNativeDriver={false}
             hideModalContentWhileAnimating={false}
-            animationInTiming={10}
-            animationOutTiming={10}
         >
             <View style={[localStyles.card, { backgroundColor: theme.cellModalBackground }]}>
                 <Text style={[localStyles.title, { color: theme.light }]}>

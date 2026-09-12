@@ -4,7 +4,9 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
+import Toast from "react-native-toast-message";
 import { Provider, useDispatch, useSelector } from "react-redux";
+import { CustomToast } from "../src/components/common/CustomToast.jsx";
 import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
 import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
 import { hydrateApp } from "../src/redux/slices/appSlice.js";
@@ -169,12 +171,15 @@ function AppNavigation() {
   }
 
 
+
+
   return (
     <>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerShown: false,
+          presentation: "transparentModal"
         }}
       >
         <Stack.Protected guard={isLoggedIn}>
@@ -191,7 +196,7 @@ function AppNavigation() {
           <Stack.Screen
             name="(auth)"
             options={{
-              animation: 'fade',
+              animation: "fade",
               presentation: "transparentModal"
             }}
           />
@@ -202,10 +207,16 @@ function AppNavigation() {
 };
 
 export default function RootLayout() {
+  const toastConfig = {
+    error: (props) => (
+      <CustomToast {...props} />
+    ),
+  }
   return (
     <Provider store={store}>
       <NetworkProvider>
         <AppNavigation />
+        <Toast config={toastConfig} />
       </NetworkProvider>
     </Provider>
   );

@@ -21,7 +21,7 @@ const ConfirmationModal = ({
             onBackButtonPress={onCancel}
             animationIn="zoomIn"
             animationOut="zoomOut"
-            backdropOpacity={0}
+            backdropOpacity={0.5}
             avoidKeyboard
             useNativeDriver
             hideModalContentWhileAnimating={false}

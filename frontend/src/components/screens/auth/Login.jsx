@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import Checkbox from "expo-checkbox";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
   Text,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Checkbox from "expo-checkbox";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuthStyles } from "../../../hook/useThemeStyles";
-import { router } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { storage } from "../../../utils/storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 import { login } from "../../../API/auth/authApi";
-import { setLogin, setUserName, setUserEmail, setUserId } from "../../../redux/slices/appSlice";
+import { useAuthStyles } from "../../../hook/useThemeStyles";
+import { setLogin, setUserEmail, setUserId, setUserName } from "../../../redux/slices/appSlice";
+import { storage } from "../../../utils/storage";
 
 const Login = () => {
   const styles = useAuthStyles();
@@ -120,7 +120,6 @@ const Login = () => {
       }
     } catch (e) {
       console.log(e);
-      console.log("Error in catch.")
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -220,6 +219,7 @@ const Login = () => {
           <Text style={styles.signup}>Sign Up</Text>
         </TouchableOpacity>
       </View>
+
     </KeyboardAwareScrollView>
   );
 };

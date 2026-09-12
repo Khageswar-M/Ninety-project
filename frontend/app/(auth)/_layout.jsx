@@ -4,7 +4,11 @@ const _layout = () => {
   return (
     <Stack
       initialRouteName="LoginPage"
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ 
+        headerShown: false ,
+        animation: "fade",
+        presentation: "transparentModal"
+      }}
     >
       <Stack.Screen name="LoginPage" />
       <Stack.Screen name="SignUpPage" />
