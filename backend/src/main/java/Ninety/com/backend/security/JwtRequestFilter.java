@@ -44,13 +44,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+        log.info("========== INCOMING REQUEST ==========");
+
+        log.info("Method       : {}", request.getMethod());
+        log.info("URI          : {}", request.getRequestURI());
+        log.info("URL          : {}", request.getRequestURL());
+        log.info("Servlet Path : {}", request.getServletPath());
+        log.info("Query String : {}", request.getQueryString());
+        log.info("Remote Addr  : {}", request.getRemoteAddr());
+        log.info("Protocol     : {}", request.getProtocol());
+        log.info("Content Type : {}", request.getContentType());
+        log.info("Content Len  : {}", request.getContentLengthLong());
 
         String path = request.getServletPath();
 
         System.out.println("Requested path is: " + path);
 
-//        boolean isPublic = PUBLIC_URLS.stream()
-//                .anyMatch(url -> path.startsWith(url));
 
         boolean isPublic = PUBLIC_URLS.stream()
                 .anyMatch(path::startsWith);
