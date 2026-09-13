@@ -5,11 +5,11 @@ import ActionsScreen from './ActionsScreen.jsx'
 import ResultsScreen from './ResultsScreen.jsx'
 import SettingsScreen from './SettingsScreen.jsx'
 
+import { Feather } from '@expo/vector-icons'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 import { Fonts } from '../../src/constants/Fonts.js'
-import { Feather } from '@expo/vector-icons'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const Tab = createMaterialTopTabNavigator();
 

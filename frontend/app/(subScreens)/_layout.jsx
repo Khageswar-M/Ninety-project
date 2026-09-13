@@ -5,6 +5,8 @@ export default function _layout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "fade",
+        presentation: "transparentModal"
       }}
     >
       <Stack.Screen name="EditProfilePage" />

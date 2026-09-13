@@ -179,27 +179,15 @@ function AppNavigation() {
       <Stack
         screenOptions={{
           headerShown: false,
-          presentation: "transparentModal"
+          // presentation: "transparentModal"
         }}
       >
         <Stack.Protected guard={isLoggedIn}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="(subScreens)"
-            options={{
-              animation: 'fade',
-              presentation: "transparentModal"
-            }}
-          />
+          <Stack.Screen name="(subScreens)" />
         </Stack.Protected>
         <Stack.Protected guard={!isLoggedIn}>
-          <Stack.Screen
-            name="(auth)"
-            options={{
-              animation: "fade",
-              presentation: "transparentModal"
-            }}
-          />
+          <Stack.Screen name="(auth)" />
         </Stack.Protected>
       </Stack>
     </>

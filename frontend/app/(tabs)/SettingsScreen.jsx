@@ -1,11 +1,12 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native';
 
-import Settings from '../../src/components/screens/Settings'
+import Settings from '../../src/components/screens/Settings';
 
 const SettingsScreen = () => {
+  console.log("Settings Screen mounted");
   return (
-    <View style={{flex: 1}}>
-      <Settings/>
+    <View style={{ flex: 1 }}>
+      <Settings />
     </View>
   )
 }
