@@ -37,6 +37,7 @@
     "expo-system-ui": "~57.0.4",
     "lottie-react-native": "~7.3.8",
     "react": "19.2.3",
+    "react-circular-progressbar": "^2.2.0",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-circular-progress-indicator": "^4.4.2",

@@ -1,10 +1,8 @@
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { useSelector } from 'react-redux';
 import { useAuthStyles } from '../../../hook/useThemeStyles'
-import { TouchableOpacity } from 'react-native';
-import CircularProgress from 'react-native-circular-progress-indicator';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ActivityIndicator } from 'react-native';
+import CircularProgress from '../../common/CircularProgress'; // ← adjust path to wherever you place the shared file
 
 const RenderStepOtp = ({
     children,
@@ -40,7 +38,7 @@ const RenderStepOtp = ({
                     <TextInput
                         key={index}
                         ref={(ref) => (otpRefs.current[index] = ref)}
-                        style={[styles.otpBox, isInvalidOtp && {borderBottomColor: '#ff0a0a'}]}
+                        style={[styles.otpBox, isInvalidOtp && { borderBottomColor: '#ff0a0a' }]}
                         maxLength={1}
                         keyboardType="number-pad"
                         value={digit}
@@ -63,19 +61,17 @@ const RenderStepOtp = ({
                         <CircularProgress
                             value={timer}
                             maxValue={RESEND_SECONDS}
-                            initialValue={RESEND_SECONDS}
                             radius={18}
+                            strokeWidth={2}
                             duration={0}
-                            progressValueColor={theme.text}
-                            progressValueFontSize={14}
                             activeStrokeColor={theme.primary}
-                            inActiveStrokeColor={theme.border}
-                            activeStrokeWidth={2}
-                            inActiveStrokeWidth={2}
+                            inactiveStrokeColor={theme.border}
+                            valueColor={theme.text}
+                            valueFontSize={14}
+                            valueSuffix=""
                         />
                     )
                 }
-
             </View>
 
             <TouchableOpacity
@@ -85,15 +81,12 @@ const RenderStepOtp = ({
             >
                 {
                     loading ? (
-                        <ActivityIndicator size="small" color="#fff"/>
+                        <ActivityIndicator size="small" color="#fff" />
                     ) : (
                         <Text style={styles.primaryButtonText}>Verify OTP</Text>
                     )
                 }
-                
             </TouchableOpacity>
-
-
         </View>
     )
 }

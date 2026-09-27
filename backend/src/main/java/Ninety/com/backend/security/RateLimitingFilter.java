@@ -73,7 +73,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
             Map.entry(
                     "/api/v1/ai-coach",
-                    new RateLimitOf(2, Duration.ofMinutes(1))
+                    new RateLimitOf(1, Duration.ofSeconds(1))
             ),
 
 

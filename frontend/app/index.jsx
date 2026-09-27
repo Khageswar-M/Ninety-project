@@ -1,12 +1,12 @@
 import { Redirect } from "expo-router";
 import { useSelector } from "react-redux";
 
-const index = () => {
-    // const isLoggedIn = useSelector((state) => state.app.isLogin);
-    // return isLoggedIn
-    //     ? <Redirect href="/(tabs)" />
-    //     : <Redirect href="/(auth)" />
-    return null;
-}
+export default function IndexRoute() {
+    const isLoggedIn = useSelector((state) => state.app.isLogin);
 
-export default index
+    return (
+        <Redirect
+            href={isLoggedIn ? "/(tabs)/ActionsScreen" : "/(auth)/LoginPage"}
+        />
+    );
+}

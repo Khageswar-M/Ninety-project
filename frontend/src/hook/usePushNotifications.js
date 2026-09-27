@@ -6,9 +6,8 @@ import { Linking, Platform } from "react-native";
 
 // ---------------------------------------------------------
 // IMPORTANT (SDK 53+)
-// Remote push notifications are NOT supported in Expo Go on
-// Android. A development build is required there. Local
-// (in-app) notifications still work in Expo Go.
+// Remote push notifications are not supported in Expo Go. Use a
+// development build to register for remote push notifications.
 //
 // expo-notifications is loaded dynamically so Expo Go can
 // still run the app on Android without crashing.
@@ -94,7 +93,12 @@ const getExpoToken = async () => {
     });
     return { token: token.data, error: null };
   } catch (err) {
-    console.error("Error getting Expo push token:", err);
+    console.error("Error getting Expo push token:", {
+      name: err?.name ?? "Error",
+      message: err?.message ?? String(err),
+      code: err?.code,
+      stack: err?.stack,
+    });
     return { token: null, error: err };
   }
 };
@@ -139,7 +143,7 @@ export const usePushNotifications = ({ onTokenChange } = {}) => {
   // -------------------------------------------------------
 
   const checkPermissionStatus = useCallback(async () => {
-    if (isAndroidExpoGo) {
+    if (isExpoGo) {
       setPermissionStatus("unavailable");
       return "unavailable";
     }
@@ -169,7 +173,7 @@ export const usePushNotifications = ({ onTokenChange } = {}) => {
   // -------------------------------------------------------
 
   const requestPermissionAndRegister = useCallback(async () => {
-    if (isAndroidExpoGo) {
+    if (isExpoGo) {
       setPermissionStatus("unavailable");
       return { status: "unavailable", token: null };
     }

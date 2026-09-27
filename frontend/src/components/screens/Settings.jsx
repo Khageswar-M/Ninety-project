@@ -47,8 +47,10 @@ const Settings = () => {
           <Logout />
         </View>
       </ScrollView>
+
       
-    </View>
+      
+    </View> 
   )
 }
 

@@ -18,7 +18,7 @@ const Actions = () => {
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const onRefresh = useCallback( async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
 
     try {
@@ -30,36 +30,48 @@ const Actions = () => {
   }, []);
 
   return (
-    <KeyboardAwareScrollView
-      style={style.container}
-      contentContainerStyle={style.scrollContent}
-      showsVerticalScrollIndicator={false}
-      enableOnAndroid
-      keyboardShouldPersistTaps="handled"
-      extraScrollHeight={100}
-      refreshControl={
-        <RefreshControl 
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
-      }
-    >
+      <KeyboardAwareScrollView
+        style={style.container}
+        contentContainerStyle={style.scrollContent}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={100}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
 
-      {/* HEADER */}
-      <View >
-        <Header />
-      </View>
+        {/* HEADER */}
+        <View >
+          <Header />
+        </View>
 
-      {/* BOARD */}
-      <View style={[style.headerParent]}>
-        <ChallengeBoard refreshTrigger={refreshTrigger}/>
-      </View>
+        {/* BOARD */}
+        <View style={[style.headerParent]}>
+          <ChallengeBoard refreshTrigger={refreshTrigger} />
+        </View>
 
-      {/* GOALS */}
-      <View style={[style.headerParent]}>
-        <AddGoals refreshTrigger={refreshTrigger}/>
-      </View>
-    </KeyboardAwareScrollView>
+        {/* GOALS */}
+        <View style={[style.headerParent]}>
+          <AddGoals refreshTrigger={refreshTrigger} />
+        </View>
+
+        <Text
+          style={{
+            textAlign: 'center',
+            position: 'absolute',
+            bottom: 0,
+            alignSelf: 'center',
+            marginBottom: 5,
+            color: '#6c6c6c'
+          }}
+        >v1.0.0</Text>
+
+      </KeyboardAwareScrollView>
   )
 }
 

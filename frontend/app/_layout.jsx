@@ -11,7 +11,7 @@ import { NetworkProvider } from "../src/components/network/NetworkProvider.jsx";
 import SplashScreenPage from '../src/components/splash/SplashScreen.jsx';
 import { hydrateApp } from "../src/redux/slices/appSlice.js";
 import { setDarkTheme, setLightTheme } from "../src/redux/slices/themeSlice.js";
-import { store } from "../src/redux/store";
+import { store } from "../src/redux/store.js";
 import { storage } from "../src/utils/storage.js";
 
 SplashScreen.preventAutoHideAsync();
@@ -179,15 +179,24 @@ function AppNavigation() {
       <Stack
         screenOptions={{
           headerShown: false,
-          // presentation: "transparentModal"
         }}
       >
         <Stack.Protected guard={isLoggedIn}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(subScreens)" />
+          <Stack.Screen
+            name="(subScreens)"
+            options={{
+              animation: 'fade',
+              presentation: 'transparentModal',
+
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+              fullScreenGestureEnabled: true,
+            }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={!isLoggedIn}>
-          <Stack.Screen name="(auth)" />
+          <Stack.Screen  name="(auth)" />
         </Stack.Protected>
       </Stack>
     </>

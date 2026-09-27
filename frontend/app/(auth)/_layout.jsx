@@ -4,10 +4,13 @@ const _layout = () => {
   return (
     <Stack
       initialRouteName="LoginPage"
-      screenOptions={{ 
-        headerShown: false ,
-        animation: "fade",
-        presentation: "transparentModal"
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+        presentation: 'transparentModal',
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        fullScreenGestureEnabled: true,
       }}
     >
       <Stack.Screen name="LoginPage" />

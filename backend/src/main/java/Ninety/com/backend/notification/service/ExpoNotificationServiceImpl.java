@@ -83,6 +83,8 @@ public class ExpoNotificationServiceImpl implements ExpoNotificationService{
     )
     public void sendDailyReminders(){
 
+        System.out.println("Scheduler running");
+
         List<Settings> settingsList =
                 settingsRepository.findByDailyReminderTrueAndExpoPushTokenIsNotNull();
 

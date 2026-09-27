@@ -56,6 +56,8 @@ const Results = () => {
         <AICoach refreshKey={refreshKey}/>
       </View>
 
+      
+
     </ScrollView>
   )
 }
