@@ -1,26 +1,19 @@
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { TopTabs } from 'expo-router/js-top-tabs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import ActionsScreen from './ActionsScreen.jsx'
-import ResultsScreen from './ResultsScreen.jsx'
-import SettingsScreen from './SettingsScreen.jsx'
-
+import { Feather } from '@expo/vector-icons'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 import { Fonts } from '../../src/constants/Fonts.js'
-import { Feather } from '@expo/vector-icons'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
-const Tab = createMaterialTopTabNavigator();
-
-const _layout = () => {
+const TabLayout = () => {
     const inset = useSafeAreaInsets();
     const currTheme = useSelector((state) => state.theme.theme);
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
-                <Tab.Navigator
-                    initialRouteName='Actions'
+                <TopTabs
                     screenOptions={{
 
                         tabBarShowIcon: true,
@@ -42,10 +35,10 @@ const _layout = () => {
                         },
                     }}
                 >
-                    <Tab.Screen
-                        name='Actions'
-                        component={ActionsScreen}
+                    <TopTabs.Screen
+                        name='ActionsScreen'
                         options={{
+                            tabBarLabel: 'Actions',
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather
                                     name={"check-square"}
@@ -56,10 +49,10 @@ const _layout = () => {
                         }}
                     />
 
-                    <Tab.Screen
-                        name='Results'
-                        component={ResultsScreen}
+                    <TopTabs.Screen
+                        name='ResultsScreen'
                         options={{
+                            tabBarLabel: 'Results',
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather
                                     name={"bar-chart-2"}
@@ -70,10 +63,10 @@ const _layout = () => {
                         }}
                     />
 
-                    <Tab.Screen
-                        name='Settings'
-                        component={SettingsScreen}
+                    <TopTabs.Screen
+                        name='SettingsScreen'
                         options={{
+                            tabBarLabel: 'Settings',
                             tabBarIcon: ({ color, focused }) => (
                                 <Feather
                                     name={"settings"}
@@ -83,10 +76,10 @@ const _layout = () => {
                             )
                         }}
                     />
-                </Tab.Navigator >
+                </TopTabs>
             </BottomSheetModalProvider>
         </GestureHandlerRootView>
     )
 }
 
-export default _layout;
+export default TabLayout;

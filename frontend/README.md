@@ -1,50 +1,97 @@
-# Welcome to your Expo app 👋 
+# Ninety Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The Ninety client is an Expo SDK 57 / React Native application using Expo Router, Redux Toolkit, and JavaScript. Its routes live in `app/`; UI, API clients, state, hooks, and styles live in `src/`.
 
-## Get started
+## Requirements
 
-1. Install dependencies
+- Node.js and npm compatible with Expo SDK 57
+- A running Ninety API; see [backend setup](../backend/README.md)
+- Expo Go for general UI development, or Android Studio / Xcode and a development build for native modules and remote push notifications
+- An Expo account and EAS CLI for hosted builds
 
-   ```bash
-   npm install
-   ```
+## Local development
 
-2. Start the app
+From this directory:
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm ci
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Create `.env` from the example (`cp .env.example .env`, or `Copy-Item .env.example .env` in PowerShell) and configure:
 
-## Learn more
+| Variable                  | Purpose                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_BACKEND_URL` | Base URL for the Ninety API; this value is included in the client bundle and is not a secret |
 
-To learn more about developing your project with Expo, look at the following resources:
+Address examples:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+| Target                                    | Example API URL                 |
+| ----------------------------------------- | ------------------------------- |
+| Web or iOS simulator on the same computer | `http://localhost:8080`         |
+| Android emulator                          | `http://10.0.2.2:8080`          |
+| Physical device                           | `http://<computer-LAN-IP>:8080` |
 
-## Join the community
+For a physical device, make sure it can reach the computer over the network and that the firewall allows port `8080`.
 
-Join our community of developers creating universal apps.
+Start the Expo development server:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```sh
+npx expo start
+```
+
+Useful scripts/checks:
+
+```sh
+npm run android
+npm run ios
+npm run web
+npm run lint
+npx expo export --platform android
+```
+
+`npm run ios` requires macOS and Xcode. `npm run android` requires a configured Android SDK/emulator or connected device. There is no frontend test script configured yet.
+
+## Push notifications
+
+Remote push registration is not supported in Expo Go. Use a development or production build on a supported physical device. For Android, configure a Firebase Android app, provide `google-services.json` through `expo.android.googleServicesFile`, and upload an FCM V1 service-account key to the EAS project. Keep the service-account key private. For iOS, configure the app's APNs credentials through EAS.
+
+The Android package identifiers must match across `app.json`, the native Gradle configuration, Firebase, and the app installed on the device. Currently `app.json` declares `com.config.ninety`, while `android/app/build.gradle` declares `com.khageswar.frontend`. Choose the intended production identifier and align these before creating/reinstalling a native build; a JavaScript reload cannot change the identifier embedded in an installed binary.
+
+See the [Expo SDK 57 push setup guide](https://docs.expo.dev/versions/v57.0.0/push-notifications/push-notifications-setup/) for credential setup.
+
+## Mobile builds and release
+
+Authenticate with EAS from this directory:
+
+```sh
+npx eas-cli login
+```
+
+Build internal development and preview apps:
+
+```sh
+npx eas-cli build --profile development --platform android
+npx eas-cli build --profile preview --platform all
+```
+
+Create store-ready production binaries:
+
+```sh
+npx eas-cli build --profile production --platform all
+```
+
+The profiles are in `eas.json`. `development` creates a development client; `preview` uses internal distribution; `production` uses remote app versioning and automatic build-number increments. The current `submit.production` configuration is empty, so configure Google Play / App Store submission credentials and identifiers before using EAS Submit. A production API URL must be supplied to the EAS build environment as `EXPO_PUBLIC_BACKEND_URL`.
+
+EAS builds are build/distribution tooling, not a CI pipeline: this repository does not currently contain an automated workflow that runs checks or starts builds on pull requests.
+
+## App structure
+
+- `app/` — file-based routes, auth screens, tab screens, and nested layouts
+- `src/API/` — API clients for backend feature areas
+- `src/components/` — screens, settings, shared components, and modals
+- `src/redux/` — Redux store and feature slices
+- `src/hook/` — reusable hooks, including push notifications
+- `src/themes/`, `src/styles/` — theme and styling
+- `assets/` — fonts, icons, and images
+
+For monorepo setup, see the [root README](../README.md).

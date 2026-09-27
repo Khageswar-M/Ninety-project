@@ -1,12 +1,11 @@
-import { View, Text, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
-import { useSettingStyles } from '../../hook/useThemeStyles'
 import { useEffect, useRef, useState } from 'react';
-import { setDarkTheme, setLightTheme, toggleTheme } from '../../redux/slices/themeSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { useColorScheme } from 'react-native';
-import { storage } from '../../utils/storage';
+import { Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { updateTheme } from '../../API/settings/settingsApi';
+import { useSettingStyles } from '../../hook/useThemeStyles';
+import { setDarkTheme, setLightTheme } from '../../redux/slices/themeSlice';
+import { storage } from '../../utils/storage';
 
 const Appearance = () => {
     const style = useSettingStyles();
@@ -85,7 +84,7 @@ const Appearance = () => {
     const themeChangeQueue = useRef(Promise.resolve());
     const enqueueRequest = (queue, apiCall) => {
         queue.current = queue.current
-            .catch(() => {})
+            .catch(() => { })
             .then(() => apiCall());
 
         return queue.current;
@@ -131,7 +130,7 @@ const Appearance = () => {
 
     return (
         <View>
-            <Text style={style.componentTitle}>Appearance</Text>
+            <Text style={style.componentTitle}>APPEARANCE</Text>
 
             <View style={style.notificationContainer}>
                 <View style={style.notificationItem}>
@@ -197,10 +196,10 @@ const Appearance = () => {
 
 
                                     <Text style={[style.themeButtonTittleText,
-                                        theme.id === myTheme ?
-                                            style.themeBtnActive :
-                                            style.themeBtnInactive
-                                        ]}
+                                    theme.id === myTheme ?
+                                        style.themeBtnActive :
+                                        style.themeBtnInactive
+                                    ]}
                                     >
                                         {theme.title}
                                     </Text>

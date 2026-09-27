@@ -2,6 +2,7 @@ package Ninety.com.backend.controller;
 
 import Ninety.com.backend.io.response.ApiResponse;
 import Ninety.com.backend.io.response.ChallengeResponse;
+import Ninety.com.backend.io.response.ChallengesResponse;
 import Ninety.com.backend.service.ChallengeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,9 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    @PostMapping("/create-challenge/{userId}")
-    public ResponseEntity<ApiResponse> createChallenge(
-            @PathVariable
-            Long userId
-    ){
-        ChallengeResponse response = challengeService.createChallenge(userId);
+    @PostMapping("/create-challenge")
+    public ResponseEntity<ApiResponse> createChallenge(){
+        ChallengeResponse response = challengeService.createChallenge();
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("A new challenge board was created successfully.", response));
@@ -46,7 +44,7 @@ public class ChallengeController {
             @PathVariable
             Long userId
     ){
-        List<ChallengeResponse> response = challengeService.getChallengesByUserId(userId);
+        List<ChallengesResponse> response = challengeService.getChallengesByUserId(userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(

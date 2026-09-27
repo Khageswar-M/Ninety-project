@@ -44,13 +44,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-
         String path = request.getServletPath();
 
         System.out.println("Requested path is: " + path);
 
-//        boolean isPublic = PUBLIC_URLS.stream()
-//                .anyMatch(url -> path.startsWith(url));
 
         boolean isPublic = PUBLIC_URLS.stream()
                 .anyMatch(path::startsWith);
@@ -85,39 +82,61 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
         // 3. Validate the token and set the security context
-        if(jwt != null){
-            email = jwtUtil.extractEmail(jwt);
-            if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
-                UserDetails userDetails = appUserDetailsService.loadUserByUsername(email);
+        if (jwt != null) {
 
-                try{
-                    if(jwtUtil.validateToken(jwt, userDetails)){
-                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
+            try {
+
+                email = jwtUtil.extractEmail(jwt);
+
+                if (
+                        email != null &&
+                                SecurityContextHolder.getContext().getAuthentication() == null
+                ) {
+
+                    UserDetails userDetails =
+                            appUserDetailsService.loadUserByUsername(email);
+
+                    if (jwtUtil.validateToken(jwt, userDetails)) {
+
+                        UsernamePasswordAuthenticationToken authenticationToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+
+                        authenticationToken.setDetails(
+                                new WebAuthenticationDetailsSource()
+                                        .buildDetails(request)
                         );
-                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+                        SecurityContextHolder
+                                .getContext()
+                                .setAuthentication(authenticationToken);
                     }
-                }catch(ExpiredJwtException e){
-                    sendUnauthorizedResponse(
-                            response,
-                            "Your session has expired. Please login again."
-                    );
-                    return;
-
-                }catch (JwtException e){
-                    sendUnauthorizedResponse(
-                            response,
-                            "Invalid authentication token. Please login again."
-                    );
-
-                    return;
                 }
 
+            } catch (ExpiredJwtException e) {
+
+                sendUnauthorizedResponse(
+                        response,
+                        "Your session has expired. Please login again."
+                );
+
+                return;
+
+            } catch (JwtException e) {
+
+                sendUnauthorizedResponse(
+                        response,
+                        "Invalid authentication token. Please login again."
+                );
+
+                return;
             }
+
+            filterChain.doFilter(request, response);
+            return;
         }
 
         filterChain.doFilter(request, response);

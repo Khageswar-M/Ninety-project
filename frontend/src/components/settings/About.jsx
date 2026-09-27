@@ -1,9 +1,8 @@
-import { View, Text } from 'react-native'
-import { MaterialIcons, Feather, Ionicons } from '@expo/vector-icons';
-import { useSettingStyles } from '../../hook/useThemeStyles'
-import { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { useSettingStyles } from '../../hook/useThemeStyles';
 
 const About = () => {
     const style = useSettingStyles();
@@ -58,7 +57,7 @@ const About = () => {
     ]
     return (
         <View>
-            <Text style={style.componentTitle}>About</Text>
+            <Text style={style.componentTitle}>ABOUT</Text>
 
             <View style={style.notificationContainer}>
                 {

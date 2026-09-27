@@ -1,10 +1,11 @@
-import { View, Text } from 'react-native'
-import Actions from '../../src/components/screens/Actions'
+import { View } from 'react-native';
+import Actions from '../../src/components/screens/Actions';
 
 const ActionsScreen = () => {
+  console.log("Actions Screen mounted");
   return (
-    <View style={{flex: 1}}>
-      <Actions/>
+    <View style={{ flex: 1 }}>
+      <Actions />
     </View>
   )
 }

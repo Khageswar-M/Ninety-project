@@ -1,8 +1,8 @@
-import { View, Text, ScrollView, Pressable } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useSettingStyles } from '../../hook/useThemeStyles'
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSettingStyles } from '../../hook/useThemeStyles';
 
 const SubPages = ({
     title,

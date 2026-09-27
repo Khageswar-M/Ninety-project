@@ -10,4 +10,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             Long challengeId,
             int dayNumber
     );
+
+    boolean existsByChallengeIdAndDayNumber(Long challengeId, int dayNumber);
 }

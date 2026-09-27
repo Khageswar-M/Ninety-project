@@ -280,6 +280,18 @@ const SignUp = ({ mode = 'signup' }) => {
             setStep(2);
         } catch (error) {
             // console.error("Error sending forgot-password OTP:", error);
+            console.log("Forget password opt error: ",error?.response?.status);
+            const status = error?.response?.status;
+
+            console.log(status);
+
+            if(status == 429){
+
+                setModalTitle(error?.response?.error || "Too many request");
+                setModalMsg(error?.response?.message || "Maximum 5 request could be done in an hour.")
+                setIsVisible(true);
+                return;
+            }
 
             setModalTitle("Something went wrong");
             setModalMsg("We couldn't send the password reset OTP. Please try again.");

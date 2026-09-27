@@ -1,11 +1,11 @@
-import { View, Text, TouchableOpacity } from 'react-native'
-import { useSettingStyles } from '../../hook/useThemeStyles'
 import { MaterialIcons } from '@expo/vector-icons';
-import ConfirmationModal from '../modals/ConfirmationModal.jsx';
 import { useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { useSettingStyles } from '../../hook/useThemeStyles';
 import { setLogin } from '../../redux/slices/appSlice.js';
 import { storage } from '../../utils/storage.js';
+import ConfirmationModal from '../modals/ConfirmationModal.jsx';
 
 const Logout = () => {
     const style = useSettingStyles();
@@ -18,7 +18,7 @@ const Logout = () => {
             await storage.remove("@ninety_user");
             dispatch(setLogin(false));
             console.log("Logout successfully!");
-        }catch(error){
+        } catch (error) {
             console.error(error);
         } finally {
             setOpenLogoutConfirmationModal(false);
@@ -27,7 +27,7 @@ const Logout = () => {
 
     return (
         <View>
-            <Text style={style.componentTitle}>Logout</Text>
+            <Text style={style.componentTitle}>LOGOUT</Text>
 
             <TouchableOpacity
                 style={style.notificationContainer}

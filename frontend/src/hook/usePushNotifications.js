@@ -1,82 +1,222 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Linking, Platform } from "react-native";
 
-// IMPORTANT: Configure notification presentation globally.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// ---------------------------------------------------------
+// IMPORTANT (SDK 53+)
+// Remote push notifications are not supported in Expo Go. Use a
+// development build to register for remote push notifications.
+//
+// expo-notifications is loaded dynamically so Expo Go can
+// still run the app on Android without crashing.
+// ---------------------------------------------------------
+
+const isExpoGo = Constants.appOwnership === "expo";
+const isAndroidExpoGo = Platform.OS === "android" && isExpoGo;
+
+let Notifications = null;
+let notificationsLoadPromise = null;
+
+const loadNotifications = async () => {
+  if (Notifications) return Notifications;
+  if (isAndroidExpoGo) return null;
+
+  // Guard against concurrent dynamic-import calls (e.g. the two
+  // effects below both firing on mount) creating two module
+  // instances / double-registering the handler.
+  if (!notificationsLoadPromise) {
+    notificationsLoadPromise = (async () => {
+      const module = await import("expo-notifications");
+      Notifications = module;
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+
+      // Create the Android channel as soon as the module is
+      // available, not only right before fetching a token.
+      // A channel must exist before a notification using it can
+      // be displayed, and creating it early avoids a race where
+      // a notification could arrive before getExpoToken() runs.
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+        });
+      }
+
+      return Notifications;
+    })();
+  }
+
+  return notificationsLoadPromise;
+};
+
+// ---------------------------------------------------------
+// Get Expo Push Token
+// ---------------------------------------------------------
 
 const getExpoToken = async () => {
+  const NotificationsModule = await loadNotifications();
+  if (!NotificationsModule) return { token: null, error: null };
+
+  const projectId =
+    Constants.expoConfig?.extra?.eas?.projectId ??
+    Constants.easConfig?.projectId;
+
+  if (!projectId) {
+    // Swallowing this used to just print to the console and
+    // return null, which looks identical to "permission denied"
+    // from the caller's point of view. Surface it distinctly so
+    // a missing/misconfigured EAS projectId doesn't get mistaken
+    // for a permissions problem.
+    const error = new Error(
+      "Missing EAS projectId (app.json > extra.eas.projectId). " +
+      "getExpoPushTokenAsync cannot generate a token without it."
+    );
+    console.error(error.message);
+    return { token: null, error };
+  }
+
   try {
-    const token = await Notifications.getExpoPushTokenAsync({
-      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    const token = await NotificationsModule.getExpoPushTokenAsync({
+      projectId,
     });
-
-    if (Platform.OS === "android") {
-      await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    return token.data;
+    return { token: token.data, error: null };
   } catch (err) {
-    console.error("Error getting Expo push token:", err);
-    return null;
+    console.error("Error getting Expo push token:", {
+      name: err?.name ?? "Error",
+      message: err?.message ?? String(err),
+      code: err?.code,
+      stack: err?.stack,
+    });
+    return { token: null, error: err };
   }
 };
 
-export const usePushNotifications = () => {
+// ---------------------------------------------------------
+// Hook
+// ---------------------------------------------------------
+
+export const usePushNotifications = ({ onTokenChange } = {}) => {
   const [expoPushToken, setExpoPushToken] = useState(null);
-  const [permissionStatus, setPermissionStatus] = useState(null); // "granted" | "denied" | "undetermined"
+  const [permissionStatus, setPermissionStatus] = useState(null);
+  const [tokenError, setTokenError] = useState(null);
 
   const router = useRouter();
+
   const isNavigatingRef = useRef(false);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
+  const pushTokenListener = useRef(null);
 
-  // Read current OS permission WITHOUT prompting
+  // Kept in a ref so effects don't need onTokenChange in their
+  // dependency arrays (callers rarely memoize inline functions).
+  const onTokenChangeRef = useRef(onTokenChange);
+  onTokenChangeRef.current = onTokenChange;
+
+  // Your backend (ExpoNotificationServiceImpl) reads the token off
+  // Settings.expoPushToken — this hook only ever *generates* a
+  // token locally. Something has to PUT it to your Settings
+  // endpoint, or the backend's copy is null/stale and every send
+  // silently has nowhere to go. Pass an onTokenChange callback
+  // (e.g. `(token) => api.put("/settings", { expoPushToken: token })`)
+  // and it fires any time a token is issued or rotated.
+  const notifyTokenChange = useCallback((token) => {
+    if (!token) return;
+    Promise.resolve(onTokenChangeRef.current?.(token)).catch((err) => {
+      console.error("Failed to sync push token with backend:", err);
+    });
+  }, []);
+
+  // -------------------------------------------------------
+  // Check permission
+  // -------------------------------------------------------
+
   const checkPermissionStatus = useCallback(async () => {
-    if (!Device.isDevice) return "denied";
-    const { status } = await Notifications.getPermissionsAsync();
+    if (isExpoGo) {
+      setPermissionStatus("unavailable");
+      return "unavailable";
+    }
+
+    if (!Device.isDevice) {
+      // Simulators/emulators can't register for remote push at
+      // all. Using a distinct status (rather than "denied") stops
+      // the UI from showing an "open settings" prompt that can't
+      // fix anything here.
+      setPermissionStatus("unavailable");
+      return "unavailable";
+    }
+
+    const NotificationsModule = await loadNotifications();
+    if (!NotificationsModule) {
+      setPermissionStatus("unavailable");
+      return "unavailable";
+    }
+
+    const { status } = await NotificationsModule.getPermissionsAsync();
     setPermissionStatus(status);
     return status;
   }, []);
 
-  // Only shows an OS prompt if status is "undetermined" (first time ever asked).
-  // If already "denied", this silently returns "denied" again — OS restriction, not a bug.
-  const requestPermissionAndRegister = useCallback(async () => {
-    if (!Device.isDevice) return { status: "denied", token: null };
+  // -------------------------------------------------------
+  // Request permission + register
+  // -------------------------------------------------------
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  const requestPermissionAndRegister = useCallback(async () => {
+    if (isExpoGo) {
+      setPermissionStatus("unavailable");
+      return { status: "unavailable", token: null };
+    }
+
+    if (!Device.isDevice) {
+      setPermissionStatus("unavailable");
+      return { status: "unavailable", token: null };
+    }
+
+    const NotificationsModule = await loadNotifications();
+    if (!NotificationsModule) {
+      setPermissionStatus("unavailable");
+      return { status: "unavailable", token: null };
+    }
+
+    const { status: existingStatus } =
+      await NotificationsModule.getPermissionsAsync();
+
     let finalStatus = existingStatus;
 
     if (existingStatus === "undetermined") {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await NotificationsModule.requestPermissionsAsync();
       finalStatus = status;
     }
 
     setPermissionStatus(finalStatus);
 
-    if (finalStatus !== "granted") return { status: finalStatus, token: null };
+    if (finalStatus !== "granted") {
+      return { status: finalStatus, token: null };
+    }
 
-    const token = await getExpoToken();
+    const { token, error } = await getExpoToken();
     setExpoPushToken(token);
-    return { status: finalStatus, token };
-  }, []);
+    setTokenError(error);
+    notifyTokenChange(token);
 
-  // Deep-link straight to this app's notification settings page
+    return { status: finalStatus, token, error };
+  }, [notifyTokenChange]);
+
+  // -------------------------------------------------------
+  // Open notification settings
+  // -------------------------------------------------------
+
   const openNotificationSettings = useCallback(() => {
     if (Platform.OS === "ios") {
       Linking.openURL("app-settings:");
@@ -85,14 +225,15 @@ export const usePushNotifications = () => {
     }
   }, []);
 
-  // ---------------- HANDLE TAP ----------------
-  // Backend sends: Map.of("screen", "/(tabs)/ActionsScreen") as the `data` payload
+  // -------------------------------------------------------
+  // Handle notification tap
+  // -------------------------------------------------------
+
   const handleNotificationResponse = useCallback(
     async (response) => {
       if (isNavigatingRef.current) return;
 
       const data = response?.notification?.request?.content?.data;
-
       if (!data?.screen) return;
 
       isNavigatingRef.current = true;
@@ -113,52 +254,111 @@ export const usePushNotifications = () => {
     [router]
   );
 
-  // ---------------- APP OPENED FROM KILLED STATE VIA NOTIFICATION TAP ----------------
+  // -------------------------------------------------------
+  // App opened from killed state
+  // -------------------------------------------------------
+
   const checkForInitialNotification = useCallback(async () => {
     try {
-      const response = await Notifications.getLastNotificationResponseAsync();
+      const NotificationsModule = await loadNotifications();
+      if (!NotificationsModule) return;
 
+      const response =
+        await NotificationsModule.getLastNotificationResponseAsync();
       if (!response) return;
 
       await handleNotificationResponse(response);
-
-      // Don't process the same notification again on next mount
-      await Notifications.clearLastNotificationResponseAsync();
+      await NotificationsModule.clearLastNotificationResponseAsync();
     } catch (error) {
       console.error("Error checking initial notification:", error);
     }
   }, [handleNotificationResponse]);
 
-  // On mount, just READ permission status (no prompt) — if already granted, fetch the token
-  useEffect(() => {
-    checkPermissionStatus().then((status) => {
-      if (status === "granted") getExpoToken().then(setExpoPushToken);
-    });
-  }, [checkPermissionStatus]);
+  // -------------------------------------------------------
+  // Read permission on mount, fetch token if already granted
+  // -------------------------------------------------------
 
-  // Register listeners: foreground receive + tap response + killed-state initial tap
   useEffect(() => {
-    checkForInitialNotification();
+    let mounted = true;
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        // Optional: react to a notification arriving while app is open (e.g. refresh a badge)
+    checkPermissionStatus().then(async (status) => {
+      if (status === "granted" && mounted) {
+        const { token, error } = await getExpoToken();
+        if (mounted) {
+          setExpoPushToken(token);
+          setTokenError(error);
+          notifyTokenChange(token);
+        }
       }
-    );
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    );
+    });
 
     return () => {
+      mounted = false;
+    };
+  }, [checkPermissionStatus, notifyTokenChange]);
+
+  // -------------------------------------------------------
+  // Register notification listeners
+  // -------------------------------------------------------
+
+  useEffect(() => {
+    if (isAndroidExpoGo) return;
+
+    let mounted = true;
+
+    const setupListeners = async () => {
+      const NotificationsModule = await loadNotifications();
+      if (!NotificationsModule || !mounted) return;
+
+      await checkForInitialNotification();
+
+      notificationListener.current =
+        NotificationsModule.addNotificationReceivedListener(
+          (_notification) => {
+            // Optional: react to notifications received while the
+            // app is in the foreground.
+          }
+        );
+
+      responseListener.current =
+        NotificationsModule.addNotificationResponseReceivedListener(
+          handleNotificationResponse
+        );
+
+      // Expo/FCM/APNs can reissue a token behind the scenes (app
+      // reinstall, credential rotation, etc). Without this listener
+      // the app keeps the old token in state and your backend's
+      // Settings.expoPushToken silently goes stale — sends still
+      // "succeed" against Expo's API but never reach the device.
+      pushTokenListener.current = NotificationsModule.addPushTokenListener(
+        (tokenData) => {
+          setExpoPushToken(tokenData.data);
+          notifyTokenChange(tokenData.data);
+        }
+      );
+    };
+
+    setupListeners();
+
+    return () => {
+      mounted = false;
       notificationListener.current?.remove();
       responseListener.current?.remove();
+      pushTokenListener.current?.remove();
+      notificationListener.current = null;
+      responseListener.current = null;
+      pushTokenListener.current = null;
     };
-  }, [handleNotificationResponse, checkForInitialNotification]);
+  }, [handleNotificationResponse, checkForInitialNotification, notifyTokenChange]);
+
+  // -------------------------------------------------------
+  // Return API
+  // -------------------------------------------------------
 
   return {
     expoPushToken,
     permissionStatus,
+    tokenError,
     checkPermissionStatus,
     requestPermissionAndRegister,
     openNotificationSettings,

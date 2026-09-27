@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, Pressable } from 'react-native'
+import { Alert, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 // STATES
 import { useCallback, useEffect, useState } from 'react';
 
@@ -6,19 +6,19 @@ import { useCallback, useEffect, useState } from 'react';
 import GoalTag from '../common/GoalTag';
 
 // HOOKS
-import { useActionStyles } from '../../hook/useThemeStyles'
+import { useActionStyles } from '../../hook/useThemeStyles';
 
 // ICONS
 import { Entypo, EvilIcons, Feather, Octicons } from '@expo/vector-icons';
 
-import { storage } from '../../utils/storage';
 import { router } from 'expo-router';
 import { createGoal, getAllGoals, updateGoal, updateGoalStatus } from '../../API/goals/goalsApi';
+import { storage } from '../../utils/storage';
 
 const PROGRESS = [
     {
         title: "PENDING",
-        color: "#753a00", 
+        color: "#753a00",
         iconName: "play"
     }, {
         title: "PROGRESS",
@@ -58,14 +58,16 @@ const AddGoals = ({ refreshTrigger }) => {
         try {
             const user = await storage.get("@ninety_user");
             if (!user?.id) {
-                router.replace("(auth)/LoginPage.jsx");
+                router.replace("(auth)/LoginPage");
                 return;
             }
 
-            setUserId(user.id);
+            const id = user.id;
 
-            const response = await getAllGoals(userId);
-            setGoals(response?.data.data);
+            setUserId(id);
+
+            const response = await getAllGoals(id);
+            setGoals(response?.data?.data);
         } catch (e) {
             console.log(e);
         } finally {
@@ -169,7 +171,7 @@ const AddGoals = ({ refreshTrigger }) => {
 
         const progressId = isProgress.id;
 
-        if(updatingGoalId === progressId) return;
+        if (updatingGoalId === progressId) return;
 
         const previousStatus = isProgress.status;
 
@@ -216,7 +218,7 @@ const AddGoals = ({ refreshTrigger }) => {
                         : goal
                 )
             );
-        }finally{
+        } finally {
             setUpdatingGoalId(null);
         }
     };
