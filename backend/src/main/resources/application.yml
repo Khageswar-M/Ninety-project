@@ -11,7 +11,7 @@ spring:
     name: backend
 
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,10 +27,8 @@ spring:
         api-key: ${GEMINI_API_KEY}
         chat:
           options:
-            model: gemini-3.6-flash
+            model: ${GEMINI_MODEL}
           temperature: 0.4
-    openai:
-      api-key: ${OPEN_AI_KEY}
 
   jpa:
     hibernate:
@@ -49,7 +47,8 @@ spring:
 data:
   redis:
     host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
+    port: ${REDIS_PORT:6379}
+    username: ${REDIS_USERNAME:default}
     password: ${REDIS_PASSWORD}
     timeout: 5000
 
