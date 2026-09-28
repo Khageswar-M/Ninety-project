@@ -1,86 +1,58 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: ninety-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_NAME:?Set DB_NAME in backend/.env}
-      MYSQL_USER: ${DB_USERNAME:?Set DB_USERNAME in backend/.env}
-      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in backend/.env}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} || exit 1",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  redis:
-    image: redis:7-alpine
-    container_name: ninety-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   app:
     build: .
     container_name: ninety-backend
     restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
     environment:
-      SPRING_PROFILES_ACTIVE: docker
 
-      # MySQL (Compose service)
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: ${DB_NAME}
+      # =========================
+      # Spring
+      # =========================
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+
+      # =========================
+      # MySQL / Aiven
+      # =========================
+      DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
 
-      # Redis (Docker)
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      # =========================
+      # Redis / Upstash
+      # =========================
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
 
+      # =========================
+      # JWT
+      # =========================
       JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_EXP: ${JWT_ACCESS_EXP}
       JWT_REFRESH_EXP: ${JWT_REFRESH_EXP}
 
+      # =========================
+      # OTP
+      # =========================
       OTP_LENGTH: ${OTP_LENGTH:-6}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      OPEN_AI_KEY: ${OPEN_AI_KEY:-}
+      OTP_EXPIRY_MIN: ${OTP_EXPIRY_MIN}
 
+      # =========================
+      # Gemini
+      # =========================
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
+
+      # =========================
+      # Resend
+      # =========================
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
 
-      OTP_EXPIRY_MIN: ${OTP_EXPIRY_MIN}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
 
     volumes:
       - ./logs:/app/logs
-
-volumes:
-  mysql_data:
-  redis_data:
